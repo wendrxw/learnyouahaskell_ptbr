@@ -2,8 +2,8 @@ cabal-version:      2.4
 name:               haskell-reader
 version:            0.1.0.0
 summary:            Um leitor moderno de documentação Haskell em Markdown.
-author:             Antigravity
-maintainer:         antigravity@example.com
+author:             wendrxw
+maintainer:         developer.wendrew@gmail.com
 
 executable haskell-reader
     main-is:          Main.hs
