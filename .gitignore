@@ -1,0 +1,12 @@
+# Haskell / Cabal
+dist-newstyle/
+*.hi
+*.o
+
+# Binários
+haskell-reader
+
+# Editor / sistema
+.DS_Store
+.idea/
+.vscode/
