@@ -10,7 +10,7 @@ Você precisa ter o **GHC** (Haskell Compiler) e o **Cabal** instalados. A manei
 
 1.  Abra o terminal na pasta do projeto:
     ```bash
-    cd /home/wendrew/Documentos/learnyouahaskellptbr/haskell-reader
+    cd learnyouahaskellptbr/haskell-reader
     ```
 
 2.  Atualize a lista de pacotes (opcional, mas recomendado):
