@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprenda Haskell para o Bem de Todos!</title>
+    <link rel="stylesheet" href="assets/css/reset.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
+    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
+</head>
+<body>
+    <div class="bgwrapper">
+        <div id="content">
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="higher-order-functions.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="making-our-own-types-and-typeclasses.html">Próximo</a></li>
+    </ul>
+</div>
+
+            <article>
+<h1>Módulos (Modules)</h1>
+<p><img src="assets/images/modules/modules.png" alt="modules" />{.right
+width=230 height=162}</p>
+<p>Um módulo Haskell é uma coleção de funções, tipos e typeclasses
+relacionados. Um programa Haskell é uma coleção de módulos onde o módulo
+principal carrega os outros módulos e, em seguida, usa as funções
+definidas neles para fazer algo. Ter o código dividido em vários módulos
+tem muitas vantagens. Se um módulo for genérico o suficiente, as funções
+que ele exporta podem ser usadas em uma infinidade de programas
+diferentes. Se o seu próprio código for separado em módulos
+independentes que não dependem muito uns dos outros (também dizemos que
+eles são fracamente acoplados), você poderá reutilizá-los mais tarde.
+Isso torna todo o negócio de escrever código mais gerenciável,
+dividindo-o em várias partes, cada uma das quais tem algum tipo de
+propósito.</p>
+<p>A biblioteca padrão do Haskell é dividida em módulos, cada um deles
+contém funções e tipos que estão de alguma forma relacionados e servem a
+algum propósito comum. Há um módulo para manipular listas, um módulo
+para programação concorrente, um módulo para lidar com números
+complexos, etc. Todas as funções, tipos e typeclasses com os quais
+lidamos até agora faziam parte do módulo <code>Prelude</code>, que é
+importado por padrão. Neste capítulo, vamos examinar alguns módulos
+úteis e as funções que eles têm. Mas primeiro, vamos ver como importar
+módulos.</p>
+<h2>Carregando módulos (Loading modules) {#loading-modules}</h2>
+<p>A sintaxe para importar módulos em um script Haskell é
+<code>import &lt;nome do módulo&gt;</code>. Isso deve ser feito antes de
+definir quaisquer funções, portanto, as importações geralmente são
+feitas no topo do arquivo. Um script pode, é claro, importar vários
+módulos. Basta colocar cada instrução de importação em uma linha
+separada. Vamos importar o módulo <code>Data.List</code>, que tem um
+monte de funções úteis para trabalhar com listas e usar uma função que
+ele exporta para criar uma função que nos diz quantos elementos únicos
+uma lista tem.</p>
+<p>```{.haskell:hs} import Data.List</p>
+<p>numUniques :: (Eq a) =&gt; [a] -&gt; Int numUniques = length . nub
+```</p>
+<p>Quando você faz <code>import Data.List</code>, todas as funções que
+<code>Data.List</code> exporta tornam-se disponíveis no namespace
+global, o que significa que você pode chamá-las de qualquer lugar no
+script. <code>nub</code> é uma função definida em <code>Data.List</code>
+que pega uma lista e elimina elementos duplicados. Compor
+<code>length</code> e <code>nub</code> fazendo <code>length . nub</code>
+produz uma função que é o equivalente a
+<code>\xs -&gt; length (nub xs)</code>.</p>
+<p>Você também pode colocar as funções de módulos no namespace global ao
+usar o GHCI. Se você estiver no GHCI e quiser chamar as funções
+exportadas por <code>Data.List</code>, faça isso:</p>
+<p><code>{.haskell:ghci} ghci&gt; :m + Data.List</code></p>
+<p>Se quisermos carregar os nomes de vários módulos dentro do GHCI, não
+precisamos fazer <code>:m +</code> várias vezes, podemos apenas carregar
+vários módulos de uma vez.</p>
+<p><code>{.haskell:ghci} ghci&gt; :m + Data.List Data.Map Data.Set</code></p>
+<p>No entanto, se você carregou um script que já importa um módulo, não
+precisa usar <code>:m +</code> para obter acesso a ele.</p>
+<p>Se você precisar apenas de algumas funções de um módulo, poderá
+importar seletivamente apenas essas funções. Se quiséssemos importar
+apenas as funções <code>nub</code> e <code>sort</code> de
+<code>Data.List</code>, faríamos isso:</p>
+<p><code>{.haskell:hs} import Data.List (nub, sort)</code></p>
+<p>Você também pode optar por importar todas as funções de um módulo,
+exceto algumas selecionadas. Isso geralmente é útil quando vários
+módulos exportam funções com o mesmo nome e você deseja se livrar das
+ofensivas. Digamos que já temos nossa própria função chamada
+<code>nub</code> e queremos importar todas as funções de
+<code>Data.List</code>, exceto a função <code>nub</code>:</p>
+<p><code>{.haskell:hs} import Data.List hiding (nub)</code></p>
+<p>Outra maneira de lidar com conflitos de nomes é fazer importações
+qualificadas. O módulo <code>Data.Map</code>, que oferece uma estrutura
+de dados para pesquisar valores por chave, exporta um monte de funções
+com o mesmo nome que as funções do <code>Prelude</code>, como
+<code>filter</code> ou <code>null</code>. Portanto, quando importamos
+<code>Data.Map</code> e chamamos <code>filter</code>, o Haskell não
+saberá qual função usar. Veja como resolvemos isso:</p>
+<p><code>{.haskell:hs} import qualified Data.Map</code></p>
+<p>Isso faz com que, se quisermos referenciar a função
+<code>filter</code> de <code>Data.Map</code>, tenhamos que fazer
+<code>Data.Map.filter</code>, enquanto apenas <code>filter</code> ainda
+se refere ao <code>filter</code> normal que todos conhecemos e amamos.
+Mas digitar <code>Data.Map</code> na frente de cada função desse módulo
+é meio tedioso. É por isso que podemos renomear a importação qualificada
+para algo mais curto:</p>
+<p><code>{.haskell:hs} import qualified Data.Map as M</code></p>
+<p>Agora, para referenciar a função <code>filter</code> de
+<code>Data.Map</code>, apenas usamos <code>M.filter</code>.</p>
+<p>Use <a
+href="https://downloads.haskell.org/~ghc/latest/docs/html/libraries/">esta
+referência útil</a> para ver quais módulos estão na biblioteca padrão.
+Uma ótima maneira de obter novos conhecimentos de Haskell é simplesmente
+clicar na referência da biblioteca padrão e explorar os módulos e suas
+funções. Você também pode visualizar o código-fonte do Haskell para cada
+módulo. Ler o código-fonte de alguns módulos é uma maneira muito boa de
+aprender Haskell e ter uma noção sólida dele.</p>
+<p>Para procurar funções ou descobrir onde estão localizadas, use o <a
+href="https://hoogle.haskell.org/">Hoogle</a>. É um mecanismo de
+pesquisa Haskell realmente incrível, você pode pesquisar por nome, nome
+do módulo ou até assinatura de tipo.</p>
+<h2>Data.List {#data-list}</h2>
+<p>O módulo <code>Data.List</code> é tudo sobre listas, obviamente. Ele
+fornece algumas funções muito úteis para lidar com elas. Já conhecemos
+algumas de suas funções (como <code>map</code> e <code>filter</code>)
+porque o módulo <code>Prelude</code> exporta algumas funções de
+<code>Data.List</code> por conveniência. Você não precisa importar
+<code>Data.List</code> por meio de uma importação qualificada porque não
+entra em conflito com nenhum nome do <code>Prelude</code>, exceto
+aqueles que o <code>Prelude</code> já rouba de <code>Data.List</code>.
+Vamos dar uma olhada em algumas das funções que não conhecemos
+antes.</p>
+<p><code>intersperse</code>{.label .function} pega um elemento e uma
+lista e, em seguida, coloca esse elemento entre cada par de elementos na
+lista. Aqui está uma demonstração:</p>
+<p><code>{.haskell:ghci} ghci&gt; intersperse '.' "MONKEY" "M.O.N.K.E.Y" ghci&gt; intersperse 0 [1,2,3,4,5,6] [1,0,2,0,3,0,4,0,5,0,6]</code></p>
+<p><code>intercalate</code>{.label .function} pega uma lista e uma lista
+de listas. Ele então insere essa lista entre todas essas listas e depois
+nivela o resultado.</p>
+<p><code>{.haskell:ghci} ghci&gt; intercalate " " ["hey","there","folks"] "hey there folks" ghci&gt; intercalate [0,0,0] [[1,2,3],[4,5,6],[7,8,9]] [1,2,3,0,0,0,4,5,6,0,0,0,7,8,9]</code></p>
+<p><code>transpose</code>{.label .function} transpõe uma lista de
+listas. Se você olhar para uma lista de listas como uma matriz 2D, as
+colunas se tornarão as linhas e vice-versa.</p>
+<p><code>{.haskell:ghci} ghci&gt; transpose [[1,2,3],[4,5,6],[7,8,9]] [[1,4,7],[2,5,8],[3,6,9]] ghci&gt; transpose ["hey","there","folks"] ["htf","eho","yel","rk","es"]</code></p>
+<p>Digamos que temos os polinômios <em>3x^2^ + 5x + 9</em>, <em>10x^3^ +
+9</em> e <em>8x^3^ + 5x^2^ + x - 1</em> e queremos somá-los. Podemos
+usar as listas <code>[0,3,5,9]</code>, <code>[10,0,0,9]</code> e
+<code>[8,5,1,-1]</code> para representá-los em Haskell. Agora, para
+adicioná-los, tudo o que temos a fazer é isso:</p>
+<p><code>{.haskell:ghci} ghci&gt; map sum $ transpose [[0,3,5,9],[10,0,0,9],[8,5,1,-1]] [18,8,6,17]</code></p>
+<p>Quando transpusemos essas três listas, as terceiras potências estão
+na primeira linha, as segundas potências na segunda e assim por diante.
+Mapear <code>sum</code> para isso produz nosso resultado desejado.</p>
+<p><img src="assets/images/modules/legolists.png"
+alt="shopping lists" />{.left width=230 height=212}</p>
+<p><code>foldl'</code>{.label .function} e <code>foldl1'</code>{.label
+.function} são versões mais estritas de suas respectivas encarnações
+preguiçosas. Ao usar dobras preguiçosas em listas realmente grandes,
+você pode frequentemente obter um erro de estouro de pilha (stack
+overflow error). O culpado por isso é que, devido à natureza preguiçosa
+das dobras, o valor do acumulador não é realmente atualizado à medida
+que a dobra acontece. O que realmente acontece é que o acumulador faz
+uma promessa de que calculará seu valor quando solicitado a realmente
+produzir o resultado (também chamado de thunk). Isso acontece para cada
+acumulador intermediário e todos esses thunks estouram sua pilha. As
+dobras estritas não são preguiçosas e realmente calculam os valores
+intermediários à medida que avançam, em vez de encher sua pilha com
+thunks. Portanto, se você receber erros de estouro de pilha ao fazer
+dobras preguiçosas, tente mudar para suas versões estritas.</p>
+<p><code>concat</code>{.label .function} nivela uma lista de listas em
+apenas uma lista de elementos.</p>
+<p><code>{.haskell:ghci} ghci&gt; concat ["foo","bar","car"] "foobarcar" ghci&gt; concat [[3,4,5],[2,3,4],[2,1,1]] [3,4,5,2,3,4,2,1,1]</code></p>
+<p>Ele removerá apenas um nível de aninhamento. Portanto, se você deseja
+nivelar completamente <code>[[[2,3],[3,4,5],[2]],[[2,3],[3,4]]]</code>,
+que é uma lista de listas de listas, você deve concatená-la duas
+vezes.</p>
+<p>Fazer <code>concatMap</code>{.label .function} é o mesmo que primeiro
+mapear uma função para uma lista e depois concatenar a lista com
+<code>concat</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; concatMap (replicate 4) [1..3] [1,1,1,1,2,2,2,2,3,3,3,3]</code></p>
+<p><code>and</code>{.label .function} pega uma lista de valores
+booleanos e retorna <code>True</code> apenas se todos os valores na
+lista forem <code>True</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; and $ map (&gt;4) [5,6,7,8] True ghci&gt; and $ map (==4) [4,4,4,3,4] False</code></p>
+<p><code>or</code>{.label .function} é como <code>and</code>, só que
+retorna <code>True</code> se algum dos valores booleanos em uma lista
+for <code>True</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; or $ map (==4) [2,3,4,5,6,1] True ghci&gt; or $ map (&gt;4) [1,2,3] False</code></p>
+<p><code>any</code>{.label .function} e <code>all</code>{.label
+.function} pegam um predicado e verificam se algum ou todos os elementos
+de uma lista satisfazem o predicado, respectivamente. Geralmente usamos
+essas duas funções em vez de mapear sobre uma lista e depois fazer
+<code>and</code> ou <code>or</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; any (==4) [2,3,5,6,1,4] True ghci&gt; all (&gt;4) [6,9,10] True ghci&gt; all (`elem` ['A'..'Z']) "HEYGUYSwhatsup" False ghci&gt; any (`elem` ['A'..'Z']) "HEYGUYSwhatsup" True</code></p>
+<p><code>iterate</code>{.label .function} pega uma função e um valor
+inicial. Ele aplica a função ao valor inicial, depois aplica essa função
+ao resultado, depois aplica a função a esse resultado novamente, etc.
+Ele retorna todos os resultados na forma de uma lista infinita.</p>
+<p><code>{.haskell:ghci} ghci&gt; take 10 $ iterate (*2) 1 [1,2,4,8,16,32,64,128,256,512] ghci&gt; take 3 $ iterate (++ "haha") "haha" ["haha","hahahaha","hahahahahaha"]</code></p>
+<p><code>splitAt</code>{.label .function} pega um número e uma lista.
+Ele então divide a lista em muitos elementos, retornando as duas listas
+resultantes em uma tupla.</p>
+<p><code>{.haskell:ghci} ghci&gt; splitAt 3 "heyman" ("hey","man") ghci&gt; splitAt 100 "heyman" ("heyman","") ghci&gt; splitAt (-3) "heyman" ("","heyman") ghci&gt; let (a,b) = splitAt 3 "foobar" in b ++ a "barfoo"</code></p>
+<p><code>takeWhile</code>{.label .function} é uma pequena função
+realmente útil. Ela pega elementos de uma lista enquanto o predicado se
+mantém e, quando um elemento é encontrado que não satisfaz o predicado,
+é cortado. Acontece que isso é muito útil.</p>
+<p><code>{.haskell:ghci} ghci&gt; takeWhile (&gt;3) [6,5,4,3,2,1,2,3,4,5,4,3,2,1] [6,5,4] ghci&gt; takeWhile (/=' ') "This is a sentence" "This"</code></p>
+<p>Digamos que queríamos saber a soma de todas as terceiras potências
+que estão abaixo de 10.000. Não podemos mapear <code>(^3)</code> para
+<code>[1..]</code>, aplicar um filtro e depois tentar somar isso porque
+filtrar uma lista infinita nunca termina. Você pode saber que todos os
+elementos aqui são ascendentes, mas Haskell não. É por isso que podemos
+fazer isso:</p>
+<p><code>{.haskell:ghci} ghci&gt; sum $ takeWhile (&lt;10000) $ map (^3) [1..] 53361</code></p>
+<p>Aplicamos <code>(^3)</code> a uma lista infinita e, uma vez que um
+elemento superior a 10.000 é encontrado, a lista é cortada. Agora
+podemos somar facilmente.</p>
+<p><code>dropWhile</code>{.label .function} é semelhante, apenas
+descarta todos os elementos enquanto o predicado é verdadeiro. Quando o
+predicado é igual a <code>False</code>, ele retorna o restante da lista.
+Uma função extremamente útil e adorável!</p>
+<p><code>{.haskell:ghci} ghci&gt; dropWhile (/=' ') "This is a sentence" " is a sentence" ghci&gt; dropWhile (&lt;3) [1,2,2,2,3,4,5,4,3,2,1] [3,4,5,4,3,2,1]</code></p>
+<p>Recebemos uma lista que representa o valor de uma ação por data. A
+lista é composta por tuplas cujo primeiro componente é o valor da ação,
+o segundo é o ano, o terceiro é o mês e o quarto é a data. Queremos
+saber quando o valor das ações excedeu mil dólares!</p>
+<p><code>{.haskell:ghci} ghci&gt; let stock = [(994.4,2008,9,1),(995.2,2008,9,2),(999.2,2008,9,3),(1001.4,2008,9,4),(998.3,2008,9,5)] ghci&gt; head (dropWhile (\(val,y,m,d) -&gt; val &lt; 1000) stock) (1001.4,2008,9,4)</code></p>
+<p><code>span</code>{.label .function} é meio que como
+<code>takeWhile</code>, só que retorna um par de listas. A primeira
+lista contém tudo o que a lista resultante de <code>takeWhile</code>
+conteria se fosse chamada com o mesmo predicado e a mesma lista. A
+segunda lista contém a parte da lista que teria sido descartada.</p>
+<p><code>{.haskell:ghci} ghci&gt; let (fw, rest) = span (/=' ') "This is a sentence" in "First word:" ++ fw ++ ", the rest:" ++ rest "First word: This, the rest: is a sentence"</code></p>
+<p>Considerando que <code>span</code> abrange a lista enquanto o
+predicado é verdadeiro, <code>break</code>{.label .function} a quebra
+quando o predicado é verdadeiro. Fazer <code>break p</code> é o
+equivalente a fazer <code>span (not . p)</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; break (==4) [1,2,3,4,5,6,7] ([1,2,3],[4,5,6,7]) ghci&gt; span (/=4) [1,2,3,4,5,6,7] ([1,2,3],[4,5,6,7])</code></p>
+<p>Ao usar <code>break</code>, a segunda lista no resultado começará com
+o primeiro elemento que satisfaz o predicado.</p>
+<p><code>sort</code>{.label .function} simplesmente classifica uma
+lista. O tipo dos elementos na lista deve fazer parte da typeclass
+<code>Ord</code>, porque se os elementos de uma lista não puderem ser
+colocados em algum tipo de ordem, a lista não poderá ser
+classificada.</p>
+<p><code>{.haskell:ghci} ghci&gt; sort [8,5,3,2,1,6,4,2] [1,2,2,3,4,5,6,8] ghci&gt; sort "This will be sorted soon" "    Tbdeehiillnooorssstw"</code></p>
+<p><code>group</code>{.label .function} pega uma lista e agrupa
+elementos adjacentes em sublistas se eles forem iguais.</p>
+<p><code>{.haskell:ghci} ghci&gt; group [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7] [[1,1,1,1],[2,2,2,2],[3,3],[2,2,2],[5],[6],[7]]</code></p>
+<p>Se classificarmos uma lista antes de agrupá-la, podemos descobrir
+quantas vezes cada elemento aparece na lista.</p>
+<p><code>{.haskell:ghci} ghci&gt; map (\l@(x:xs) -&gt; (x,length l)) . group . sort $ [1,1,1,1,2,2,2,2,3,3,2,2,2,5,6,7] [(1,4),(2,7),(3,2),(5,1),(6,1),(7,1)]</code></p>
+<p><code>inits</code>{.label .function} e <code>tails</code>{.label
+.function} são como <code>init</code> e <code>tail</code>, apenas
+aplicam recursivamente isso a uma lista até que não resta nada.
+Observe.</p>
+<p><code>{.haskell:ghci} ghci&gt; inits "w00t" ["","w","w0","w00","w00t"] ghci&gt; tails "w00t" ["w00t","00t","0t","t",""] ghci&gt; let w = "w00t" in zip (inits w) (tails w) [("","w00t"),("w","00t"),("w0","0t"),("w00","t"),("w00t","")]</code></p>
+<p>Vamos usar uma dobra para implementar a pesquisa em uma lista por uma
+sublista.</p>
+<p><code>{.haskell:hs} search :: (Eq a) =&gt; [a] -&gt; [a] -&gt; Bool search needle haystack =     let nlen = length needle     in  foldl (\acc x -&gt; if take nlen x == needle then True else acc) False (tails haystack)</code></p>
+<p>Primeiro, chamamos <code>tails</code> com a lista na qual estamos
+pesquisando. Então passamos por cima de cada cauda e vemos se ela começa
+com o que estamos procurando.</p>
+<p>Com isso, na verdade, acabamos de fazer uma função que se comporta
+como <code>isInfixOf</code>{.label .function}. <code>isInfixOf</code>
+procura uma sublista dentro de uma lista e retorna <code>True</code> se
+a sublista que estamos procurando estiver em algum lugar dentro da lista
+de destino.</p>
+<p><code>{.haskell:ghci} ghci&gt; "cat" `isInfixOf` "im a cat burglar" True ghci&gt; "Cat" `isInfixOf` "im a cat burglar" False ghci&gt; "cats" `isInfixOf` "im a cat burglar" False</code></p>
+<p><code>isPrefixOf</code>{.label .function} e
+<code>isSuffixOf</code>{.label .function} procuram uma sublista no
+início e no final de uma lista, respectivamente.</p>
+<p><code>{.haskell:ghci} ghci&gt; "hey" `isPrefixOf` "hey there!" True ghci&gt; "hey" `isPrefixOf` "oh hey there!" False ghci&gt; "there!" `isSuffixOf` "oh hey there!" True ghci&gt; "there!" `isSuffixOf` "oh hey there" False</code></p>
+<p><code>elem</code>{.label .function} e <code>notElem</code>{.label
+.function} verificam se um elemento está ou não dentro de uma lista.</p>
+<p><code>partition</code>{.label .function} pega uma lista e um
+predicado e retorna um par de listas. A primeira lista no resultado
+contém todos os elementos que satisfazem o predicado, a segunda contém
+todos os que não satisfazem.</p>
+<p><code>{.haskell:ghci} ghci&gt; partition (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy" ("BOBMORGAN","sidneyeddy") ghci&gt; partition (&gt;3) [1,3,5,6,3,2,1,0,3,7] ([5,6,7],[1,3,3,2,1,0,3])</code></p>
+<p>É importante entender como isso é diferente de <code>span</code> e
+<code>break</code>:</p>
+<p><code>{.haskell:ghci} ghci&gt; span (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy" ("BOB","sidneyMORGANeddy")</code></p>
+<p>Enquanto <code>span</code> e <code>break</code> terminam quando
+encontram o primeiro elemento que não satisfaz e satisfaz o predicado,
+<code>partition</code> passa por toda a lista e a divide de acordo com o
+predicado.</p>
+<p><code>find</code>{.label .function} pega uma lista e um predicado e
+retorna o primeiro elemento que satisfaz o predicado. Mas retorna esse
+elemento envolvido em um valor <code>Maybe</code>. Estaremos cobrindo
+tipos de dados algébricos mais aprofundadamente no próximo capítulo,
+mas, por enquanto, é isso que você precisa saber: um valor
+<code>Maybe</code> pode ser <code>Just something</code> ou
+<code>Nothing</code>. Assim como uma lista pode ser uma lista vazia ou
+uma lista com alguns elementos, um valor <code>Maybe</code> pode ser
+nenhum elemento ou um único elemento. E como o tipo de uma lista de,
+digamos, inteiros é <code>[Int]</code>, o tipo de maybe ter um inteiro é
+<code>Maybe Int</code>. De qualquer forma, vamos testar nossa função
+<code>find</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; find (&gt;4) [1,2,3,4,5,6] Just 5 ghci&gt; find (&gt;9) [1,2,3,4,5,6] Nothing ghci&gt; :t find find :: (a -&gt; Bool) -&gt; [a] -&gt; Maybe a</code></p>
+<p>Observe o tipo de <code>find</code>. Seu resultado é
+<code>Maybe a</code>. É como ter o tipo de <code>[a]</code>, apenas um
+valor do tipo <code>Maybe</code> pode conter nenhum elemento ou um
+elemento, enquanto uma lista pode conter nenhum elemento, um elemento ou
+vários elementos.</p>
+<p>Lembre -se de quando estávamos procurando pela primeira vez que
+nossas ações ultrapassaram US $ 1.000. Fizemos
+<code>head (dropWhile (\(val,y,m,d) -&gt; val &lt; 1000) stock)</code>.
+Lembre-se de que <code>head</code> não é realmente seguro. O que
+aconteceria se o nosso estoque nunca ultrapassasse US $ 1000? Nossa
+aplicação de <code>dropWhile</code> retornaria uma lista vazia e obter o
+head de uma lista vazia resultaria em um erro. No entanto, se
+reescrevêssemos isso como
+<code>find (\(val,y,m,d) -&gt; val &gt; 1000) stock</code>, estaríamos
+muito mais seguros. Se nossas ações nunca ultrapassassem US $ 1000
+(portanto, se nenhum elemento satisfaz o predicado), receberíamos um
+<code>Nothing</code>. Mas se houvesse uma resposta válida nessa lista,
+receberíamos, digamos, <code>Just (1001.4,2008,9,4)</code>.</p>
+<p><code>elemIndex</code>{.label .function} é meio que como
+<code>elem</code>, só que não retorna um valor booleano. Talvez retorne
+o índice do elemento que estamos procurando. Se esse elemento não
+estiver em nossa lista, ele retornará <code>Nothing</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; :t elemIndex elemIndex :: (Eq a) =&gt; a -&gt; [a] -&gt; Maybe Int ghci&gt; 4 `elemIndex` [1,2,3,4,5,6] Just 3 ghci&gt; 10 `elemIndex` [1,2,3,4,5,6] Nothing</code></p>
+<p><code>elemIndices</code>{.label .function} é como
+<code>elemIndex</code>, só que retorna uma lista de índices, caso o
+elemento que estamos procurando apareça na nossa lista várias vezes.
+Como estamos usando uma lista para representar os índices, não
+precisamos de um tipo <code>Maybe</code>, porque a falha pode ser
+representada como a lista vazia, que é muito sinônimo de
+<code>Nothing</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; ' ' `elemIndices` "Where are the spaces?" [5,9,13]</code></p>
+<p><code>findIndex</code>{.label .function} é como find, mas talvez
+retorne o índice do primeiro elemento que satisfaz o predicado.
+<code>findIndices</code>{.label .function} retorna os índices de todos
+os elementos que satisfazem o predicado na forma de uma lista.</p>
+<p><code>{.haskell:ghci} ghci&gt; findIndex (==4) [5,3,2,1,6,4] Just 5 ghci&gt; findIndex (==7) [5,3,2,1,6,4] Nothing ghci&gt; findIndices (`elem` ['A'..'Z']) "Where Are The Caps?" [0,6,10,14]</code></p>
+<p>Já cobrimos <code>zip</code> e <code>zipWith</code>. Observamos que
+eles compactam duas listas, em uma tupla ou com uma função binária (o
+que significa uma função que aceita dois parâmetros). Mas e se quisermos
+compactar três listas? Ou compactar três listas com uma função que
+aceita três parâmetros? Bem, para isso, temos <code>zip3</code>{.label
+.function}, <code>zip4</code>{.label .function}, etc. e
+<code>zipWith3</code>{.label .function}, <code>zipWith4</code>{.label
+.function}, etc. Essas variantes vão até 7. Embora isso possa parecer
+uma gambiarra, funciona muito bem, porque não há muitas vezes em que
+você deseja compactar 8 listas juntas. Também existe uma maneira muito
+inteligente de compactar números infinitos de listas, mas não somos
+avançados o suficiente para cobrir isso ainda.</p>
+<p><code>{.haskell:ghci} ghci&gt; zipWith3 (\x y z -&gt; x + y + z) [1,2,3] [4,5,2,2] [2,2,3] [7,9,8] ghci&gt; zip4 [2,3,3] [2,2,2] [5,5,3] [2,2,2] [(2,2,5,2),(3,2,5,2),(3,2,3,2)]</code></p>
+<p>Assim como no zipping normal, as listas mais longas que a lista mais
+curta que está sendo compactada são cortadas no tamanho.</p>
+<p><code>lines</code>{.label .function} é uma função útil ao lidar com
+arquivos ou entrada de algum lugar. Pega uma string e retorna cada linha
+dessa string como elemento separado de uma lista.</p>
+<p><code>{.haskell:ghci} ghci&gt; lines "first line\nsecond line\nthird line" ["first line","second line","third line"]</code></p>
+<p><code>'\n'</code> é o caractere para uma nova linha unix. As barras
+invertidas têm significado especial em strings e caracteres de
+Haskell.</p>
+<p><code>unlines</code>{.label .function} é a função inversa de
+<code>lines</code>. Pega uma lista de strings e as une usando um
+<code>'\n'</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; unlines ["first line", "second line", "third line"] "first line\nsecond line\nthird line\n"</code></p>
+<p><code>words</code>{.label .function} e <code>unwords</code>{.label
+.function} são para dividir uma linha de texto em palavras ou unir uma
+lista de palavras em um texto. Muito útil.</p>
+<p><code>{.haskell:ghci} ghci&gt; words "hey these are the words in this sentence" ["hey","these","are","the","words","in","this","sentence"] ghci&gt; words "hey these           are    the words in this\nsentence" ["hey","these","are","the","words","in","this","sentence"] ghci&gt; unwords ["hey","there","mate"] "hey there mate"</code></p>
+<p>Já mencionamos <code>nub</code>{.label .function}. Pega uma lista e
+elimina os elementos duplicados, retornando uma lista cujo elemento é um
+floco de neve único! A função tem um nome meio estranho. Acontece que
+"nub" significa um pequeno pedaço ou parte essencial de algo. Na minha
+opinião, eles deveriam usar palavras reais para nomes de funções em vez
+de palavras de pessoas velhas.</p>
+<p><code>{.haskell:ghci} ghci&gt; nub [1,2,3,4,3,2,1,2,3,4,3,2,1] [1,2,3,4] ghci&gt; nub "Lots of words and stuff" "Lots fwrdanu"</code></p>
+<p><code>delete</code>{.label .function} pega um elemento e uma lista e
+exclui a primeira ocorrência desse elemento na lista.</p>
+<p><code>{.haskell:ghci} ghci&gt; delete 'h' "hey there ghang!" "ey there ghang!" ghci&gt; delete 'h' . delete 'h' $ "hey there ghang!" "ey tere ghang!" ghci&gt; delete 'h' . delete 'h' . delete 'h' $ "hey there ghang!" "ey tere gang!"</code></p>
+<p><code>\\</code>{.label .function} é a função de diferença de lista.
+Ele age como uma diferença de conjunto, basicamente. Para cada elemento
+na lista do lado direito, ele remove um elemento correspondente na
+esquerda.</p>
+<p><code>{.haskell:ghci} ghci&gt; [1..10] \\ [2,5,9] [1,3,4,6,7,8,10] ghci&gt; "Im a big baby" \\ "big" "Im a  baby"</code></p>
+<p>Fazer <code>[1..10] \\ [2,5,9]</code> é como fazer
+<code>delete 2 . delete 5 . delete 9 $ [1..10]</code>.</p>
+<p><code>union</code>{.label .function} também atua como uma função em
+conjuntos. Ele retorna a união de duas listas. Ele praticamente repassa
+todos os elementos da segunda lista e o acrescenta ao primeiro se ainda
+não estiver dentro. Cuidado, porém, as duplicatas são removidas da
+segunda lista!</p>
+<p><code>{.haskell:ghci} ghci&gt; "hey man" `union` "man what's up" "hey manwt'sup" ghci&gt; [1..7] `union` [5..10] [1,2,3,4,5,6,7,8,9,10]</code></p>
+<p><code>intersect</code>{.label .function} funciona como interseção de
+conjuntos. Ele retorna apenas os elementos encontrados nas duas
+listas.</p>
+<p><code>{.haskell:ghci} ghci&gt; [1..7] `intersect` [5..10] [5,6,7]</code></p>
+<p><code>insert</code>{.label .function} pega um elemento e uma lista de
+elementos que podem ser classificados e o insere na última posição, onde
+ainda é menor ou igual ao próximo elemento. Em outras palavras,
+<code>insert</code> começará no início da lista e continuará até
+encontrar um elemento igual ou maior que o elemento que estamos
+inserindo e o inserirá logo antes do elemento.</p>
+<p><code>{.haskell:ghci} ghci&gt; insert 4 [3,5,1,2,8,2] [3,4,5,1,2,8,2] ghci&gt; insert 4 [1,3,4,4,1] [1,3,4,4,4,1]</code></p>
+<p>O <code>4</code> é inserido logo após o <code>3</code> e antes do
+<code>5</code> no primeiro exemplo e entre <code>3</code> e
+<code>4</code> no segundo exemplo.</p>
+<p>Se usarmos <code>insert</code> para inserir em uma lista
+classificada, a lista resultante será mantida classificada.</p>
+<p><code>{.haskell:ghci} ghci&gt; insert 4 [1,2,3,5,6,7] [1,2,3,4,5,6,7] ghci&gt; insert 'g' $ ['a'..'f'] ++ ['h'..'z'] "abcdefghijklmnopqrstuvwxyz" ghci&gt; insert 3 [1,2,4,3,2,1] [1,2,3,4,3,2,1]</code></p>
+<p>O que <code>length</code>, <code>take</code>, <code>drop</code>,
+<code>splitAt</code>, <code>!!</code> e <code>replicate</code> têm em
+comum é que eles tomam um <code>Int</code> como um de seus parâmetros
+(ou retornam um <code>Int</code>), embora pudessem ser mais genéricos e
+utilizáveis se apenas pegassem qualquer tipo que faça parte das
+typeclasses <code>Integral</code> ou <code>Num</code> (dependendo das
+funções). Eles fazem isso por razões históricas. No entanto, corrigir
+isso provavelmente quebraria muito código existente. É por isso que
+<code>Data.List</code> tem seus equivalentes mais genéricos, chamado
+<code>genericLength</code>{.label .function},
+<code>genericTake</code>{.label .function},
+<code>genericDrop</code>{.label .function},
+<code>genericSplitAt</code>{.label .function},
+<code>genericIndex</code>{.label .function} e
+<code>genericReplicate</code>{.label .function}. Por exemplo,
+<code>length</code> tem uma assinatura de tipo de
+<code>length :: [a] -&gt; Int</code>. Se tentarmos obter a média de uma
+lista de números fazendo
+<code>let xs = [1..6] in sum xs / length xs</code>, recebemos um erro de
+tipo, porque você não pode usar <code>/</code> com um <code>Int</code>.
+<code>genericLength</code>, por outro lado, tem uma assinatura de tipo
+de <code>genericLength :: (Num a) =&gt; [b] -&gt; a</code>. Como um
+<code>Num</code> pode agir como um número de ponto flutuante, obter a
+média fazendo <code>let xs = [1..6] in sum xs / genericLength xs</code>
+funciona muito bem.</p>
+<p>As funções <code>nub</code>, <code>delete</code>, <code>union</code>,
+<code>intersect</code> e <code>group</code> têm todas as suas
+contrapartes mais gerais chamadas <code>nubBy</code>{.label .function},
+<code>deleteBy</code>{.label .function}, <code>unionBy</code>{.label
+.function}, <code>intersectBy</code>{.label .function} e
+<code>groupBy</code>{.label .function}. A diferença entre eles é que o
+primeiro conjunto de funções usa <code>==</code> para testar a
+igualdade, enquanto as <em>By</em> também recebem uma função de
+igualdade e depois as comparam usando essa função de igualdade.
+<code>group</code> é o mesmo que <code>groupBy (==)</code>.</p>
+<p>Por exemplo, digamos que temos uma lista que descreve o valor de uma
+função a cada segundo. Queremos segmentá-la em sublistas com base em
+quando o valor estava abaixo de zero e quando subiu. Se fizéssemos
+apenas um <code>group</code> normal, ele apenas agruparia os valores
+adjacentes iguais. Mas o que queremos é agrupá-los se eles são negativos
+ou não. É aí que entra o <code>groupBy</code>! A função de igualdade
+fornecida às funções <em>By</em> deve receber dois elementos do mesmo
+tipo e retornar <code>True</code> se os considerar iguais pelos seus
+padrões.</p>
+<p><code>{.haskell:ghci} ghci&gt; let values = [-4.3, -2.4, -1.2, 0.4, 2.3, 5.9, 10.5, 29.1, 5.3, -2.4, -14.5, 2.9, 2.3] ghci&gt; groupBy (\x y -&gt; (x &gt; 0) == (y &gt; 0)) values [[-4.3,-2.4,-1.2],[0.4,2.3,5.9,10.5,29.1,5.3],[-2.4,-14.5],[2.9,2.3]]</code></p>
+<p>A partir disso, vemos claramente quais seções são positivas e quais
+são negativas. A função de igualdade fornecida pega dois elementos e
+retorna <code>True</code> apenas se ambos forem negativos ou se ambos
+forem positivos. Essa função de igualdade também pode ser escrita como
+<code>\x y -&gt; (x &gt; 0) &amp;&amp; (y &gt; 0) || (x &lt;= 0) &amp;&amp; (y &lt;= 0)</code>,
+embora eu ache que a primeira maneira é mais legível. Uma maneira ainda
+mais clara de escrever funções de igualdade para as funções <em>By</em>
+é se você importar a função <code>on</code>{.label .function} de
+<code>Data.Function</code>. <code>on</code> é definido assim:</p>
+<p><code>{.haskell:ghci} on :: (b -&gt; b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; a -&gt; c f `on` g = \x y -&gt; f (g x) (g y)</code></p>
+<p>Portanto, fazer <code>(==)</code>on<code>(&gt; 0)</code> retorna uma
+função de igualdade semelhante a
+<code>\x y -&gt; (x &gt; 0) == (y &gt; 0)</code>. <code>on</code> é
+usado muito com as funções <em>By</em> porque com ela, podemos
+fazer:</p>
+<p><code>{.haskell:ghci} ghci&gt; groupBy ((==) `on` (&gt; 0)) values [[-4.3,-2.4,-1.2],[0.4,2.3,5.9,10.5,29.1,5.3],[-2.4,-14.5],[2.9,2.3]]</code></p>
+<p>Muito legível de fato! Você pode ler em voz alta: agrupe isso por
+igualdade se os elementos forem maiores que zero.</p>
+<p>Da mesma forma, <code>sort</code>, <code>insert</code>,
+<code>maximum</code> e <code>minimum</code> também têm seus equivalentes
+mais gerais. Funções como <code>groupBy</code> pegam uma função que
+determina quando dois elementos são iguais. <code>sortBy</code>{.label
+.function}, <code>insertBy</code>{.label .function},
+<code>maximumBy</code>{.label .function} e <code>minimumBy</code>{.label
+.function} pegam uma função que determina se um elemento é maior, menor
+ou igual ao outro. A assinatura de tipo de <code>sortBy</code> é
+<code>sortBy :: (a -&gt; a -&gt; Ordering) -&gt; [a] -&gt; [a]</code>.
+Se você se lembra de antes, o tipo <code>Ordering</code> pode ter um
+valor de <code>LT</code>, <code>EQ</code> ou <code>GT</code>.
+<code>sort</code> é o equivalente a <code>sortBy compare</code>, porque
+compare apenas pega dois elementos cujo tipo está na typeclass
+<code>Ord</code> e retorna seu relacionamento de pedidos.</p>
+<p>Listas podem ser comparadas, mas quando são, são comparadas
+lexicograficamente. E se tivermos uma lista de listas e queremos
+classificá-la não com base no conteúdo das listas internas, mas em seus
+comprimentos? Bem, como você provavelmente adivinhou, usaremos a função
+<code>sortBy</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; let xs = [[5,4,5,4,4],[1,2,3],[3,5,4,3],[],[2],[2,2]] ghci&gt; sortBy (compare `on` length) xs [[],[2],[2,2],[1,2,3],[3,5,4,3],[5,4,5,4,4]]</code></p>
+<p>Incrível! <code>compare</code>on<code>length</code> ... cara, isso lê
+quase como inglês real! Se você não tem certeza de como exatamente o
+<code>on</code> funciona aqui, <code>compare</code>on<code>length</code>
+é o equivalente a
+<code>\x y -&gt; length x</code>compare<code>length y</code>. Quando
+você está lidando com funções <em>By</em> que assumem uma função de
+igualdade, geralmente faz <code>(==)</code>on<code>something</code> e
+quando está lidando com funções <em>By</em> que executam uma função de
+ordenação, geralmente faz
+<code>compare</code>on<code>something</code>.</p>
+<h2>Data.Char {#data-char}</h2>
+<p><img src="assets/images/modules/legochar.png"
+alt="lego char" />{.right width=230 height=323}</p>
+<p>O módulo <code>Data.Char</code> faz o que o nome sugere. Ele exporta
+funções que lidam com caracteres. Também é útil ao filtrar e mapear
+strings, porque elas são apenas listas de caracteres.</p>
+<p><code>Data.Char</code> exporta um monte de predicados sobre
+caracteres. Ou seja, funções que pegam um caractere e nos dizem se
+alguma suposição sobre ele é verdadeira ou falsa. Aqui está o que eles
+são:</p>
+<p><code>isControl</code>{.label .function} verifica se um caractere é
+um caractere de controle.</p>
+<p><code>isSpace</code>{.label .function} verifica se um caractere é um
+caractere de espaço em branco. Isso inclui espaços, caracteres de
+tabulação, novas linhas, etc.</p>
+<p><code>isLower</code>{.label .function} verifica se um caractere é
+minúsculo.</p>
+<p><code>isUpper</code>{.label .function} verifica se um caractere é
+maiúsculo.</p>
+<p><code>isAlpha</code>{.label .function} verifica se um caractere é uma
+letra.</p>
+<p><code>isAlphaNum</code>{.label .function} verifica se um caractere é
+uma letra ou um número.</p>
+<p><code>isPrint</code>{.label .function} verifica se um caractere é
+imprimível. Caracteres de controle, por exemplo, não são
+imprimíveis.</p>
+<p><code>isDigit</code>{.label .function} verifica se um caractere é um
+dígito.</p>
+<p><code>isOctDigit</code>{.label .function} verifica se um caractere é
+um dígito octal.</p>
+<p><code>isHexDigit</code>{.label .function} verifica se um caractere é
+um dígito hexadecimal.</p>
+<p><code>isLetter</code>{.label .function} verifica se um caractere é
+uma letra.</p>
+<p><code>isMark</code>{.label .function} verifica se há caracteres de
+marca Unicode. Esses são caracteres que combinam com as letras
+anteriores para formar letras com sotaques. Use isso se você for
+francês.</p>
+<p><code>isNumber</code>{.label .function} verifica se um caractere é
+numérico.</p>
+<p><code>isPunctuation</code>{.label .function} verifica se um caractere
+é pontuação.</p>
+<p><code>isSymbol</code>{.label .function} verifica se um caractere é um
+símbolo matemático ou de moeda extravagante.</p>
+<p><code>isSeparator</code>{.label .function} verifica se há espaços e
+separadores Unicode.</p>
+<p><code>isAscii</code>{.label .function} verifica se um caractere cai
+nos primeiros 128 caracteres do conjunto de caracteres Unicode.</p>
+<p><code>isLatin1</code>{.label .function} verifica se um caractere cai
+nos primeiros 256 caracteres do Unicode.</p>
+<p><code>isAsciiUpper</code>{.label .function} verifica se um caractere
+é ASCII e maiúsculo.</p>
+<p><code>isAsciiLower</code>{.label .function} verifica se um caractere
+é ASCII e minúsculo.</p>
+<p>Todos esses predicados têm uma assinatura de tipo de
+<code>Char -&gt; Bool</code>. Na maioria das vezes, você usará isso para
+filtrar strings ou algo assim. Por exemplo, digamos que estamos fazendo
+um programa que pega um nome de usuário que consiste apenas em
+caracteres alfanuméricos. Podemos usar a função <code>Data.List</code>
+<code>all</code> em combinação com os predicados <code>Data.Char</code>
+para determinar se o nome de usuário está bem.</p>
+<p><code>{.haskell:ghci} ghci&gt; all isAlphaNum "bobby283" True ghci&gt; all isAlphaNum "eddy the fish!" False</code></p>
+<p>Kewl. Caso você não se lembre, <code>all</code> pega um predicado e
+uma lista e retorna <code>True</code> apenas se esse predicado for
+válido para cada elemento da lista.</p>
+<p>Também podemos usar <code>isSpace</code> para simular a função
+<code>Data.List</code> <code>words</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; words "hey folks its me" ["hey","folks","its","me"] ghci&gt; groupBy ((==) `on` isSpace) "hey folks its me" ["hey"," ","folks"," ","its"," ","me"] ghci&gt;</code></p>
+<p>Hmmm, bem, isso faz o que <code>words</code> faz, mas ficamos com
+elementos de apenas espaços. Hmm, o que faremos? Eu sei, vamos filtrar
+esse otário.</p>
+<p><code>{.haskell:ghci} ghci&gt; filter (not . any isSpace) . groupBy ((==) `on` isSpace) $ "hey folks its me" ["hey","folks","its","me"]</code></p>
+<p>Ah.</p>
+<p>O <code>Data.Char</code> também exporta um tipo de dados que é meio
+que o <code>Ordering</code>. O tipo <code>Ordering</code> pode ter um
+valor de <code>LT</code>, <code>EQ</code> ou <code>GT</code>. É uma
+espécie de enumeração. Ele descreve alguns resultados possíveis que
+podem surgir da comparação de dois elementos. O tipo
+<code>GeneralCategory</code> também é uma enumeração. Ele nos apresenta
+algumas categorias possíveis em que um caractere pode cair. A principal
+função para obter a categoria geral de um caractere é
+<code>generalCategory</code>. Tem um tipo de
+<code>generalCategory :: Char -&gt; GeneralCategory</code>. Existem
+cerca de 31 categorias, então não vamos listá-las todas aqui, mas vamos
+brincar com a função.</p>
+<p><code>{.haskell:ghci} ghci&gt; generalCategory ' ' Space ghci&gt; generalCategory 'A' UppercaseLetter ghci&gt; generalCategory 'a' LowercaseLetter ghci&gt; generalCategory '.' OtherPunctuation ghci&gt; generalCategory '9' DecimalNumber ghci&gt; map generalCategory " \t\nA9?|" [Space,Control,Control,UppercaseLetter,DecimalNumber,OtherPunctuation,MathSymbol]</code></p>
+<p>Como o tipo <code>GeneralCategory</code> faz parte da typeclass
+<code>Eq</code>, também podemos testar coisas como
+<code>generalCategory c == Space</code>.</p>
+<p><code>toUpper</code>{.label .function} converte um caractere em
+maiúsculas. Espaços, números e afins permanecem inalterados.</p>
+<p><code>toLower</code>{.label .function} converte um caractere em
+minúsculas.</p>
+<p><code>toTitle</code>{.label .function} converte um caractere para
+title-case. Para a maioria dos caracteres, title-case é o mesmo que
+maiúsculas.</p>
+<p><code>digitToInt</code>{.label .function} converte um caractere em um
+<code>Int</code>. Para ter sucesso, o caractere deve estar nos
+intervalos <code>'0'..'9'</code>, <code>'a'..'f'</code> ou
+<code>'A'..'F'</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; map digitToInt "34538" [3,4,5,3,8] ghci&gt; map digitToInt "FF85AB" [15,15,8,5,10,11]</code></p>
+<p><code>intToDigit</code>{.label .function} é a função inversa de
+<code>digitToInt</code>. Pega um <code>Int</code> na faixa de
+<code>0..15</code> e o converte em um caractere minúsculo.</p>
+<p><code>{.haskell:ghci} ghci&gt; intToDigit 15 'f' ghci&gt; intToDigit 5 '5'</code></p>
+<p>As funções <code>ord</code>{.label .function} e <code>chr</code>
+convertem caracteres em seus números correspondentes e vice-versa:</p>
+<p><code>{.haskell:ghci} ghci&gt; ord 'a' 97 ghci&gt; chr 97 'a' ghci&gt; map ord "abcdefgh" [97,98,99,100,101,102,103,104]</code></p>
+<p>A diferença entre os valores <code>ord</code> de dois caracteres é
+igual à distância entre eles na tabela Unicode.</p>
+<p>A cifra de César é um método primitivo de codificar mensagens,
+deslocando cada caractere nelas por um número fixo de posições no
+alfabeto. Podemos criar facilmente uma espécie de cifra de César, só que
+não nos restringiremos ao alfabeto.</p>
+<p><code>{.haskell:hs} encode :: Int -&gt; String -&gt; String encode shift msg =     let ords = map ord msg         shifted = map (+ shift) ords     in  map chr shifted</code></p>
+<p>Aqui, primeiro convertemos a string em uma lista de números. Em
+seguida, adicionamos o valor de deslocamento a cada número antes de
+converter a lista de números de volta aos caracteres. Se você é um
+cowboy de composição, pode escrever o corpo desta função como
+<code>map (chr . (+ shift) . ord) msg</code>. Vamos tentar codificar
+algumas mensagens.</p>
+<p><code>{.haskell:ghci} ghci&gt; encode 3 "Heeeeey" "Khhhhh|" ghci&gt; encode 4 "Heeeeey" "Liiiii}" ghci&gt; encode 1 "abcd" "bcde" ghci&gt; encode 5 "Marry Christmas! Ho ho ho!" "Rfww~%Hmwnxyrfx&amp;%Mt%mt%mt&amp;"</code></p>
+<p>Isso está codificado bem. A decodificação de uma mensagem é
+basicamente apenas deslocá-la de volta pelo número de lugares que foi
+deslocado em primeiro lugar.</p>
+<p><code>{.haskell:hs} decode :: Int -&gt; String -&gt; String decode shift msg = encode (negate shift) msg</code></p>
+<p><code>{.haskell:ghci} ghci&gt; encode 3 "Im a little teapot" "Lp#d#olwwoh#whdsrw" ghci&gt; decode 3 "Lp#d#olwwoh#whdsrw" "Im a little teapot" ghci&gt; decode 5 . encode 5 $ "This is a sentence" "This is a sentence"</code></p>
+<h2>Data.Map {#data-map}</h2>
+<p>Listas de associação (também chamadas de dicionários) são listas
+usadas para armazenar pares de chave-valor onde a ordem não importa. Por
+exemplo, podemos usar uma lista de associação para armazenar números de
+telefone, onde os números de telefone seriam os valores e os nomes das
+pessoas seriam as chaves. Não nos importamos em que ordem eles são
+armazenados, apenas queremos obter o número de telefone certo para a
+pessoa certa.</p>
+<p>A maneira mais óbvia de representar listas de associação em Haskell
+seria ter uma lista de pares. O primeiro componente no par seria a
+chave, o segundo componente o valor. Aqui está um exemplo de uma lista
+de associação com números de telefone:</p>
+<p><code>{.haskell:hs} phoneBook =     [("amelia","555-2938")     ,("freya","452-2928")     ,("isabella","493-2928")     ,("neil","205-2928")     ,("roald","939-8282")     ,("tenzing","853-2492")     ]</code></p>
+<p>Apesar dessa indentação aparentemente estranha, essa é apenas uma
+lista de pares de strings. A tarefa mais comum ao lidar com listas de
+associação é procurar algum valor por chave. Vamos fazer uma função que
+procure algum valor dada uma chave.</p>
+<p><code>{.haskell:hs} findKey :: (Eq k) =&gt; k -&gt; [(k,v)] -&gt; v findKey key xs = snd . head . filter (\(k,v) -&gt; key == k) $ xs</code></p>
+<p>Bem simples. A função que pega uma chave e uma lista, filtra a lista
+para que apenas as chaves correspondentes permaneçam, pega o primeiro
+par chave-valor que corresponde e retorna o valor. Mas o que acontece se
+a chave que estamos procurando não estiver na lista de associação? Hmm.
+Aqui, se uma chave não estiver na lista de associação, acabaremos
+tentando obter a cabeça de uma lista vazia, o que gera um erro de tempo
+de execução. No entanto, devemos evitar tornar nossos programas tão
+fáceis de travar; portanto, vamos usar o tipo de dados
+<code>Maybe</code>. Se não encontrarmos a chave, retornaremos um
+<code>Nothing</code>. Se o encontrarmos, retornaremos
+<code>Just something</code>, onde algo é o valor correspondente a essa
+chave.</p>
+<p><code>{.haskell:hs} findKey :: (Eq k) =&gt; k -&gt; [(k,v)] -&gt; Maybe v findKey key [] = Nothing findKey key ((k,v):xs) = if key == k                             then Just v                             else findKey key xs</code></p>
+<p>Olhe para a declaração de tipo. Ele pega uma chave que pode ser
+equiparada, uma lista de associação e talvez produz um valor. Parece
+certo.</p>
+<p>Esta é uma função recursiva de livro didático que opera em uma lista.
+Caso de borda, dividindo uma lista em uma cabeça e uma cauda, chamadas
+recursivas, estão todas lá. Esse é o padrão clássico de dobra, então
+vamos ver como isso seria implementado como uma dobra.</p>
+<p><code>{.haskell:hs} findKey :: (Eq k) =&gt; k -&gt; [(k,v)] -&gt; Maybe v findKey key = foldr (\(k,v) acc -&gt; if key == k then Just v else acc) Nothing</code></p>
+<p>::: {.hintbox} <strong>Nota:</strong> Geralmente, é melhor usar
+dobras para esse padrão de recursão de lista padrão, em vez de escrever
+explicitamente a recursão, porque são mais fáceis de ler e identificar.
+Todo mundo sabe que é uma dobra quando vê a chamada <code>foldr</code>,
+mas é preciso pensar um pouco mais para ler a recursão explícita.
+:::</p>
+<p><code>{.haskell:ghci} ghci&gt; findKey "tenzing" phoneBook Just "853-2492" ghci&gt; findKey "amelia" phoneBook Just "555-2938" ghci&gt; findKey "christopher" phoneBook Nothing</code></p>
+<p><img src="assets/images/modules/legomap.png" alt="legomap" />{.left
+width=214 height=240}</p>
+<p>Funciona como um encanto! Se tivermos o número de telefone do amigo,
+<code>Just</code> obtemos o número, caso contrário, obtemos
+<code>Nothing</code>.</p>
+<p>Acabamos de implementar a função <code>lookup</code> de
+<code>Data.List</code>. Se quisermos encontrar o valor correspondente a
+uma chave, temos que percorrer todos os elementos da lista até
+encontrá-la. O módulo <code>Data.Map</code> oferece listas de associação
+muito mais rápidas (porque são implementadas internamente com árvores) e
+também fornece muitas funções utilitárias. A partir de agora, diremos
+que estamos trabalhando com mapas (maps) em vez de listas de
+associação.</p>
+<p>Como o <code>Data.Map</code> exporta funções que conflitam com as do
+<code>Prelude</code> e <code>Data.List</code>, faremos uma importação
+qualificada.</p>
+<p><code>{.haskell:hs} import qualified Data.Map as Map</code></p>
+<p>Coloque esta declaração de importação em um script e, em seguida,
+carregue o script via GHCI.</p>
+<p>Vamos em frente e ver o que <code>Data.Map</code> tem reservado para
+nós! Aqui está o resumo básico de suas funções.</p>
+<p>A função <code>fromList</code>{.label .function} pega uma lista de
+associação (na forma de uma lista) e retorna um mapa com as mesmas
+associações.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.fromList [("amelia","555-2938"),("freya","452-2928"),("neil","205-2928")] fromList [("amelia","555-2938"),("freya","452-2928"),("neil","205-2928")] ghci&gt; Map.fromList [(1,2),(3,4),(3,2),(5,5)] fromList [(1,2),(3,2),(5,5)]</code></p>
+<p>Se houver chaves duplicadas na lista de associação original, as
+duplicatas serão descartadas. Esta é a assinatura de tipo de
+<code>fromList</code></p>
+<p><code>{.haskell:hs} Map.fromList :: (Ord k) =&gt; [(k, v)] -&gt; Map.Map k v</code></p>
+<p>Ele diz que pega uma lista de pares do tipo <code>k</code> e
+<code>v</code> e retorna um mapa que mapeia de chaves do tipo
+<code>k</code> para o tipo <code>v</code>. Observe que, quando estávamos
+fazendo listas de associação com listas normais, as chaves só precisavam
+ser equiparáveis (seu tipo pertencente à typeclass <code>Eq</code>), mas
+agora elas precisam ser ordenáveis. Essa é uma restrição essencial no
+módulo <code>Data.Map</code>. Ele precisa que as chaves sejam ordenáveis
+para que possa organizá-las em uma árvore.</p>
+<p>Você deve sempre usar <code>Data.Map</code> para associações de
+valores-chave, a menos que tenha chaves que não fazem parte da typeclass
+<code>Ord</code>.</p>
+<p><code>empty</code>{.label .function} representa um mapa vazio. Não
+aceita argumentos, apenas retorna um mapa vazio.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.empty fromList []</code></p>
+<p><code>insert</code>{.label .function} pega uma chave, um valor e um
+mapa e retorna um novo mapa que é exatamente como o antigo, apenas com a
+chave e o valor inseridos.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.empty fromList [] ghci&gt; Map.insert 3 100 Map.empty fromList [(3,100)] ghci&gt; Map.insert 5 600 (Map.insert 4 200 ( Map.insert 3 100  Map.empty)) fromList [(3,100),(4,200),(5,600)] ghci&gt; Map.insert 5 600 . Map.insert 4 200 . Map.insert 3 100 $ Map.empty fromList [(3,100),(4,200),(5,600)]</code></p>
+<p>Podemos implementar nosso próprio <code>fromList</code> usando o mapa
+vazio, <code>insert</code> e uma dobra. Assista:</p>
+<p><code>{.haskell:ghci} fromList' :: (Ord k) =&gt; [(k,v)] -&gt; Map.Map k v fromList' = foldr (\(k,v) acc -&gt; Map.insert k v acc) Map.empty</code></p>
+<p>É uma dobra bastante direta. Começamos com um mapa vazio e o dobramos
+da direita, inserindo os pares de valores-chave no acumulador à medida
+que avançamos.</p>
+<p><code>null</code>{.label .function} verifica se um mapa está
+vazio.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.null Map.empty True ghci&gt; Map.null $ Map.fromList [(2,3),(5,5)] False</code></p>
+<p><code>size</code>{.label .function} relata o tamanho de um mapa.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.size Map.empty 0 ghci&gt; Map.size $ Map.fromList [(2,4),(3,3),(4,2),(5,4),(6,4)] 5</code></p>
+<p><code>singleton</code>{.label .function} pega uma chave e um valor e
+cria um mapa que possui exatamente um mapeamento.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.singleton 3 9 fromList [(3,9)] ghci&gt; Map.insert 5 9 $ Map.singleton 3 9 fromList [(3,9),(5,9)]</code></p>
+<p><code>lookup</code>{.label .function} funciona como o
+<code>lookup</code> de <code>Data.List</code>, apenas opera em mapas.
+Ele retorna <code>Just something</code> se encontrar algo para a chave e
+<code>Nothing</code> se não encontrar.</p>
+<p><code>member</code>{.label .function} é um predicado que pega uma
+chave e um mapa e relata se a chave está no mapa ou não.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.member 3 $ Map.fromList [(3,6),(4,3),(6,9)] True ghci&gt; Map.member 3 $ Map.fromList [(2,5),(4,5)] False</code></p>
+<p><code>map</code>{.label .function} e <code>filter</code>{.label
+.function} funcionam muito como seus equivalentes de lista.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.map (*100) $ Map.fromList [(1,1),(2,4),(3,9)] fromList [(1,100),(2,400),(3,900)] ghci&gt; Map.filter isUpper $ Map.fromList [(1,'a'),(2,'A'),(3,'b'),(4,'B')] fromList [(2,'A'),(4,'B')]</code></p>
+<p><code>toList</code>{.label .function} é o inverso de
+<code>fromList</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.toList . Map.insert 9 2 $ Map.singleton 4 3 [(4,3),(9,2)]</code></p>
+<p><code>keys</code>{.label .function} e <code>elems</code>{.label
+.function} retornam listas de chaves e valores, respectivamente.
+<code>keys</code> é o equivalente a <code>map fst . Map.toList</code> e
+<code>elems</code> é o equivalente a
+<code>map snd . Map.toList</code>.</p>
+<p><code>fromListWith</code>{.label .function} é uma pequena função
+legal. Ele age como <code>fromList</code>, mas não descarta chaves
+duplicadas, mas usa uma função fornecida a ele para decidir o que fazer
+com elas. Digamos que um amigo possa ter vários números e tenhamos uma
+lista de associação configurada assim.</p>
+<p><code>{.haskell:hs} phoneBook =     [("amelia","555-2938")     ,("amelia","342-2492")     ,("freya","452-2928")     ,("isabella","493-2928")     ,("isabella","943-2929")     ,("isabella","827-9162")     ,("neil","205-2928")     ,("roald","939-8282")     ,("tenzing","853-2492")     ,("tenzing","555-2111")     ]</code></p>
+<p>Agora, se apenas usarmos <code>fromList</code> para colocar isso em
+um mapa, perderemos alguns números! Então, aqui está o que faremos:</p>
+<p><code>{.haskell:hs} phoneBookToMap :: (Ord k) =&gt; [(k, String)] -&gt; Map.Map k String phoneBookToMap xs = Map.fromListWith (\number1 number2 -&gt; number1 ++ ", " ++ number2) xs</code></p>
+<p><code>{.haskell:hs} ghci&gt; Map.lookup "isabella" $ phoneBookToMap phoneBook "827-9162, 943-2929, 493-2928" ghci&gt; Map.lookup "roald" $ phoneBookToMap phoneBook "939-8282" ghci&gt; Map.lookup "amelia" $ phoneBookToMap phoneBook "342-2492, 555-2938"</code></p>
+<p>Se uma chave duplicada for encontrada, a função que passamos será
+usada para combinar os valores dessas chaves em algum outro valor.
+Também poderíamos fazer com que todos os valores na lista de associação
+fossem listas singleton e, em seguida, podemos usar <code>++</code> para
+combinar os números.</p>
+<p><code>{.haskell:hs} phoneBookToMap :: (Ord k) =&gt; [(k, a)] -&gt; Map.Map k [a] phoneBookToMap xs = Map.fromListWith (++) $ map (\(k,v) -&gt; (k,[v])) xs</code></p>
+<p><code>{.haskell:ghci} ghci&gt; Map.lookup "isabella" $ phoneBookToMap phoneBook ["827-9162","943-2929","493-2928"]</code></p>
+<p>Muito legal! Outro caso de uso é se estamos criando um mapa a partir
+de uma lista de associação de números e, quando uma chave duplicada é
+encontrada, queremos que o maior valor da chave seja mantido.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.fromListWith max [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)] fromList [(2,100),(3,29),(4,22)]</code></p>
+<p>Ou poderíamos optar por somar valores nas mesmas chaves.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.fromListWith (+) [(2,3),(2,5),(2,100),(3,29),(3,22),(3,11),(4,22),(4,15)] fromList [(2,108),(3,62),(4,37)]</code></p>
+<p><code>insertWith</code>{.label .function} está para
+<code>insert</code> assim como <code>fromListWith</code> está para
+<code>fromList</code>. Ele insere um par de chave-valor em um mapa, mas
+se esse mapa já contiver a chave, ele usa a função passada para
+determinar o que fazer.</p>
+<p><code>{.haskell:ghci} ghci&gt; Map.insertWith (+) 3 100 $ Map.fromList [(3,4),(5,103),(6,339)] fromList [(3,104),(5,103),(6,339)]</code></p>
+<p>Essas foram apenas algumas funções do <code>Data.Map</code>. Você
+pode ver uma lista completa de funções na <a
+href="https://hackage.haskell.org/package/containers/docs/Data-Map.html">documentação</a>.</p>
+<h2>Data.Set {#data-set}</h2>
+<p><img src="assets/images/modules/legosets.png"
+alt="legosets" />{.right width=150 height=236}</p>
+<p>O módulo <code>Data.Set</code> nos oferece, bem, conjuntos. Como
+conjuntos da matemática. Conjuntos são como um cruzamento entre listas e
+mapas. Todos os elementos de um conjunto são únicos. E como eles são
+implementados internamente com árvores (como mapas em
+<code>Data.Map</code>), eles são ordenados. Verificar a associação,
+inserir, excluir etc. é muito mais rápido do que fazer a mesma coisa com
+as listas. A operação mais comum ao lidar com conjuntos é inserir em um
+conjunto, verificar a associação e converter um conjunto em uma
+lista.</p>
+<p>Como os nomes em <code>Data.Set</code> entram em conflito com muitos
+nomes de <code>Prelude</code> e <code>Data.List</code>, fazemos uma
+importação qualificada.</p>
+<p>Coloque esta declaração de importação em um script:</p>
+<p><code>{.haskell:ghci} import qualified Data.Set as Set</code></p>
+<p>E então carregue o script via GHCI.</p>
+<p>Digamos que temos dois pedaços de texto. Queremos descobrir quais
+caracteres foram usados em ambos.</p>
+<p><code>{.haskell:ghci} text1 = "I just had an anime dream. Anime... Reality... Are they so different?" text2 = "The old man left his garbage can out and now his trash is all over my lawn!"</code></p>
+<p>A função <code>fromList</code>{.label .function} funciona muito como
+você esperaria. Pega uma lista e a converte em um conjunto.</p>
+<p><code>{.haskell:ghci} ghci&gt; let set1 = Set.fromList text1 ghci&gt; let set2 = Set.fromList text2 ghci&gt; set1 fromList " .?AIRadefhijlmnorstuy" ghci&gt; set2 fromList " !Tabcdefghilmnorstuvwy"</code></p>
+<p>Como você pode ver, os itens são ordenados e cada elemento é único.
+Agora vamos usar a função <code>intersection</code>{.label .function}
+para ver quais elementos ambos compartilham.</p>
+<p><code>{.haskell:ghci} ghci&gt; Set.intersection set1 set2 fromList " adefhilmnorstuy"</code></p>
+<p>Podemos usar a função <code>difference</code>{.label .function} para
+ver quais letras estão no primeiro conjunto, mas não estão no segundo e
+vice-versa.</p>
+<p><code>{.haskell:ghci} ghci&gt; Set.difference set1 set2 fromList ".?AIRj" ghci&gt; Set.difference set2 set1 fromList "!Tbcgvw"</code></p>
+<p>Ou podemos ver todas as letras únicas usadas nas duas frases usando
+<code>union</code>{.label .function}.</p>
+<p><code>{.haskell:ghci} ghci&gt; Set.union set1 set2 fromList " !.?AIRTabcdefghijlmnorstuvwy"</code></p>
+<p>As funções <code>null</code>{.label .function},
+<code>size</code>{.label .function}, <code>member</code>{.label
+.function}, <code>empty</code>{.label .function},
+<code>singleton</code>{.label .function}, <code>insert</code>{.label
+.function} e <code>delete</code>{.label .function} funcionam todas como
+você esperaria.</p>
+<p><code>{.haskell:ghci} ghci&gt; Set.null Set.empty True ghci&gt; Set.null $ Set.fromList [3,4,5,5,4,3] False ghci&gt; Set.size $ Set.fromList [3,4,5,3,4,5] 3 ghci&gt; Set.singleton 9 fromList [9] ghci&gt; Set.insert 4 $ Set.fromList [9,3,8,1] fromList [1,3,4,8,9] ghci&gt; Set.insert 8 $ Set.fromList [5..10] fromList [5,6,7,8,9,10] ghci&gt; Set.delete 4 $ Set.fromList [3,4,5,4,3,4,5] fromList [3,5]</code></p>
+<p>Também podemos verificar subconjuntos ou subconjunto próprio. O
+conjunto A é um subconjunto do conjunto B se B contiver todos os
+elementos que A possui. O conjunto A é um subconjunto próprio do
+conjunto B se B contiver todos os elementos que A possui, mas tiver mais
+elementos.</p>
+<p><code>{.haskell:ghci} ghci&gt; Set.fromList [2,3,4] `Set.isSubsetOf` Set.fromList [1,2,3,4,5] True ghci&gt; Set.fromList [1,2,3,4,5] `Set.isSubsetOf` Set.fromList [1,2,3,4,5] True ghci&gt; Set.fromList [1,2,3,4,5] `Set.isProperSubsetOf` Set.fromList [1,2,3,4,5] False ghci&gt; Set.fromList [2,3,4,8] `Set.isSubsetOf` Set.fromList [1,2,3,4,5] False</code></p>
+<p>Também podemos mapear <code>map</code>{.label .function} sobre
+conjuntos e filtrar <code>filter</code>{.label .function} eles.</p>
+<p><code>{.haskell:ghci} ghci&gt; Set.filter odd $ Set.fromList [3,4,5,6,7,2,3,4] fromList [3,5,7] ghci&gt; Set.map (+1) $ Set.fromList [3,4,5,6,7,2,3,4] fromList [3,4,5,6,7,8]</code></p>
+<p>Os conjuntos são frequentemente usados para eliminar uma lista de
+duplicatas de uma lista, transformando-a primeiro em um conjunto com
+<code>fromList</code> e depois convertendo-o de volta para uma lista com
+<code>toList</code>{.label .function}. A função <code>Data.List</code>
+<code>nub</code> já faz isso, mas eliminar duplicatas para listas
+grandes é muito mais rápido se você as colocar em um conjunto e depois
+convertê-las novamente em uma lista do que usar o <code>nub</code>. Mas
+usar <code>nub</code> exige apenas que o tipo dos elementos da lista
+faça parte da typeclass <code>Eq</code>, ao passo que, se você deseja
+colocar elementos em um conjunto, o tipo da lista deve estar em
+<code>Ord</code>.</p>
+<p><code>{.haskell:ghci} ghci&gt; let setNub xs = Set.toList $ Set.fromList xs ghci&gt; setNub "HEY WHATS CRACKALACKIN" " ACEHIKLNRSTWY" ghci&gt; nub "HEY WHATS CRACKALACKIN" "HEY WATSCRKLIN"</code></p>
+<p><code>setNub</code> geralmente é mais rápido que <code>nub</code> em
+grandes listas, mas como você pode ver, <code>nub</code> preserva a
+ordem dos elementos da lista, enquanto <code>setNub</code> não.</p>
+<h2>Fazendo nossos próprios módulos (Making our own modules)
+{#making-our-own-modules}</h2>
+<p><img src="assets/images/modules/making_modules.png"
+alt="making modules" />{.right width=345 height=224}</p>
+<p>Vimos alguns módulos legais até agora, mas como fazemos nosso próprio
+módulo? Quase todas as linguagens de programação permitem dividir seu
+código em vários arquivos e o Haskell não é diferente. Ao fazer
+programas, é uma boa prática pegar funções e tipos que trabalham para um
+objetivo semelhante e colocá-los em um módulo. Dessa forma, você pode
+reutilizar facilmente essas funções em outros programas apenas
+importando seu módulo.</p>
+<p>Vamos ver como podemos criar nossos próprios módulos criando um
+pequeno módulo que fornece algumas funções para calcular o volume e a
+área de alguns objetos geométricos. Começaremos criando um arquivo
+chamado <code>Geometry.hs</code>.</p>
+<p>Dizemos que um módulo <em>exporta</em> funções. O que isso significa
+é que, quando importo um módulo, posso usar as funções que ele exporta.
+Ele pode definir funções que suas funções chamam internamente, mas só
+podemos ver e usar as que ele exporta.</p>
+<p>No início de um módulo, especificamos o nome do módulo. Se tivermos
+um arquivo chamado <code>Geometry.hs</code>, devemos nomear nosso módulo
+<code>Geometry</code>. Em seguida, especificamos as funções que ele
+exporta e, depois disso, podemos começar a escrever as funções. Então
+começaremos com isso.</p>
+<p><code>{.haskell:ghci} module Geometry ( sphereVolume , sphereArea , cubeVolume , cubeArea , cuboidArea , cuboidVolume ) where</code></p>
+<p>Como você pode ver, faremos áreas e volumes para esferas, cubos e
+cubóides. Vamos em frente e definir nossas funções então:</p>
+<p>```{.haskell:ghci} module Geometry ( sphereVolume , sphereArea ,
+cubeVolume , cubeArea , cuboidArea , cuboidVolume ) where</p>
+<p>sphereVolume :: Float -&gt; Float sphereVolume radius = (4.0 / 3.0) *
+pi * (radius ^ 3)</p>
+<p>sphereArea :: Float -&gt; Float sphereArea radius = 4 * pi * (radius
+^ 2)</p>
+<p>cubeVolume :: Float -&gt; Float cubeVolume side = cuboidVolume side
+side side</p>
+<p>cubeArea :: Float -&gt; Float cubeArea side = cuboidArea side side
+side</p>
+<p>cuboidVolume :: Float -&gt; Float -&gt; Float -&gt; Float
+cuboidVolume a b c = rectangleArea a b * c</p>
+<p>cuboidArea :: Float -&gt; Float -&gt; Float -&gt; Float cuboidArea a
+b c = rectangleArea a b * 2 + rectangleArea a c * 2 + rectangleArea c b
+* 2</p>
+<p>rectangleArea :: Float -&gt; Float -&gt; Float rectangleArea a b = a
+* b ```</p>
+<p>Geometria bastante padrão aqui. Há algumas coisas a serem observadas.
+Como um cubo é apenas um caso especial de cubóide, definimos sua área e
+volume, tratando-o como um cubóide cujos lados são todos do mesmo
+comprimento. Também definimos uma função auxiliar chamada
+<code>rectangleArea</code>, que calcula a área de um retângulo com base
+no comprimento de seus lados. É bastante trivial, porque é apenas
+multiplicação. Observe que o usamos em nossas funções no módulo (a saber
+<code>cuboidArea</code> e <code>cuboidVolume</code>), mas não o
+exportamos! Como queremos que nosso módulo apresente apenas funções para
+lidar com objetos tridimensionais, usamos <code>rectangleArea</code>,
+mas não o exportamos.</p>
+<p>Ao criar um módulo, geralmente exportamos apenas as funções que atuam
+como uma espécie de interface para o nosso módulo, para que a
+implementação seja ocultada. Se alguém estiver usando nosso módulo
+<code>Geometry</code>, não precisará se preocupar com funções que não
+exportamos. Podemos decidir mudar essas funções completamente ou
+excluí-las em uma versão mais recente (poderíamos excluir
+<code>rectangleArea</code> e apenas usar <code>*</code> em vez disso) e
+ninguém se importará, porque não as exportávamos em primeiro lugar.</p>
+<p>Para usar nosso módulo, basta fazer:</p>
+<p><code>{.haskell:ghci} import Geometry</code></p>
+<p><code>Geometry.hs</code> deve estar na mesma pasta em que está o
+programa que o importa.</p>
+<p>Os módulos também podem ter uma estrutura hierárquica. Cada módulo
+pode ter vários submódulos e eles podem ter seus próprios submódulos.
+Vamos separar essas funções para que <code>Geometry</code> seja um
+módulo que tenha três submódulos, um para cada tipo de objeto.</p>
+<p>Primeiro, faremos uma pasta chamada <code>Geometry</code>. Cuidado
+com o G maiúsculo. Nele, colocaremos três arquivos:
+<code>Sphere.hs</code>, <code>Cuboid.hs</code> e <code>Cube.hs</code>.
+Aqui está o que os arquivos conterão:</p>
+<p><code>Sphere.hs</code></p>
+<p>```{.haskell:ghci} module Geometry.Sphere ( volume , area ) where</p>
+<p>volume :: Float -&gt; Float volume radius = (4.0 / 3.0) * pi *
+(radius ^ 3)</p>
+<p>area :: Float -&gt; Float area radius = 4 * pi * (radius ^ 2) ```</p>
+<p><code>Cuboid.hs</code></p>
+<p>```{.haskell:ghci} module Geometry.Cuboid ( volume , area ) where</p>
+<p>volume :: Float -&gt; Float -&gt; Float -&gt; Float volume a b c =
+rectangleArea a b * c</p>
+<p>area :: Float -&gt; Float -&gt; Float -&gt; Float area a b c =
+rectangleArea a b * 2 + rectangleArea a c * 2 + rectangleArea c b *
+2</p>
+<p>rectangleArea :: Float -&gt; Float -&gt; Float rectangleArea a b = a
+* b ```</p>
+<p><code>Cube.hs</code></p>
+<p>```{.haskell:ghci} module Geometry.Cube ( volume , area ) where</p>
+<p>import qualified Geometry.Cuboid as Cuboid</p>
+<p>volume :: Float -&gt; Float volume side = Cuboid.volume side side
+side</p>
+<p>area :: Float -&gt; Float area side = Cuboid.area side side side
+```</p>
+<p>Tudo certo! Então, primeiro é <code>Geometry.Sphere</code>. Observe
+como o colocamos em uma pasta chamada <code>Geometry</code> e depois
+definimos o nome do módulo como <code>Geometry.Sphere</code>. Fizemos o
+mesmo para o cubóide. Observe também como nos três submódulos definimos
+funções com os mesmos nomes. Podemos fazer isso porque são módulos
+separados. Queremos usar funções de <code>Geometry.Cuboid</code> em
+<code>Geometry.Cube</code>, mas não podemos simplesmente fazer
+<code>import Geometry.Cuboid</code> porque exporta funções com os mesmos
+nomes que <code>Geometry.Cube</code>. É por isso que fazemos uma
+importação qualificada e está tudo bem.</p>
+<p>Então, agora, se estivermos em um arquivo que está no mesmo nível que
+a pasta <code>Geometry</code>, podemos fazer, digamos:</p>
+<p><code>{.haskell:ghci} import Geometry.Sphere</code></p>
+<p>E então podemos chamar <code>area</code> e <code>volume</code> e eles
+nos darão a área e o volume para uma esfera. E se quisermos fazer
+malabarismos com dois ou mais desses módulos, temos que fazer
+importações qualificadas porque eles exportam funções com os mesmos
+nomes. Então, fazemos algo como:</p>
+<p><code>{.haskell:ghci} import qualified Geometry.Sphere as Sphere import qualified Geometry.Cuboid as Cuboid import qualified Geometry.Cube as Cube</code></p>
+<p>E então podemos chamar <code>Sphere.area</code>,
+<code>Sphere.volume</code>, <code>Cuboid.area</code>, etc. e cada um
+calculará a área ou o volume para seu objeto correspondente.</p>
+<p>Na próxima vez que você se encontrar escrevendo um arquivo realmente
+grande e com muitas funções, tente ver quais funções atendem a algum
+objetivo comum e depois veja se você pode colocá-las em seu próprio
+módulo. Você poderá importar seu módulo na próxima vez em que estiver
+escrevendo um programa que requer a mesma funcionalidade.</p>
+            </article>
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="higher-order-functions.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="making-our-own-types-and-typeclasses.html">Próximo</a></li>
+    </ul>
+</div>
+
+        </div>
+    </div>
+    <script type="text/javascript" src="sh/Scripts/shCore.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushHaskell.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushPlain.js"></script>
+    <script type="text/javascript" src="assets/js/toggleShow.js"></script>
+    <script type="text/javascript">
+        dp.SyntaxHighlighter.HighlightAll('code');
+    </script>
+</body>
+</html>

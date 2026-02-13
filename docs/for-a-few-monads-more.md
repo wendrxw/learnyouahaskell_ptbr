@@ -1,20 +1,20 @@
-# Por Mais Algumas Mônadas
+# Por Mais Algumas Monads
 
 ![existem dois tipos de pessoas no mundo, meu amigo. aquelas que aprendem haskell e aquelas que têm o trabalho de programar em java](assets/images/for-a-few-monads-more/clint.png){.right width=189 height=400}
 
-Vimos como as mônadas podem ser usadas para pegar valores com contextos e aplicá-los a funções, e como o uso de `>>=` ou da notação `do` nos permite focar nos próprios valores enquanto o contexto é tratado para nós.
+Vimos como as Monads podem ser usadas para pegar valores com contextos e aplicá-los a funções, e como o uso de `>>=` ou da `do notation` nos permite focar nos próprios valores enquanto o contexto é tratado para nós.
 
-Conhecemos a mônada `Maybe` e vimos como ela adiciona um contexto de possível falha aos valores. Aprendemos sobre a mônada de lista e vimos como ela nos permite introduzir facilmente o não-determinismo em nossos programas. Também aprendemos como trabalhar na mônada `IO`, antes mesmo de sabermos o que era uma mônada!
+Conhecemos a Maybe Monad e vimos como ela adiciona um contexto de possível falha aos valores. Aprendemos sobre a List Monad e vimos como ela nos permite introduzir facilmente o não-determinismo em nossos programas. Também aprendemos como trabalhar na IO Monad, antes mesmo de sabermos o que era uma Monad!
 
-Neste capítulo, aprenderemos sobre algumas outras mônadas. Veremos como elas podem tornar nossos programas mais claros, permitindo-nos tratar todos os tipos de valores como valores monádicos. Explorar mais algumas mônadas também solidificará nossa intuição sobre elas.
+Neste capítulo, aprenderemos sobre algumas outras Monads. Veremos como elas podem tornar nossos programas mais claros, permitindo-nos tratar todos os tipos de valores como monadic values. Explorar mais algumas Monads também solidificará nossa intuição sobre elas.
 
-As mônadas que exploraremos fazem parte do pacote `mtl`. Um pacote Haskell é uma coleção de módulos. O pacote `mtl` vem com a Haskell Platform, então você provavelmente já o tem. Para verificar se você o tem, digite `ghc-pkg list` na linha de comando. Isso mostrará quais pacotes Haskell você tem instalados e um deles deve ser `mtl`, seguido por um número de versão.
+As Monads que exploraremos fazem parte do pacote `mtl`. Um pacote Haskell é uma coleção de módulos. O pacote `mtl` vem com a Haskell Platform, então você provavelmente já o tem. Para verificar se você o tem, digite `ghc-pkg list` na linha de comando. Isso mostrará quais pacotes Haskell você tem instalados e um deles deve ser `mtl`, seguido por um número de versão.
 
 ## Writer? Quase nem a conheço! {#writer}
 
-Carregamos nossa arma com a mônada `Maybe`, a mônada de lista e a mônada `IO`. Agora vamos colocar a mônada `Writer` na câmara e ver o que acontece quando disparamos!
+Carregamos nossa arma com a Maybe Monad, a List Monad e a IO Monad. Agora vamos colocar a Writer Monad na câmara e ver o que acontece quando disparamos!
 
-Enquanto `Maybe` é para valores com um contexto adicionado de falha e a lista é para valores não-determinísticos, a mônada `Writer` é para valores que possuem outro valor anexado que atua como uma espécie de valor de log (registro). O `Writer` nos permite fazer computações enquanto garante que todos os valores de log sejam combinados em um único valor de log que é então anexado ao resultado.
+Enquanto `Maybe` é para valores com um contexto adicionado de falha e a lista é para valores não-determinísticos, a Writer Monad é para valores que possuem outro valor anexado que atua como uma espécie de valor de log (registro). O `Writer` nos permite fazer computações enquanto garante que todos os valores de log sejam combinados em um único valor de log que é então anexado ao resultado.
 
 Por exemplo, podemos querer equipar nossos valores com strings que expliquem o que está acontecendo, provavelmente para fins de depuração. Considere uma função que recebe um número de bandidos em uma gangue e nos diz se essa é uma gangue grande ou não. Essa é uma função muito simples:
 
@@ -43,7 +43,7 @@ ghci> isBigGang 30
 
 Até aqui tudo bem. `isBigGang` recebe um valor normal e retorna um valor com um contexto. Como acabamos de ver, alimentá-la com um valor normal não é um problema. Agora, e se já tivermos um valor que tenha uma string de log anexada a ele, como `(3, "Gangue pequena.")`, e quisermos alimentá-lo para `isBigGang`? Parece que, mais uma vez, nos deparamos com esta questão: se temos uma função que recebe um valor normal e retorna um valor com um contexto, como pegamos um valor com um contexto e o alimentamos para a função?
 
-Quando estávamos explorando a mônada `Maybe`, criamos uma função `applyMaybe`, que recebia um valor `Maybe a` e uma função do tipo `a -> Maybe b` e alimentava esse valor `Maybe a` na função, embora a função receba um `a` normal em vez de um `Maybe a`. Ela fazia isso cuidando do contexto que vem com os valores `Maybe a`, que é o fato de serem valores com falha possível. Mas dentro da função `a -> Maybe b`, fomos capazes de tratar esse valor como apenas um valor normal, porque `applyMaybe` (que mais tarde se tornou `>>=`) cuidou de verificar se era um valor `Nothing` or `Just`.
+Quando estávamos explorando a Maybe Monad, criamos uma função `applyMaybe`, que recebia um valor `Maybe a` e uma função do tipo `a -> Maybe b` e alimentava esse valor `Maybe a` na função, embora a função receba um `a` normal em vez de um `Maybe a`. Ela fazia isso cuidando do contexto que vem com os valores `Maybe a`, que é o fato de serem valores com falha possível. Mas dentro da função `a -> Maybe b`, fomos capazes de tratar esse valor como apenas um valor normal, porque `applyMaybe` (que mais tarde se tornou `>>=`) cuidou de verificar se era um valor `Nothing` or `Just`.
 
 Na mesma linha, vamos criar uma função que receba um valor com um log anexado, ou seja, um valor `(a, String)` e uma função do tipo `a -> (b, String)` e alimente esse valor na função. Chamaremos de `applyLog`. Mas como um valor `(a, String)` não carrega consigo um contexto de falha possível, mas sim um contexto de um valor de log adicional, `applyLog` vai garantir que o log do valor original não seja perdido, mas sim unido ao log do valor que resulta da função. Aqui está a implementação de `applyLog`:
 
@@ -74,10 +74,10 @@ ghci> ("Bathcat","Recebeu nome de fora da lei.") `applyLog` (\x -> (length x, "A
 
 Veja como dentro do lambda, `x` é apenas uma string normal e não uma tupla, e como o `applyLog` cuida de anexar os logs.
 
-### Monóides ao resgate
+### Monoids ao resgate
 
 ::: {.hintbox}
-Certifique-se de saber o que são [monóides](functors-applicative-functors-and-monoids.html#monoids) a esta altura! Saudações.
+Certifique-se de saber o que são [Monoids](functors-applicative-functors-and-monoids.html#monoids) a esta altura! Saudações.
 :::
 
 Até agora, `applyLog` recebe valores do tipo `(a, String)`, mas existe alguma razão para o log ter que ser uma `String`? Ele usa `++` para anexar os logs, então isso não funcionaria para qualquer tipo de lista, e não apenas uma lista de caracteres? Com certeza funcionaria. Podemos mudar o seu tipo para isto:
@@ -88,7 +88,7 @@ applyLog :: (a,[c]) -> (a -> (b,[c])) -> (b,[c])
 
 Agora, o log é uma lista. O tipo de valores contidos na lista tem que ser o mesmo para a lista original, bem como para a lista que a função retorna, caso contrário não seríamos capazes de usar `++` para juntá-los.
 
-Isso funcionaria para bytestrings? Não há razão para não funcionar. No entanto, o tipo que temos agora funciona apenas para listas. Parece que teríamos que fazer um `applyLog` separado para bytestrings. Mas espere! Tanto listas quanto bytestrings são monóides. Como tal, ambos são instâncias da typeclass `Monoid`, o que significa que implementam a função `mappend`. E tanto para listas quanto para bytestrings, `mappend` serve para concatenar. Veja:
+Isso funcionaria para bytestrings? Não há razão para não funcionar. No entanto, o tipo que temos agora funciona apenas para listas. Parece que teríamos que fazer um `applyLog` separado para bytestrings. Mas espere! Tanto listas quanto bytestrings são Monoids. Como tal, ambos são instâncias da typeclass `Monoid`, o que significa que implementam a função `mappend`. E tanto para listas quanto para bytestrings, `mappend` serve para concatenar. Veja:
 
 ```{.haskell:hs}
 ghci> [1,2,3] `mappend` [4,5,6]
@@ -104,7 +104,7 @@ applyLog :: (Monoid m) => (a,m) -> (a -> (b,m)) -> (b,m)
 applyLog (x,log) f = let (y,newLog) = f x in (y,log `mappend` newLog)
 ```
 
-Como o valor acompanhante pode agora ser qualquer valor monóide, não precisamos mais pensar na tupla como um valor e um log, mas agora podemos pensar nela como um valor com um valor monóide acompanhante. Por exemplo, podemos ter uma tupla que tenha um nome de item e um preço de item como o valor monóide. Apenas usamos o `newtype` `Sum` para garantir que os preços sejam somados à medida que operamos com os itens. Aqui está uma função que adiciona bebida a alguma comida de cowboy:
+Como o valor acompanhante pode agora ser qualquer valor Monoid, não precisamos mais pensar na tupla como um valor e um log, mas agora podemos pensar nela como um valor com um valor Monoid acompanhante. Por exemplo, podemos ter uma tupla que tenha um nome de item e um preço de item como o valor Monoid. Apenas usamos o `newtype` `Sum` para garantir que os preços sejam somados à medida que operamos com os itens. Aqui está uma função que adiciona bebida a alguma comida de cowboy:
 
 ```{.haskell:hs}
 import Data.Monoid
@@ -136,7 +136,7 @@ ghci> ("carne-de-cachorro", Sum 5) `applyLog` addDrink
 ("cerveja",Sum {getSum = 35})
 ```
 
-O leite custa 25 centavos, mas se o tomarmos com feijão que custa 10 centavos, acabaremos pagando 35 centavos. Agora está claro como o valor anexado nem sempre tem que ser um log, pode ser qualquer valor monóide e como dois desses valores são combinados em um depende do monóide. Quando estávamos fazendo logs, eles eram concatenados, mas agora, os números estão sendo somados.
+O leite custa 25 centavos, mas se o tomarmos com feijão que custa 10 centavos, acabaremos pagando 35 centavos. Agora está claro como o valor anexado nem sempre tem que ser um log, pode ser qualquer valor Monoid e como dois desses valores são combinados em um depende do Monoid. Quando estávamos fazendo logs, eles eram concatenados, mas agora, os números estão sendo somados.
 
 Como o valor que `addDrink` retorna é uma tupla do tipo `(Comida,Preco)`, podemos alimentar esse resultado para `addDrink` novamente, para que ele nos diga o que devemos beber junto com nossa bebida e quanto isso nos custará. Vamos tentar:
 
@@ -149,7 +149,7 @@ Adicionar uma bebida a alguma carne de cachorro resulta em uma cerveja e 30 cent
 
 ### O tipo Writer
 
-Agora que vimos que um valor com um monóide anexado age como um valor monádico, vamos examinar a instância `Monad` para tipos de tais valores. O módulo `Control.Monad.Writer` exporta o tipo `Writer w a` junto com sua instância `Monad` e algumas funções úteis para lidar com valores deste tipo.
+Agora que vimos que um valor com um Monoid anexado age como um monadic value, vamos examinar a Monad instance para tipos de tais valores. O módulo `Control.Monad.Writer` exporta o tipo `Writer w a` junto com sua Monad instance e algumas funções úteis para lidar com valores deste tipo.
 
 Primeiro, vamos examinar o próprio tipo. Para anexar um monóide a um valor, basta colocá-los juntos em uma tupla. O tipo `Writer w a` é apenas um wrapper `newtype` para isso. Sua definição é muito simples:
 
@@ -157,9 +157,9 @@ Primeiro, vamos examinar o próprio tipo. Para anexar um monóide a um valor, ba
 newtype Writer w a = Writer { runWriter :: (a, w) }
 ```
 
-Ele é envolvido em um `newtype` para que possa ser feito uma instância de `Monad` e para que seu tipo seja separado de uma tupla normal. O parâmetro de tipo `a` representa o tipo do valor e o parâmetro de tipo `w` o tipo do valor monóide anexado.
+Ele é envolvido em um `newtype` para que possa ser feito uma instância de `Monad` e para que seu tipo seja separado de uma tupla normal. O parâmetro de tipo `a` representa o tipo do valor e o parâmetro de tipo `w` o tipo do valor Monoid anexado.
 
-Sua instância `Monad` é definida desta forma:
+Sua Monad instance é definida desta forma:
 
 ```{.haskell:hs}
 instance (Monoid w) => Monad (Writer w) where
@@ -169,9 +169,9 @@ instance (Monoid w) => Monad (Writer w) where
 
 ![quando tiver que fazer cocô, faça, não fale](assets/images/for-a-few-monads-more/angeleyes.png){.right width=383 height=248}
 
-Primeiro de tudo, vamos examinar o `>>=`. Sua implementação é essencialmente a mesma que a do `applyLog`, só que agora que nossa tupla está envolvida no `newtype` `Writer`, temos que desempacotá-la ao fazer o pattern matching. Pegamos o valor `x` e aplicamos a função `f` a ele. Isso nos dá um valor `Writer w a` e usamos uma expressão `let` para fazer o pattern matching sobre ele. Apresentamos `y` como o novo resultado e usamos `mappend` para combinar o valor monóide antigo com o novo. Empacotamos isso com o valor resultante em uma tupla e então envolvemos com o construtor `Writer` para que nosso resultado seja um valor `Writer` em vez de apenas uma tupla desempacotada.
+Primeiro de tudo, vamos examinar o `>>=`. Sua implementação é essencialmente a mesma que a do `applyLog`, só que agora que nossa tupla está envolvida no `newtype` `Writer`, temos que desempacotá-la ao fazer o pattern matching. Pegamos o valor `x` e aplicamos a função `f` a ele. Isso nos dá um valor `Writer w a` e usamos uma expressão `let` para fazer o pattern matching sobre ele. Apresentamos `y` como o novo resultado e usamos `mappend` para combinar o valor Monoid antigo com o novo. Empacotamos isso com o valor resultante em uma tupla e então envolvemos com o construtor `Writer` para que nosso resultado seja um valor `Writer` em vez de apenas uma tupla desempacotada.
 
-Então, e quanto ao `return`? Ele tem que receber um valor e colocá-lo em um contexto mínimo padrão que ainda apresente esse valor como resultado. Então, qual seria esse contexto para os valores `Writer`? Se quisermos que o valor monóide acompanhante afete outros valores monóides o mínimo possível, faz sentido usar `mempty`. `mempty` é usado para apresentar valores de identidade monóide, como `""`, `Sum 0` e bytestrings vazias. Sempre que usamos `mappend` entre `mempty` e algum outro valor monóide, o resultado é esse outro valor monóide. Portanto, se usarmos `return` para criar um valor `Writer` e usarmos `>>=` para alimentar esse valor em uma função, o valor monóide resultante será apenas o que a função retornar. Vamos usar `return` no número `3` algumas vezes, só que o associaremos a um monóide diferente a cada vez:
+Então, e quanto ao `return`? Ele tem que receber um valor e colocá-lo em um contexto mínimo padrão que ainda apresente esse valor como resultado. Então, qual seria esse contexto para os valores `Writer`? Se quisermos que o valor Monoid acompanhante afete outros valores Monoids o mínimo possível, faz sentido usar `mempty`. `mempty` é usado para apresentar valores de identidade Monoid, como `""`, `Sum 0` e bytestrings vazias. Sempre que usamos `mappend` entre `mempty` e algum outro valor Monoid, o resultado é esse outro valor Monoid. Portanto, se usarmos `return` para criar um valor `Writer` e usarmos `>>=` para alimentar esse valor em uma função, o valor Monoid resultante será apenas o que a função retornar. Vamos usar `return` no número `3` algumas vezes, só que o associaremos a um Monoid diferente a cada vez:
 
 ```{.haskell:hs}
 ghci> runWriter (return 3 :: Writer String Int)
@@ -182,13 +182,13 @@ ghci> runWriter (return 3 :: Writer (Product Int) Int)
 (3,Product {getProduct = 1})
 ```
 
-Como o `Writer` não possui uma instância `Show`, tivemos que usar `runWriter` para converter nossos valores `Writer` em tuplas normais que podem ser exibidas. Para `String`, o valor monóide é a string vazia. Com `Sum`, é `0`, porque se somarmos 0 a algo, esse algo permanece o mesmo. Para `Product`, a identidade é `1`.
+Como o `Writer` não possui uma instância `Show`, tivemos que usar `runWriter` para converter nossos valores `Writer` em tuplas normais que podem ser exibidas. Para `String`, o valor Monoid é a string vazia. Com `Sum`, é `0`, porque se somarmos 0 a algo, esse algo permanece o mesmo. Para `Product`, a identidade é `1`.
 
-A instância `Writer` não apresenta uma implementação para `fail`, por isso, se um pattern match falhar na notação `do`, o `error` é chamado.
+A Writer instance não apresenta uma implementação para `fail`, por isso, se um pattern match falhar na `do notation`, o `error` é chamado.
 
-### Usando a notação do com o Writer
+### Usando a do notation com o Writer
 
-Agora que temos uma instância `Monad`, estamos livres para usar a notação `do` para valores `Writer`. É útil para quando temos vários valores `Writer` e queremos fazer coisas com eles. Assim como com outras mônadas, podemos tratá-los como valores normais e o contexto será cuidado para nós. Neste caso, todos os valores monóides que vêm anexados são combinados com `mappend` e, portanto, são refletidos no resultado final. Aqui está um exemplo simples de uso da notação `do` com `Writer` para multiplicar dois números:
+Agora que temos uma Monad instance, estamos livres para usar a `do notation` para valores `Writer`. É útil para quando temos vários valores `Writer` e queremos fazer coisas com eles. Assim como com outras Monads, podemos tratá-los como valores normais e o contexto será cuidado para nós. Neste caso, todos os valores Monoids que vêm anexados são combinados com `mappend` e, portanto, são refletidos no resultado final. Aqui está um exemplo simples de uso da `do notation` com `Writer` para multiplicar dois números:
 
 ```{.haskell:hs}
 import Control.Monad.Writer
@@ -203,14 +203,14 @@ multWithLog = do
     return (a*b)
 ```
 
-`logNumber` recebe um número e cria um valor `Writer` a partir dele. Para o monóide, usamos uma lista de strings e equipamos o número com uma lista unitária que apenas diz que temos esse número. `multWithLog` é um valor `Writer` que multiplica `3` e `5` e garante que seus logs anexados sejam incluídos no log final. Usamos `return` para apresentar `a*b` como resultado. Como o `return` apenas recebe algo e o coloca em um contexto mínimo, podemos ter certeza de que ele não adicionará nada ao log. Aqui está o que vemos se executarmos isso:
+`logNumber` recebe um número e cria um valor `Writer` a partir dele. Para o Monoid, usamos uma lista de strings e equipamos o número com uma lista unitária que apenas diz que temos esse número. `multWithLog` é um valor `Writer` que multiplica `3` e `5` e garante que seus logs anexados sejam incluídos no log final. Usamos `return` para apresentar `a*b` como resultado. Como o `return` apenas recebe algo e o coloca em um contexto mínimo, podemos ter certeza de que ele não adicionará nada ao log. Aqui está o que vemos se executarmos isso:
 
 ```{.haskell:hs}
 ghci> runWriter multWithLog
 (15,["Peguei o numero: 3","Peguei o numero: 5"])
 ```
 
-Às vezes, queremos apenas que algum valor monóide seja incluído em algum ponto específico. Para isso, a função `tell` é útil. Ela faz parte da typeclass `MonadWriter` e, no caso do `Writer`, ela recebe um valor monóide, como `["Isso esta acontecendo"]`, e cria um valor `Writer` que apresenta o valor fictício `()` como seu resultado, mas tem o valor monóide desejado anexado. Quando temos um valor monádico que tem `()` como resultado, não o vinculamos a uma variável. Aqui está o `multWithLog` mas com algum relatório extra incluído:
+Às vezes, queremos apenas que algum valor Monoid seja incluído em algum ponto específico. Para isso, a função `tell` é útil. Ela faz parte da typeclass `MonadWriter` e, no caso do `Writer`, ela recebe um valor Monoid, como `["Isso esta acontecendo"]`, e cria um valor `Writer` que apresenta o valor fictício `()` como seu resultado, mas tem o valor Monoid desejado anexado. Quando temos um valor monádico que tem `()` como resultado, não o vinculamos a uma variável. Aqui está o `multWithLog` mas com algum relatório extra incluído:
 
 ```{.haskell:hs}
 multWithLog :: Writer [String] Int
@@ -245,7 +245,7 @@ ghci> gcd' 8 3
 1
 ```
 
-Ele concorda. Muito bom! Agora, queremos equipar nosso resultado com um contexto, e o contexto será um valor monóide que atua como um log. Como antes, usaremos uma lista de strings como nosso monóide. Portanto, o tipo da nossa nova função `gcd'` deve ser:
+Ele concorda. Muito bom! Agora, queremos equipar nosso resultado com um contexto, e o contexto será um valor Monoid que atua como um log. Como antes, usaremos uma lista de strings como nosso Monoid. Portanto, o tipo da nossa nova função `gcd'` deve ser:
 
 ```{.haskell:hs}
 gcd' :: Int -> Int -> Writer [String] Int
@@ -266,13 +266,13 @@ gcd' a b
         gcd' b (a `mod` b)
 ```
 
-Esta função recebe dois valores `Int` normais e retorna um `Writer [String] Int`, ou seja, um `Int` que tem um contexto de log. No caso em que `b` é `0`, em vez de apenas dar `a` como resultado, usamos uma expressão `do` para compor um valor `Writer` como resultado. Primeiro usamos o `tell` para relatar que terminamos e depois usamos o `return` para apresentar `a` como o resultado da expressão `do`. Em vez dessa expressão `do`, poderíamos também ter escrito isto:
+Esta função recebe dois valores `Int` normais e retorna um `Writer [String] Int`, ou seja, um `Int` que tem um contexto de log. No caso em que `b` é `0`, em vez de apenas dar `a` como resultado, usamos uma `do notation` para compor um valor `Writer` como resultado. Primeiro usamos o `tell` para relatar que terminamos e depois usamos o `return` para apresentar `a` como o resultado da `do notation`. Em vez dessa `do notation`, poderíamos também ter escrito isto:
 
 ```{.haskell:hs}
 Writer (a, ["Terminei com " ++ show a])
 ```
 
-No entanto, acho que a expressão `do` é mais fácil de ler. Em seguida, temos o caso em que `b` não é `0`. Neste caso, registramos que estamos usando o `mod` para descobrir o resto da divisão de `a` e `b`. Então, a segunda linha da expressão `do` simplesmente chama recursivamente o `gcd'`. Lembre-se, o `gcd'` agora retorna finalmente um valor `Writer`, então é perfeitamente válido que ``gcd' b (a `mod` b)`` seja uma linha em uma expressão `do`.
+No entanto, acho que a `do notation` é mais fácil de ler. Em seguida, temos o caso em que `b` não é `0`. Neste caso, registramos que estamos usando o `mod` para descobrir o resto da divisão de `a` e `b`. Então, a segunda linha da `do notation` simplesmente chama recursivamente o `gcd'`. Lembre-se, o `gcd'` agora retorna finalmente um valor `Writer`, então é perfeitamente válido que ``gcd' b (a `mod` b)`` seja uma linha em uma `do notation`.
 
 Embora possa ser útil rastrear a execução deste novo `gcd'` manualmente para ver como os logs são anexados, acho que é mais esclarecedor apenas olhar para o panorama geral e ver estes como valores com um contexto e, a partir daí, ganhar uma visão de qual será o resultado final.
 
@@ -293,11 +293,11 @@ ghci> mapM_ putStrLn $ snd $ runWriter (gcd' 8 3)
 Terminei com 1
 ```
 
-Acho incrível como conseguimos mudar nosso algoritmo comum para um que relata o que faz à medida que avança, apenas mudando valores normais para valores monádicos e deixando que a implementação do `>>=` para o `Writer` cuide dos logs para nós. Podemos adicionar um mecanismo de registro a quase qualquer função. Basta substituir os valores normais por valores `Writer` onde quisermos e mudar a aplicação normal de funções para `>>=` (ou expressões `do` se isso aumentar a legibilidade).
+Acho incrível como conseguimos mudar nosso algoritmo comum para um que relata o que faz à medida que avança, apenas mudando valores normais para monadic values e deixando que a implementação do `>>=` para o `Writer` cuide dos logs para nós. Podemos adicionar um mecanismo de registro a quase qualquer função. Basta substituir os valores normais por valores `Writer` onde quisermos e mudar a aplicação normal de funções para `>>=` (ou `do notation` se isso aumentar a legibilidade).
 
 ### Construção de lista ineficiente
 
-Ao usar a mônada `Writer`, você deve ter cuidado com qual monóide usar, porque usar listas pode às vezes tornar-se muito lento. Isso ocorre porque as listas usam o `++` para o `mappend`, e usar o `++` para adicionar algo ao final de uma lista é lento se essa lista for muito longa.
+Ao usar a Writer Monad, você deve ter cuidado com qual Monoid usar, porque usar listas pode às vezes tornar-se muito lento. Isso ocorre porque as listas usam o `++` para o `mappend`, e usar o `++` para adicionar algo ao final de uma lista é lento se essa lista for muito longa.
 
 Em nossa função `gcd'`, o registro é rápido porque a anexação da lista acaba parecendo com isto:
 
@@ -305,7 +305,7 @@ Em nossa função `gcd'`, o registro é rápido porque a anexação da lista aca
 a ++ (b ++ (c ++ (d ++ (e ++ f))))
 ```
 
-As listas são uma estrutura de dados que é construída da esquerda para a direita, e isso é eficiente porque primeiro construímos totalmente a parte esquerda de uma lista e só então adicionamos uma lista mais longa à direita. Mas se não formos cuidadosos, usar a mônada `Writer` pode produzir uma anexação de lista que se parece com isto:
+As listas são uma estrutura de dados que é construída da esquerda para a direita, e isso é eficiente porque primeiro construímos totalmente a parte esquerda de uma lista e só então adicionamos uma lista mais longa à direita. Mas se não formos cuidadosos, usar a Writer Monad pode produzir uma anexação de lista que se parece com isto:
 
 ```{.haskell:hs}
 ((((a ++ b) ++ c) ++ d) ++ e) ++ f
@@ -361,7 +361,7 @@ Lembre-se, `f` e `g` são funções que recebem listas e anexam algo a elas. Ent
 
 Anexamos duas listas de diferença apenas criando uma nova função que primeiro aplica uma lista de diferença a alguma lista e depois a outra.
 
-Vamos criar um wrapper `newtype` para listas de diferença para que possamos facilmente dar a elas instâncias de monóide:
+Vamos criar um wrapper `newtype` para listas de diferença para que possamos facilmente dar a elas Monoid instances:
 
 ```{.haskell:hs}
 newtype DiffList a = DiffList { getDiffList :: [a] -> [a] }
@@ -379,7 +379,7 @@ fromDiffList (DiffList f) = f []
 
 Para transformar uma lista normal em uma lista de diferença, basta fazermos o que fizemos antes e transformá-la em uma função que a anexa a outra lista. Como uma lista de diferença é uma função que anexa algo a outra lista, se quisermos apenas esse "algo", aplicamos a função a uma lista vazia!
 
-Aqui está a instância `Monoid`:
+Aqui está a Monoid instance:
 
 ```{.haskell:hs}
 instance Monoid (DiffList a) where
@@ -483,7 +483,7 @@ ghci> (fmap f g) 8
 55
 ```
 
-Também vimos que as funções são functores aplicativos. Elas nos permitem operar nos resultados eventuais das funções como se já tivéssemos seus resultados. Aqui está um exemplo:
+Também vimos que as funções são Applicative Functors. Elas nos permitem operar nos resultados eventuais das funções como se já tivéssemos seus resultados. Aqui está um exemplo:
 
 ```{.haskell:hs}
 ghci> let f = (+) <$> (*2) <*> (+10)
@@ -493,9 +493,9 @@ ghci> f 3
 
 A expressão `(+) <$> (*2) <*> (+10)` cria uma função que recebe um número, dá esse número para `(*2)` e `(+10)` e depois soma os resultados. Por exemplo, se aplicarmos esta função a `3`, ela aplica tanto `(*2)` quanto `(+10)` a `3`, dando `6` e `13`. Então, ela chama `(+)` com `6` e `13` e o resultado é `19`.
 
-O tipo de função `(->) r` não é apenas um functor e um functor aplicativo, mas também é uma mônada. Assim como outros valores monádicos que conhecemos até agora, uma função também pode ser considerada um valor com um contexto. O contexto para funções é que esse valor ainda não está presente e que temos que aplicar essa função a algo para obter seu valor de resultado.
+O tipo de função `(->) r` não é apenas um Functor e um Applicative Functor, mas também é uma Monad. Assim como outros monadic values que conhecemos até agora, uma função também pode ser considerada um valor com um contexto. O contexto para funções é que esse valor ainda não está presente e que temos que aplicar essa função a algo para obter seu valor de resultado.
 
-Como já estamos familiarizados com o funcionamento das funções como functores e functores aplicativos, vamos mergulhar de cabeça e ver como é a sua instância `Monad`. Ela está localizada em `Control.Monad.Instances` e funciona mais ou menos assim:
+Como já estamos familiarizados com o funcionamento das funções como Functors e Applicative Functors, vamos mergulhar de cabeça e ver como é a sua Monad instance. Ela está localizada em `Control.Monad.Instances` e funciona mais ou menos assim:
 
 ```{.haskell:hs}
 instance Monad ((->) r) where
@@ -505,9 +505,9 @@ instance Monad ((->) r) where
 
 Já vimos como o `pure` é implementado para funções, e o `return` é basicamente a mesma coisa que o `pure`. Ele recebe um valor e o coloca em um contexto mínimo que sempre tem esse valor como resultado. E a única maneira de criar uma função que sempre tenha um determinado valor como resultado é fazê-la ignorar completamente o seu parâmetro.
 
-A implementação para o `>>=` parece um pouco enigmática, mas não é tudo isso. Quando usamos o `>>=` para alimentar um valor monádico para uma função, o resultado é sempre um valor monádico. Portanto, neste caso, quando alimentamos uma função para outra função, o resultado também é uma função. É por isso que o resultado começa como um lambda. Todas as implementações do `>>=` até agora sempre isolaram de alguma forma o resultado do valor monádico e depois aplicaram a função `f` a esse resultado. A mesma coisa acontece aqui. Para obter o resultado de uma função, temos que aplicá-la a algo, e é por isso que fazemos `(h w)` aqui para obter o resultado da função e depois aplicamos `f` a isso. O `f` retorna um valor monádico, que é uma função no nosso caso, por isso também o aplicamos a `w`.
+A implementação para o `>>=` parece um pouco enigmática, mas não é tudo isso. Quando usamos o `>>=` para alimentar um monadic value para uma função, o resultado é sempre um monadic value. Portanto, neste caso, quando alimentamos uma função para outra função, o resultado também é uma função. É por isso que o resultado começa como um lambda. Todas as implementações do `>>=` até agora sempre isolaram de alguma forma o resultado do monadic value e depois aplicaram a função `f` a esse resultado. A mesma coisa acontece aqui. Para obter o resultado de uma função, temos que aplicá-la a algo, e é por isso que fazemos `(h w)` aqui para obter o resultado da função e depois aplicamos `f` a isso. O `f` retorna um monadic value, que é uma função no nosso caso, por isso também o aplicamos a `w`.
 
-Se você não entender como o `>>=` funciona neste momento, não se preocupe, porque com exemplos veremos que esta é uma mônada muito simples. Aqui está uma expressão `do` que utiliza esta mônada:
+Se você não entender como o `>>=` funciona neste momento, não se preocupe, porque com exemplos veremos que esta é uma Monad muito simples. Aqui está uma `do notation` que utiliza esta Monad:
 
 ```{.haskell:hs}
 import Control.Monad.Instances
@@ -519,14 +519,14 @@ addStuff = do
     return (a+b)
 ```
 
-Isso é a mesma coisa que a expressão aplicativa que escrevemos anteriormente, só que agora ela depende das funções serem mônadas. Uma expressão `do` sempre resulta em um valor monádico e esta não é diferente. O resultado deste valor monádico é uma função. O que acontece aqui é que ela recebe um número e então o `(*2)` é aplicado a esse número e o resultado se torna `a`. O `(+10)` é aplicado ao mesmo número que o `(*2)` foi aplicado e o resultado se torna `b`. O `return`, como em outras mônadas, não tem nenhum outro efeito a não ser criar um valor monádico que apresente algum resultado. Isso apresenta `a+b` como o resultado desta função. Se testarmos, obteremos o mesmo resultado de antes:
+Isso é a mesma coisa que a Applicative expression que escrevemos anteriormente, só que agora ela depende das funções serem Monads. Uma `do notation` sempre resulta em um monadic value e esta não é diferente. O resultado deste monadic value é uma função. O que acontece aqui é que ela recebe um número e então o `(*2)` é aplicado a esse número e o resultado se torna `a`. O `(+10)` é aplicado ao mesmo número que o `(*2)` foi aplicado e o resultado se torna `b`. O `return`, como em outras Monads, não tem nenhum outro efeito a não ser criar um monadic value que apresente algum resultado. Isso apresenta `a+b` como o resultado desta função. Se testarmos, obteremos o mesmo resultado de antes:
 
 ```{.haskell:hs}
 ghci> addStuff 3
 19
 ```
 
-Tanto o `(*2)` quanto o `(+10)` são aplicados ao número `3` neste caso. `return (a+b)` também, mas ele o ignora e sempre apresenta `a+b` como o resultado. Por esta razão, a mônada de função também é chamada de mônada reader (leitor). Todas as funções lêem de uma fonte comum. Para ilustrar isto ainda melhor, podemos reescrever o `addStuff` desta forma:
+Tanto o `(*2)` quanto o `(+10)` são aplicados ao número `3` neste caso. `return (a+b)` também, mas ele o ignora e sempre apresenta `a+b` como o resultado. Por esta razão, a função Monad também é chamada de Reader Monad. Todas as funções lêem de uma fonte comum. Para ilustrar isto ainda melhor, podemos reescrever o `addStuff` desta forma:
 
 ```{.haskell:hs}
 addStuff :: Int -> Int
@@ -536,13 +536,13 @@ addStuff x = let
     in a+b
 ```
 
-Vemos que a mônada reader nos permite tratar funções como valores com um contexto. Podemos agir como se já soubéssemos o que as funções retornarão. Ela faz isso colando as funções em uma única função e dando o parâmetro dessa função a todas as funções a partir das quais ela foi colada. Portanto, se tivermos muitas funções que estão todas sentindo falta de apenas um parâmetro e que eventualmente seriam aplicadas à mesma coisa, podemos usar a mônada reader para extrair os seus resultados futuros e a implementação do `>>=` garantirá que tudo corra bem.
+Vemos que a Reader Monad nos permite tratar funções como valores com um contexto. Podemos agir como se já soubéssemos o que as funções retornarão. Ela faz isso colando as funções em uma única função e dando o parâmetro dessa função a todas as funções a partir das quais ela foi colada. Portanto, se tivermos muitas funções que estão todas sentindo falta de apenas um parâmetro e que eventualmente seriam aplicadas à mesma coisa, podemos usar a Reader Monad para extrair os seus resultados futuros e a implementação do `>>=` garantirá que tudo corra bem.
 
 ## Computações com estado de bom gosto {#state}
 
 ![não brinque com o texas](assets/images/for-a-few-monads-more/texas.png){.left width=244 height=230}
 
-Haskell é uma linguagem pura e, por causa disso, nossos programas são feitos de funções que não podem alterar nenhum estado global ou variáveis; elas podem apenas fazer algumas computações e retornar seus resultados. Essa restrição na verdade torna mais fácil pensar sobre nossos programas, pois nos livra de nos preocuparmos com o valor de cada variável em algum momento no tempo. No entanto, alguns problemas são inerentemente estatais, no sentido de que dependem de algum estado que muda ao longo do tempo. Embora tais problemas não sejam um problema para o Haskell, eles podem ser um pouco tediosos de modelar às vezes. É por isso que o Haskell apresenta uma coisa chamada mônada state (estado), que torna a lida com problemas estatais uma brisa, mantendo tudo agradável e puro.
+Haskell é uma linguagem pura e, por causa disso, nossos programas são feitos de funções que não podem alterar nenhum estado global ou variáveis; elas podem apenas fazer algumas computações e retornar seus resultados. Essa restrição na verdade torna mais fácil pensar sobre nossos programas, pois nos livra de nos preocuparmos com o valor de cada variável em algum momento no tempo. No entanto, alguns problemas são inerentemente estatais, no sentido de que dependem de algum estado que muda ao longo do tempo. Embora tais problemas não sejam um problema para o Haskell, eles podem ser um pouco tediosos de modelar às vezes. É por isso que o Haskell apresenta uma coisa chamada State Monad, que torna a lida com problemas estatais uma brisa, mantendo tudo agradável e puro.
 
 [Quando estávamos lidando com números aleatórios](input-and-output.html#randomness), lidamos com funções que recebiam um gerador aleatório como parâmetro e retornavam um número aleatório e um novo gerador aleatório. Se quisermos gerar vários números aleatórios, sempre tínhamos que usar o gerador aleatório que uma função anterior retornou junto com seu resultado. Ao fazer uma função que recebe um `StdGen` e joga uma moeda três vezes com base nesse gerador, tínhamos que fazer isto:
 
@@ -619,9 +619,9 @@ stackManip = do
     pop
 ```
 
-Bem, usar a mônada state nos permitirá fazer exatamente isso. Com ela, poderemos pegar computações estatais como estas e usá-las sem ter que gerenciar o estado manualmente.
+Bem, usar a State Monad nos permitirá fazer exatamente isso. Com ela, poderemos pegar computações estatais como estas e usá-las sem ter que gerenciar o estado manualmente.
 
-### A mônada State
+### A State Monad
 
 O módulo `Control.Monad.State` fornece um `newtype` que envolve computações estatais. Aqui está sua definição:
 
@@ -631,7 +631,7 @@ newtype State s a = State { runState :: s -> (a,s) }
 
 Um `State s a` é uma computação estatal que manipula um estado do tipo `s` e tem um resultado do tipo `a`.
 
-Agora que vimos do que se trata as computações estatais e como elas podem até ser pensadas como valores com contextos, vamos conferir a sua instância `Monad`:
+Agora que vimos do que se trata as computações estatais e como elas podem até ser pensadas como valores com contextos, vamos conferir a sua Monad instance:
 
 ```{.haskell:hs}
 instance Monad (State s) where
@@ -708,7 +708,7 @@ ghci> runState stackStuff [9,0,2,1,0]
 ((),[8,3,0,2,1,0])
 ```
 
-Lembre-se, as expressões `do` resultam em valores monádicos e, com a mônada `State`, uma única expressão `do` também é uma função estatal. Como `stackManip` e `stackStuff` são computações estatais comuns, podemos colá-las para produzir novas computações estatais.
+Lembre-se, as `do notation` resultam em monadic values e, com a State Monad, uma única `do notation` também é uma função estatal. Como `stackManip` e `stackStuff` são computações estatais comuns, podemos colá-las para produzir novas computações estatais.
 
 ```{.haskell:hs}
 moreStack :: State Stack ()
@@ -814,9 +814,9 @@ ghci> :t Left "erro de falta de queijo"
 Left "erro de falta de queijo" :: Either [Char] b
 ```
 
-Isso é praticamente um `Maybe` aprimorado, então faz sentido que seja uma mônada, porque também pode ser visto como um valor com um contexto adicional de falha possível, só que agora também há um valor anexado quando há um erro.
+Isso é praticamente um `Maybe` aprimorado, então faz sentido que seja uma Monad, porque também pode ser visto como um valor com um contexto adicional de falha possível, só que agora também há um valor anexado quando há um erro.
 
-Sua instância `Monad` é semelhante à do `Maybe` e pode ser encontrada em `Control.Monad.Error`:
+Sua Monad instance é semelhante à do `Maybe` e pode ser encontrada em `Control.Monad.Error`:
 
 ```{.haskell:hs}
 instance (Error e) => Monad (Either e) where
@@ -839,7 +839,7 @@ ghci> strMsg "boom!" :: String
 "boom!"
 ```
 
-Mas, como geralmente usamos `String` para descrever o erro ao usar `Either`, não precisamos nos preocupar muito com isso. Quando um pattern match falha na notação `do`, um valor `Left` é usado para significar essa falha.
+Mas, como geralmente usamos `String` para descrever o erro ao usar `Either`, não precisamos nos preocupar muito com isso. Quando um pattern match falha na `do notation`, um valor `Left` é usado para significar essa falha.
 
 De qualquer forma, aqui estão alguns exemplos de uso:
 
@@ -864,7 +864,7 @@ ghci> Right 3 >>= \x -> return (x + 100)
     Probable fix: add a type signature that fixes these type variable(s)
 ```
 
-O Haskell diz que não sabe qual tipo escolher para a parte `e` do nosso valor de tipo `Either e a`, embora estejamos apenas imprimindo a parte `Right`. Isso se deve à restrição `Error e` na instância `Monad`. Portanto, se você receber erros de tipo como este ao usar o `Either` como uma mônada, basta adicionar uma assinatura de tipo explícita:
+O Haskell diz que não sabe qual tipo escolher para a parte `e` do nosso valor de tipo `Either e a`, embora estejamos apenas imprimindo a parte `Right`. Isso se deve à restrição `Error e` na Monad instance. Portanto, se você receber erros de tipo como este ao usar o `Either` como uma Monad, basta adicionar uma assinatura de tipo explícita:
 
 ```{.haskell:hs}
 ghci> Right 3 >>= \x -> return (x + 100) :: Either String Int
@@ -873,21 +873,21 @@ Right 103
 
 Tudo bem, agora funciona!
 
-Além desse pequeno contratempo, usar esta mônada é muito semelhante a usar o `Maybe` como uma mônada. No capítulo anterior, usamos os aspectos monádicos do `Maybe` para simular pássaros pousando na vara de equilíbrio de um equilibrista. Como exercício, você pode reescrever isso com a mônada de erro para que, quando o equilibrista escorregue e caia, lembremos de quantos pássaros estavam em cada lado da vara quando ele caiu.
+Além desse pequeno contratempo, usar esta Monad é muito semelhante a usar o `Maybe` como uma Monad. No capítulo anterior, usamos os aspectos monádicos do `Maybe` para simular pássaros pousando na vara de equilíbrio de um equilibrista. Como exercício, você pode reescrever isso com a Error Monad para que, quando o equilibrista escorregue e caia, lembremos de quantos pássaros estavam em cada lado da vara quando ele caiu.
 
-## Algumas funções monádicas úteis {#useful-monadic-functions}
+## Algumas monadic functions úteis {#useful-monadic-functions}
 
-Nesta seção, exploraremos algumas funções que operam em valores monádicos ou retornam valores monádicos como resultados (ou ambos!). Tais funções são geralmente chamadas de funções monádicas. Embora algumas delas sejam completamente novas, outras serão contrapartes monádicas de funções que já conhecemos, como `filter` e `foldl`. Vamos ver quais são!
+Nesta seção, exploraremos algumas funções que operam em monadic values ou retornam monadic values como resultados (ou ambos!). Tais funções são geralmente chamadas de monadic functions. Embora algumas delas sejam completamente novas, outras serão contrapartes monádicas de funções que já conhecemos, como `filter` e `foldl`. Vamos ver quais são!
 
 ### liftM e amigos
 
 ![eu também sou um guarda](assets/images/for-a-few-monads-more/wolf.png){.right width=394 height=222}
 
-Quando começamos nossa jornada rumo ao topo da Montanha Monada, primeiro olhamos para os functores, que são para coisas sobre as quais se pode mapear. Em seguida, aprendemos sobre functores aprimorados chamados functores aplicativos, que nos permitiram aplicar funções normais entre vários valores aplicativos, bem como pegar um valor normal e colocá-lo em algum contexto padrão. Finalmente, introduzimos as mônadas como functores aplicativos aprimorados, que adicionaram a capacidade desses valores com contexto de serem de alguma forma alimentados em funções normais.
+Quando começamos nossa jornada rumo ao topo da Montanha Monad, primeiro olhamos para os Functors, que são para coisas sobre as quais se pode mapear. Em seguida, aprendemos sobre Functors aprimorados chamados Applicative Functors, que nos permitiram aplicar funções normais entre vários valores aplicativos, bem como pegar um valor normal e colocá-lo em algum contexto padrão. Finalmente, introduzimos as Monads como Applicative Functors aprimorados, que adicionaram a capacidade desses valores com contexto de serem de alguma forma alimentados em funções normais.
 
-Portanto, toda mônada é um functor aplicativo e todo functor aplicativo é um functor. A typeclass `Applicative` tem uma restrição de classe tal que o nosso tipo tem que ser uma instância de `Functor` antes de podermos torná-lo uma instância de `Applicative`. Mas, embora a `Monad` devesse ter a mesma restrição para `Applicative`, já que toda mônada é um functor aplicativo, não tem, porque a typeclass `Monad` foi introduzida no Haskell muito antes da `Applicative`.
+Portanto, toda Monad é um Applicative Functor e todo Applicative Functor é um Functor. A typeclass `Applicative` tem uma restrição de classe tal que o nosso tipo tem que ser uma instância de `Functor` antes de podermos torná-lo uma instância de `Applicative`. Mas, embora a `Monad` devesse ter a mesma restrição para `Applicative`, já que toda Monad é um Applicative Functor, não tem, porque a typeclass `Monad` foi introduzida no Haskell muito antes da `Applicative`.
 
-Mas apesar de toda mônada ser um functor, não precisamos depender de que ela tenha uma instância de `Functor` por causa da função `liftM`. O `liftM` recebe uma função e um valor monádico e o mapeia sobre o valor monádico. Portanto, é praticamente a mesma coisa que o `fmap`! Este é o tipo do `liftM`:
+Mas apesar de toda Monad ser um Functor, não precisamos depender de que ela tenha uma Functor instance por causa da função `liftM`. O `liftM` recebe uma função e um monadic value e o mapeia sobre o monadic value. Portanto, é praticamente a mesma coisa que o `fmap`! Este é o tipo do `liftM`:
 
 ```{.haskell:hs}
 liftM :: (Monad m) => (a -> b) -> m a -> m b
@@ -899,7 +899,7 @@ E este é o tipo do `fmap`:
 fmap :: (Functor f) => (a -> b) -> f a -> f b
 ```
 
-Se as instâncias de `Functor` e `Monad` para um tipo obedecerem às leis dos functores e das mônadas, estas duas coisas resultam na mesma coisa (e todas as mônadas que conhecemos até agora obedecem a ambas). Isso é parecido com o `pure` e o `return` fazendo a mesma coisa, só que um tem uma restrição de classe `Applicative` enquanto o outro tem uma `Monad`. Vamos testar o `liftM`:
+Se as instâncias de `Functor` e `Monad` para um tipo obedecerem às leis dos Functors e das Monads, estas duas coisas resultam na mesma coisa (e todas as Monads que conhecemos até agora obedecem a ambas). Isso é parecido com o `pure` e o `return` fazendo a mesma coisa, só que um tem uma restrição de classe `Applicative` enquanto o outro tem uma `Monad`. Vamos testar o `liftM`:
 
 ```{.haskell:hs}
 ghci> liftM (*3) (Just 8)
@@ -934,7 +934,7 @@ liftM f m = do
     return (f x)
 ```
 
-Alimentamos o valor monádico `m` na função e então aplicamos a função `f` ao seu resultado antes de colocá-lo de volta em um contexto padrão. Por causa das leis das mônadas, isso garante não alterar o contexto, apenas o resultado que o valor monádico apresenta. Vemos que o `liftM` é implementado sem referenciar a typeclass `Functor` de forma alguma. Isso significa que podemos implementar o `fmap` (ou `liftM`, como você preferir chamar) apenas usando as utilidades que as mônadas nos oferecem. Por isso, podemos concluir que as mônadas são mais fortes que os simples e velhos functores.
+Alimentamos o monadic value `m` na função e então aplicamos a função `f` ao seu resultado antes de colocá-lo de volta em um contexto padrão. Por causa das leis das Monads, isso garante não alterar o contexto, apenas o resultado que o monadic value apresenta. Vemos que o `liftM` é implementado sem referenciar a typeclass `Functor` de forma alguma. Isso significa que podemos implementar o `fmap` (ou `liftM`, como você preferir chamar) apenas usando as utilidades que as Monads nos oferecem. Por isso, podemos concluir que as Monads são mais fortes que os simples e velhos Functors.
 
 A typeclass `Applicative` nos permite aplicar funções entre valores com contextos como se fossem valores normais. Assim:
 
@@ -976,7 +976,7 @@ ghci> [(+1),(+2),(+3)] `ap` [10,11]
 [11,12,12,13,13,14]
 ```
 
-Agora vemos que as mônadas também são mais fortes que os aplicativos, porque podemos usar as funções da `Monad` para implementar as da `Applicative`. Na verdade, muitas vezes, quando se descobre que um tipo é uma mônada, as pessoas primeiro escrevem uma instância de `Monad` e depois criam uma instância de `Applicative` apenas dizendo que o `pure` é o `return` e o `<*>` é o `ap`. Da mesma forma, se você já tem uma instância de `Monad` para algo, pode dar a ela uma instância de `Functor` apenas dizendo que o `fmap` é o `liftM`.
+Agora vemos que as Monads também são mais fortes que os aplicativos, porque podemos usar as funções da `Monad` para implementar as da `Applicative`. Na verdade, muitas vezes, quando se descobre que um tipo é uma Monad, as pessoas primeiro escrevem uma Monad instance e depois criam uma Applicative instance apenas dizendo que o `pure` é o `return` e o `<*>` é o `ap`. Da mesma forma, se você já tem uma Monad instance para algo, pode dar a ela uma Functor instance apenas dizendo que o `fmap` é o `liftM`.
 
 A função `liftA2` é uma função de conveniência para aplicar uma função entre dois valores aplicativos. Ela é definida simplesmente assim:
 
@@ -987,11 +987,11 @@ liftA2 f x y = f <$> x <*> y
 
 A função `liftM2` faz a mesma coisa, só que tem uma restrição `Monad`. Também existem o `liftM3`, `liftM4` e `liftM5`.
 
-Vimos como as mônadas são mais fortes que os aplicativos e functores e como, apesar de toda mônada ser um functor e um functor aplicativo, elas não têm necessariamente instâncias de `Functor` e `Applicative`, por isso examinamos os equivalentes monádicos das funções que os functores e functores aplicativos usam.
+Vimos como as Monads são mais fortes que os aplicativos e Functors e como, apesar de toda Monad ser um Functor e um Applicative Functor, elas não têm necessariamente Functor e Applicative instances, por isso examinamos os equivalentes monádicos das funções que os Functors e Applicative Functors usam.
 
 ### A função join
 
-Aqui está algo para se pensar: se o resultado de um valor monádico é outro valor monádico, ou seja, se um valor monádico está aninhado dentro de outro, você pode achatá-los para apenas um único valor monádico normal? Por exemplo, se tivermos `Just (Just 9)`, podemos transformar isso em `Just 9`? Acontece que qualquer valor monádico aninhado pode ser achatado e que essa é, na verdade, uma propriedade única das mônadas. Para isso, existe a função `join`. O seu tipo é este:
+Aqui está algo para se pensar: se o resultado de um monadic value é outro monadic value, ou seja, se um monadic value está aninhado dentro de outro, você pode achatá-los para apenas um único monadic value normal? Por exemplo, se tivermos `Just (Just 9)`, podemos transformar isso em `Just 9`? Acontece que qualquer monadic value aninhado pode ser achatado e que essa é, na verdade, uma propriedade única das Monads. Para isso, existe a função `join`. O seu tipo é este:
 
 ```{.haskell:hs}
 join :: (Monad m) => m (m a) -> m a
@@ -1066,9 +1066,9 @@ joinedMaybes = do
 
 ![eu também sou um guarda também](assets/images/for-a-few-monads-more/tipi.png){.right width=253 height=379}
 
-Talvez a coisa mais interessante sobre a `join` é que, para toda mônada, alimentar um valor monádico a uma função com `>>=` é a mesma coisa que apenas mapear essa função sobre o valor e depois usar o `join` para achatar o valor monádico aninhado resultante! Em outras palavras, `m >>= f` é sempre a mesma coisa que `join (fmap f m)`! Faz sentido quando você pensa sobre isso. Com o `>>=`, estamos sempre pensando em como alimentar um valor monádico para uma função que recebe um valor normal mas retorna um valor monádico. Se apenas mapearmos essa função sobre o valor monádico, teremos um valor monádico dentro de outro valor monádico. Por exemplo, digamos que tenhamos `Just 9` e a função `\x -> Just (x+1)`. Se mapearmos esta função sobre `Just 9`, ficaremos com `Just (Just 10)`.
+Talvez a coisa mais interessante sobre a `join` é que, para toda Monad, alimentar um monadic value a uma função com `>>=` é a mesma coisa que apenas mapear essa função sobre o valor e depois usar o `join` para achatar o monadic value aninhado resultante! Em outras palavras, `m >>= f` é sempre a mesma coisa que `join (fmap f m)`! Faz sentido quando você pensa sobre isso. Com o `>>=`, estamos sempre pensando em como alimentar um monadic value para uma função que recebe um valor normal mas retorna um monadic value. Se apenas mapearmos essa função sobre o monadic value, teremos um monadic value dentro de outro monadic value. Por exemplo, digamos que tenhamos `Just 9` e a função `\x -> Just (x+1)`. Se mapearmos esta função sobre `Just 9`, ficaremos com `Just (Just 10)`.
 
-O fato de `m >>= f` ser sempre igual a `join (fmap f m)` é muito útil se estivermos criando nossa própria instância de `Monad` para algum tipo, porque muitas vezes é mais fácil descobrir como achatar um valor monádico aninhado do que descobrir como implementar o `>>=`.
+O fato de `m >>= f` ser sempre igual a `join (fmap f m)` é muito útil se estivermos criando nossa própria Monad instance para algum tipo, porque muitas vezes é mais fácil descobrir como achatar um monadic value aninhado do que descobrir como implementar o `>>=`.
 
 ### filterM
 
@@ -1078,7 +1078,7 @@ A função `filter` é praticamente o pão de cada dia da programação Haskell 
 filter :: (a -> Bool) -> [a] -> [a]
 ```
 
-O predicado recebe um elemento da lista e retorna um valor `Bool`. Agora, e se o valor `Bool` que ele retornasse fosse na verdade um valor monádico? Uau! Ou seja, e se ele viesse com um contexto? Poderia funcionar? Por exemplo, e se cada valor `True` ou `False` que o predicado produzisse também tivesse um valor monóide acompanhante, como `["Aceitou o numero 5"]` ou `["3 e muito pequeno"]`? Parece que poderia funcionar. Se fosse esse o caso, esperaríamos que a lista resultante também viesse com um log de todos os valores de log que foram produzidos ao longo do caminho. Portanto, se o `Bool` que o predicado retornasse viesse com um contexto, esperaríamos que a lista final resultante também tivesse algum contexto anexado, caso contrário o contexto com o qual cada `Bool` veio seria perdido.
+O predicado recebe um elemento da lista e retorna um valor `Bool`. Agora, e se o valor `Bool` que ele retornasse fosse na verdade um monadic value? Uau! Ou seja, e se ele viesse com um contexto? Poderia funcionar? Por exemplo, e se cada valor `True` ou `False` que o predicado produzisse também tivesse um Monoid acompanhante, como `["Aceitou o numero 5"]` ou `["3 e muito pequeno"]`? Parece que poderia funcionar. Se fosse esse o caso, esperaríamos que a lista resultante também viesse com um log de todos os valores de log que foram produzidos ao longo do caminho. Portanto, se o `Bool` que o predicado retornasse viesse com um contexto, esperaríamos que a lista final resultante também tivesse algum contexto anexado, caso contrário o contexto com o qual cada `Bool` veio seria perdido.
 
 A função `filterM` de `Control.Monad` faz exatamente o que queremos! O seu tipo é este:
 
@@ -1086,7 +1086,7 @@ A função `filterM` de `Control.Monad` faz exatamente o que queremos! O seu tip
 filterM :: (Monad m) => (a -> m Bool) -> [a] -> m [a]
 ```
 
-O predicado retorna um valor monádico cujo resultado é um `Bool`, mas como é um valor monádico, seu contexto pode ser qualquer coisa, desde uma falha possível até o não-determinismo e muito mais! Para garantir que o contexto seja refletido no resultado final, o resultado também é um valor monádico.
+O predicado retorna um monadic value cujo resultado é um `Bool`, mas como é um monadic value, seu contexto pode ser qualquer coisa, desde uma falha possível até o não-determinismo e muito mais! Para garantir que o contexto seja refletido no resultado final, o resultado também é um monadic value.
 
 Vamos pegar uma lista e manter apenas os valores menores que 4. Para começar, usaremos apenas a função `filter` normal:
 
@@ -1190,11 +1190,11 @@ Nothing
 
 Se qualquer etapa da dobra falhar, todo o `foldM` resulta em uma falha.
 
-Logicamente, se usarmos um `Writer` como a mônada para o `foldM`, o log resultante conterá tudo o que foi registrado em cada etapa da dobra. E se usarmos uma lista como a mônada, o `foldM` pode ser usado para dobras não-determinísticas, o que é bem legal.
+Logicamente, se usarmos um `Writer` como a Monad para o `foldM`, o log resultante conterá tudo o que foi registrado em cada etapa da dobra. E se usarmos uma lista como a Monad, o `foldM` pode ser usado para dobras não-determinísticas, o que é bem legal.
 
 ## Criando uma calculadora RPN segura {#safe-rpn-calculator}
 
-Quando resolvemos o problema de [implementar uma calculadora RPN](functionally-solving-problems.html#reverse-polish-notation-calculator), mencionamos que ela funcionava bem desde que a entrada fizesse sentido. No entanto, se algo desse errado, todo o nosso programa falharia. Agora que aprendemos sobre as mônadas e o `Maybe` em particular, vamos ver como podemos adicionar tratamento de erro à nossa calculadora RPN.
+Quando resolvemos o problema de [implementar uma calculadora RPN](functionally-solving-problems.html#reverse-polish-notation-calculator), mencionamos que ela funcionava bem desde que a entrada fizesse sentido. No entanto, se algo desse errado, todo o nosso programa falharia. Agora que aprendemos sobre as Monads e o `Maybe` em particular, vamos ver como podemos adicionar tratamento de erro à nossa calculadora RPN.
 
 Nós a implementamos fazendo um `foldl` sobre uma lista de itens. No início, a pilha estava vazia e cada item da entrada era processado um por um. Se fosse um número, ele era empilhado; se fosse um operador, os dois números do topo eram desempilhados e opados e o resultado era empilhado de volta.
 
@@ -1236,7 +1236,7 @@ ghci> readMaybe "GO TO HELL" :: Maybe Int
 Nothing
 ```
 
-Parece que funciona. Agora, vamos reescrever nossa `foldingFunction` para ser uma função monádica:
+Parece que funciona. Agora, vamos reescrever nossa `foldingFunction` para ser uma monadic function:
 
 ```{.haskell:hs}
 foldingFunction :: [Double] -> String -> Maybe [Double]
@@ -1246,9 +1246,9 @@ foldingFunction (x:y:ys) "-" = return ((y - x):ys)
 foldingFunction xs numberString = liftM (:xs) (readMaybe numberString)
 ```
 
-As três primeiras linhas, que cuidam dos operadores, agora retornam resultados monádicos (usamos o `return` para envolver a nova pilha em um `Just`). A última linha tenta ler a string como um número e, se conseguir, coloca esse número no topo da pilha. Usamos o `liftM` para aplicar o operador de construção de lista ao resultado de `readMaybe`.
+As três primeiras linhas, que cuidam dos operadores, agora retornam monadic values (usamos o `return` para envolver a nova pilha em um `Just`). A última linha tenta ler a string como um número e, se conseguir, coloca esse número no topo da pilha. Usamos o `liftM` para aplicar o operador de construção de lista ao resultado de `readMaybe`.
 
-Agora que temos uma função de dobra monádica, usaremos o `foldM` em vez do `foldl`. Veja como fica:
+Agora que temos uma monadic folding function, usaremos o `foldM` em vez do `foldl`. Veja como fica:
 
 ```{.haskell:hs}
 solveRPN :: String -> Maybe Double
@@ -1272,11 +1272,11 @@ Nothing
 
 A primeira falha acontece porque a pilha final tinha dois elementos (`[4.0,2.0]`), então o pattern match falhou. A segunda falha acontece porque "blabla" não é um número.
 
-Nossa calculadora RPN agora é muito mais robusta! Ela pode lidar com erros de entrada sem explodir. E tudo isso graças ao `foldM` e ao contexto de falha possível oferecido pela mônada `Maybe`.
+Nossa calculadora RPN agora é muito mais robusta! Ela pode lidar com erros de entrada sem explodir. E tudo isso graças ao `foldM` e ao contexto de falha possível oferecido pela Maybe Monad.
 
-## Composição de funções monádicas {#composing-monadic-functions}
+## Composição de monadic functions {#composing-monadic-functions}
 
-Ao aprender sobre as leis das mônadas, aprendemos sobre a função `<=<`, que é como a composição normal de funções, porém em vez de funcionar com funções normais do tipo `a -> b`, ela funciona com funções monádicas do tipo `a -> m b`. Por exemplo:
+Ao aprender sobre as Monad laws, aprendemos sobre a função `<=<`, que é como a composição normal de funções, porém em vez de funcionar com funções normais do tipo `a -> b`, ela funciona com monadic functions do tipo `a -> m b`. Por exemplo:
 
 ```{.haskell:hs}
 ghci> let f = (+1) . (*100)
@@ -1287,7 +1287,7 @@ ghci> Just 4 >>= g
 Just 401
 ```
 
-Neste exemplo, primeiro compusemos duas funções normais, aplicamos o resultado a `4` e depois fizemos o mesmo com funções monádicas usando `<=<` e alimentamos o resultado monádico com `>>=`.
+Neste exemplo, primeiro compusemos duas funções normais, aplicamos o resultado a `4` e depois fizemos o mesmo com monadic functions usando `<=<` e alimentamos o monadic result com `>>=`.
 
 Se tivermos um monte de funções em uma lista, podemos compô-las todas em uma única função gigante usando o `foldr` e a função de composição normal.
 
@@ -1297,7 +1297,7 @@ ghci> f 1
 106
 ```
 
-A função `f` recebe um número, soma `5` a ele, multiplica o resultado por `100` e depois soma `1`. Podemos fazer o mesmo para funções monádicas, só que usamos o `<=<` em vez de `.` e o `return` em vez de `id`. Não precisamos nem mesmo de uma contraparte monádica do `foldr`, porque o `foldr` funciona para qualquer tipo, e o tipo das nossas funções monádicas é `a -> m a`.
+A função `f` recebe um número, soma `5` a ele, multiplica o resultado por `100` e depois soma `1`. Podemos fazer o mesmo para monadic functions, só que usamos o `<=<` em vez de `.` e o `return` em vez de `id`. Não precisamos nem mesmo de uma contraparte monádica do `foldr`, porque o `foldr` funciona para qualquer tipo, e o tipo das nossas monadic functions é `a -> m a`.
 
 ```{.haskell:hs}
 ghci> let f = foldr (<=<) return [(\x -> [x,x]),(\x -> [x,x,x])]
@@ -1307,7 +1307,7 @@ ghci> f 4
 
 A função `f` recebe um número e cria uma lista que o contém três vezes, e depois essa lista é alimentada na função que duplica os elementos.
 
-No capítulo sobre as mônadas, usamos esta técnica de compor muitas funções monádicas para resolver o problema de se o nosso cavalo de xadrez poderia chegar a uma certa posição em três movimentos. Lá, tínhamos uma função chamada `moveKnight`, que retornava todas as posições possíveis onde o cavalo poderia estar após um movimento. Então, para calcular todas as posições possíveis após três movimentos, criamos a seguinte função:
+No capítulo sobre as Monads, usamos esta técnica de compor muitas monadic functions para resolver o problema de se o nosso cavalo de xadrez poderia chegar a uma certa posição em três movimentos. Lá, tínhamos uma função chamada `moveKnight`, que retornava todas as posições possíveis onde o cavalo poderia estar após um movimento. Então, para calcular todas as posições possíveis após três movimentos, criamos a seguinte função:
 
 ```{.haskell:hs}
 in3 start = return start >>= moveKnight >>= moveKnight >>= moveKnight
@@ -1315,7 +1315,7 @@ in3 start = return start >>= moveKnight >>= moveKnight >>= moveKnight
 
 Para verificar se ele poderia chegar a uma posição `end` começando em `start`, apenas verificávamos se `end` estava na lista resultante.
 
-Agora, e se quiséssemos fazer uma função que nos dissesse se o cavalo pode chegar em `n` movimentos? Gostaríamos de uma função que recebesse `n` e retornasse uma função monádica como `moveKnight`, mas que em vez de um movimento, fizesse `n` movimentos. O `foldr` e o `<=<` são perfeitos para isso:
+Agora, e se quiséssemos fazer uma função que nos dissesse se o cavalo pode chegar em `n` movimentos? Gostaríamos de uma função que recebesse `n` e retornasse uma monadic function como `moveKnight`, mas que em vez de um movimento, fizesse `n` movimentos. O `foldr` e o `<=<` são perfeitos para isso:
 
 ```{.haskell:hs}
 import Control.Monad
@@ -1327,9 +1327,9 @@ canReachIn n start end = end `elem` res
 
 Primeiro usamos o `replicate` para criar uma lista de tamanho `n` contendo a função `moveKnight`. Em seguida, compusemos todas essas funções monádicas em uma só e aplicamos a posição inicial à função resultante.
 
-## Criando mônadas {#making-monads}
+## Criando Monads {#making-monads}
 
-Nesta seção, vamos ver um exemplo de como um tipo é criado, identificado como um functor e, em seguida, recebe instâncias de `Applicative` e `Monad`.
+Nesta seção, vamos ver um exemplo de como um tipo é criado, identificado como um Functor e, em seguida, recebe Applicative e Monad instances.
 
 Digamos que queiramos modelar valores não-determinísticos como listas, mas queiramos deixar claro que alguns resultados são mais prováveis que outros. Se pensarmos que `[3,5,9]` é um valor não-determinístico, poderíamos vê-lo como um valor que é `3`, `5` e `9` ao mesmo tempo. Mas e se quiséssemos dizer que há 50% de chance de ele ser `3` e 25% de chance de ser `5` ou `9`?
 
@@ -1374,7 +1374,7 @@ ghci> fmap negate (Prob [(3,1%2),(5,1%4),(9,1%4)])
 Prob {getProb = [(-3,1 % 2),(-5,1 % 4),(-9,1 % 4)]}
 ```
 
-Agora, e quanto à sua instância de `Monad`? Bem, antes de podermos torná-la uma `Monad`, ela também precisa ser um functor aplicativo. Como já aprendemos, poderíamos apenas usar o `return` e o `ap` para isso, mas como vamos implementar as funções da mônada de qualquer maneira, vamos fazê-lo agora.
+Agora, e quanto à sua Monad instance? Bem, antes de podermos torná-la uma `Monad`, ela também precisa ser um Applicative Functor. Como já aprendemos, poderíamos apenas usar o `return` e o `ap` para isso, mas como vamos implementar as funções da Monad de qualquer maneira, vamos fazê-lo agora.
 
 O `return` é fácil. Ele tem que pegar um valor e colocá-lo em um contexto mínimo. O que seria uma probabilidade mínima para um valor? Se o valor tem que ser exatamente esse valor, sua probabilidade deve ser `1` (ou seja, 100%).
 
@@ -1400,7 +1400,7 @@ flatten (Prob xs) = Prob $ concat $ map multAll xs
 
 Recebemos uma lista de probabilidades de probabilidades (`xs`). Para cada uma delas, chamamos o par `(Prob innerxs, p)`. Então, multiplicamos a probabilidade `p` por cada uma das probabilidades internas em `innerxs` e retornamos essa lista. Ao final, apenas concatenamos tudo isso em uma única lista grande.
 
-Agora podemos escrever a nossa instância de `Monad`:
+Agora podemos escrever a nossa Monad instance:
 
 ```{.haskell:hs}
 instance Monad Prob where
@@ -1409,7 +1409,7 @@ instance Monad Prob where
     fail _ = Prob []
 ```
 
-Como já tínhamos o `flatten`, o `>>=` foi apenas uma questão de usá-lo junto com o `fmap`, conforme aprendemos anteriormente. Agora que temos a mônada, vamos ver o que podemos fazer com ela!
+Como já tínhamos o `flatten`, o `>>=` foi apenas uma questão de usá-lo junto com o `fmap`, conforme aprendemos anteriormente. Agora que temos a Monad, vamos ver o que podemos fazer com ela!
 
 Digamos que tenhamos duas moedas viciadas. Uma tem 10% de chance de dar cara e a outra tem 75% de chance. Se jogarmos ambas, qual a probabilidade de ambas darem cara? Primeiro, vamos representar as moedas:
 
@@ -1444,9 +1444,9 @@ ghci> getProb flipTwo
 
 Se somarmos todos os resultados `False`, veremos que a probabilidade de não obtermos duas caras é de 19/20, que é 95%. Portanto, a probabilidade de ambas serem cara é de 5%.
 
-Vimos como as mônadas podem nos ajudar a modelar problemas complexos de uma maneira que parece muito natural e elegante. O poder de abstração das mônadas nos permite focar na lógica do nosso problema enquanto o contexto (seja ele falha, estado, log ou probabilidade) é tratado automaticamente por baixo dos panos.
+Vimos como as Monads podem nos ajudar a modelar problemas complexos de uma maneira que parece muito natural e elegante. O poder de abstração das Monads nos permite focar na lógica do nosso problema enquanto o contexto (seja ele falha, estado, log ou probabilidade) é tratado automaticamente por baixo dos panos.
 
-Esperamos que, depois deste capítulo (e do anterior), você tenha uma compreensão sólida do que as mônadas são, de como elas funcionam e de por que elas são tão importantes no mundo do Haskell. Elas não são tão assustadoras quanto parecem à primeira vista, e assim que você começa a usá-las, fica difícil imaginar a programação funcional sem elas!
+Esperamos que, depois deste capítulo (e do anterior), você tenha uma compreensão sólida do que as Monads são, de como elas funcionam e de por que elas são tão importantes no mundo do Haskell. Elas não são tão assustadoras quanto parecem à primeira vista, e assim que você começa a usá-las, fica difícil imaginar a programação funcional sem elas!
 
 
 

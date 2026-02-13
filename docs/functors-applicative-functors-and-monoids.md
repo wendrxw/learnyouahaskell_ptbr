@@ -1,4 +1,4 @@
-# Functores, Functores Aplicativos e Monóides
+# Functors, Applicative Functors e Monoids
 
 A combinação de pureza, funções de alta ordem, tipos de dados algébricos parametrizados e typeclasses do Haskell nos permite implementar polimorfismo em um nível muito mais alto do que é possível em outras linguagens.
 Não precisamos pensar em tipos pertencentes a uma grande hierarquia de tipos.
@@ -10,29 +10,25 @@ Typeclasses são abertas, o que significa que podemos definir nosso próprio tip
 Por causa disso e por causa do ótimo sistema de tipos do Haskell que nos permite saber muito sobre uma função apenas conhecendo sua declaração de tipo, podemos definir typeclasses que definem um comportamento que é muito geral e abstrato.
 Conhecemos typeclasses que definem operações para ver se duas coisas são iguais ou comparar duas coisas por alguma ordem.
 Esses são comportamentos muito abstratos e elegantes, mas não pensamos neles como algo muito especial porque lidamos com eles na maior parte de nossas vidas.
-Recentemente conhecemos functores, que são basicamente coisas que podem ser mapeadas.
+Recentemente conhecemos Functors, que são basicamente coisas que podem ser mapeadas.
 Esse é um exemplo de uma propriedade útil e ainda assim bastante abstrata que as typeclasses podem descrever.
-Neste capítulo, examinaremos mais de perto os functores, juntamente com versões ligeiramente mais fortes e úteis de functores chamadas functores aplicativos.
-Também daremos uma olhada em monóides, que são meio que como meias.
+Neste capítulo, examinaremos mais de perto os Functors, juntamente com versões ligeiramente mais fortes e úteis de Functors chamadas Applicative Functors.
+Também daremos uma olhada em Monoids, que são meio que como meias.
 
-## Functores redux {#functors-redux}
+## Functors redux {#functors-redux}
 
 ![frogs dont even need money](assets/images/functors-applicative-functors-and-monoids/frogtor.png){.right width=369 height=243}
 
-Já falamos sobre functores em [sua própria pequena seção](making-our-own-types-and-typeclasses.html#the-functor-typeclass).
-Se você ainda não leu, provavelmente deveria dar uma olhada agora, ou talvez mais tarde, quando tiver mais tempo.
-Ou você pode apenas fingir que leu.
-
-Ainda assim, aqui vai uma rápida recapitulação: Functores são coisas que podem ser mapeadas, como listas, `Maybe`s, árvores e afins.
+Ainda assim, aqui vai uma rápida recapitulação: Functors são coisas que podem ser mapeadas, como listas, `Maybe`s, árvores e afins.
 Em Haskell, eles são descritos pela typeclass `Functor`, que tem apenas um método de typeclass, a saber `fmap`, que tem um tipo de `fmap :: (a -> b) -> f a -> f b`.
 Ele diz: me dê uma função que pega um `a` e retorna um `b` e uma caixa com um `a` (ou vários deles) dentro dela e eu te darei uma caixa com um `b` (ou vários deles) dentro dela.
 Ele meio que aplica a função ao elemento dentro da caixa.
 
 ::: {.hintbox}
 **Um conselho.**
-Muitas vezes a analogia da caixa é usada para ajudar você a ter alguma intuição de como os functores funcionam, e mais tarde, provavelmente usaremos a mesma analogia para functores aplicativos e mônadas.
-É uma analogia ok que ajuda as pessoas a entender functores no início, apenas não leve muito ao pé da letra, porque para alguns functores a analogia da caixa tem que ser esticada muito para ainda manter alguma verdade.
-Um termo mais correto para o que é um functor seria *contexto computacional*.
+Muitas vezes a analogia da caixa é usada para ajudar você a ter alguma intuição de como os Functors funcionam, e mais tarde, provavelmente usaremos a mesma analogia para Applicative Functors e Monads.
+É uma analogia ok que ajuda as pessoas a entender Functors no início, apenas não leve muito ao pé da letra, porque para alguns Functors a analogia da caixa tem que ser esticada muito para ainda manter alguma verdade.
+Um termo mais correto para o que é um Functor seria *contexto computacional*.
 O contexto pode ser que a computação pode ter um valor ou pode ter falhado (`Maybe` e `Either a`) ou que pode haver mais valores (listas), coisas assim.
 :::
 
@@ -128,7 +124,7 @@ Quando olhamos para isso como `(->) r a`, podemos ver `(->)` sob uma luz ligeira
 Mas lembre-se, dissemos que um construtor de tipo tem que pegar exatamente um parâmetro de tipo para que possa ser feito uma instância de `Functor`.
 É por isso que não podemos fazer `(->)` uma instância de `Functor`, mas se aplicarmos parcialmente a `(->) r`, não há problemas.
 Se a sintaxe permitisse que construtores de tipo fossem parcialmente aplicados com seções (como podemos aplicar parcialmente `+` fazendo `(2+)`, que é o mesmo que `(+) 2`), você poderia escrever `(->) r` como `(r ->)`.
-Como as funções são functores?
+Como as funções são Functors?
 Bem, vamos dar uma olhada na implementação, que fica em `Control.Monad.Instances`
 
 ::: {.hintbox}
@@ -152,7 +148,7 @@ Mas não permite, então temos que escrever da maneira anterior.
 
 Primeiro de tudo, vamos pensar sobre o tipo de `fmap`.
 É `fmap :: (a -> b) -> f a -> f b`.
-Agora o que faremos é substituir mentalmente todos os `f`s, que são o papel que nossa instância de functor desempenha, por `(->) r`s.
+Agora o que faremos é substituir mentalmente todos os `f`s, que são o papel que nossa instância de Functor desempenha, por `(->) r`s.
 Faremos isso para ver como `fmap` deve se comportar para esta instância em particular.
 Obtemos `fmap :: (a -> b) -> ((->) r a) -> ((->) r b)`.
 Agora o que podemos fazer é escrever os tipos `(->) r a` e `(-> r b)` como infixos `r -> a` e `r -> b`, como normalmente fazemos com funções.
@@ -204,20 +200,20 @@ Usar `fmap (*3)` em `(+100)` criará outra função que age como `(+100)`, só q
 Agora podemos ver como `fmap` age exatamente como `.` para funções.
 
 O fato de que `fmap` é composição de funções quando usado em funções não é tão terrivelmente útil agora, mas pelo menos é muito interessante.
-Também dobra um pouco nossas mentes e nos permite ver como coisas que agem mais como computações do que caixas (`IO` e `(->) r`) podem ser functores.
+Também dobra um pouco nossas mentes e nos permite ver como coisas que agem mais como computações do que caixas (`IO` e `(->) r`) podem ser Functors.
 A função sendo mapeada sobre uma computação resulta na mesma computação, mas o resultado dessa computação é modificado com a função.
 
 ![lifting a function is easier than lifting a million pounds](assets/images/functors-applicative-functors-and-monoids/lifter.png){.right width=443 height=450}
 
 Antes de prosseguirmos para as regras que `fmap` deve seguir, vamos pensar sobre o tipo de `fmap` mais uma vez.
 Seu tipo é `fmap :: (a -> b) -> f a -> f b`.
-Estamos perdendo a restrição de classe `(Functor f) =>`, mas a deixamos de fora aqui por brevidade, porque estamos falando sobre functores de qualquer maneira, então sabemos o que o `f` significa.
+Estamos perdendo a restrição de classe `(Functor f) =>`, mas a deixamos de fora aqui por brevidade, porque estamos falando sobre Functors de qualquer maneira, então sabemos o que o `f` significa.
 Quando aprendemos pela primeira vez sobre [funções curried](higher-order-functions.html#curried-functions), dissemos que todas as funções Haskell na verdade pegam um parâmetro.
 Uma função `a -> b -> c` na verdade pega apenas um parâmetro de tipo `a` e então retorna uma função `b -> c`, que pega um parâmetro e retorna um `c`.
 É assim que se chamarmos uma função com poucos parâmetros (ou seja, parcialmente aplicá-la), obtemos de volta uma função que pega o número de parâmetros que deixamos de fora (se estivermos pensando em funções como pegando vários parâmetros novamente).
 Então `a -> b -> c` pode ser escrito como `a -> (b -> c)`, para tornar o currying mais aparente.
 
-Na mesma veia, se escrevermos `fmap :: (a -> b) -> (f a -> f b)`, podemos pensar em `fmap` não como uma função que pega uma função e um functor e retorna um functor, mas como uma função que pega uma função e retorna uma nova função que é exatamente como a antiga, só que pega um functor como parâmetro e retorna um functor como resultado.
+Na mesma veia, se escrevermos `fmap :: (a -> b) -> (f a -> f b)`, podemos pensar em `fmap` não como uma função que pega uma função e um Functor e retorna um Functor, mas como uma função que pega uma função e retorna uma nova função que é exatamente como a antiga, só que pega um Functor como parâmetro e retorna um Functor como resultado.
 Ela pega uma função `a -> b` e retorna uma função `f a -> f b`.
 Isso é chamado de *levantar* (lifting) uma função.
 Vamos brincar com essa ideia usando o comando `:t` do GHCI:
@@ -240,11 +236,11 @@ O primeiro é um pouco mais chique e tecnicamente mais correto, mas o último é
 
 Isso é ainda mais aparente se aplicarmos parcialmente, digamos, `fmap (++"!")` e então vincularmos a um nome no GHCI.
 
-Você pode pensar em `fmap` como uma função que pega uma função e um functor e então mapeia essa função sobre o functor, ou você pode pensar nisso como uma função que pega uma função e levanta essa função para que ela opere em functores.
+Você pode pensar em `fmap` como uma função que pega uma função e um Functor e então mapeia essa função sobre o Functor, ou você pode pensar nisso como uma função que pega uma função e levanta essa função para que ela opere em Functors.
 Ambas as visões estão corretas e em Haskell, equivalentes.
 
-O tipo `fmap (replicate 3) :: (Functor f) => f a -> f [a]` significa que a função funcionará em qualquer functor.
-O que exatamente ela fará depende de qual functor a usamos.
+O tipo `fmap (replicate 3) :: (Functor f) => f a -> f [a]` significa que a função funcionará em qualquer Functor.
+O que exatamente ela fará depende de qual Functor a usamos.
 Se usarmos `fmap (replicate 3)` em uma lista, a implementação da lista para `fmap` será escolhida, que é apenas `map`.
 Se usarmos em um `Maybe a`, ela aplicará `replicate 3` ao valor dentro do `Just`, ou se for `Nothing`, então permanece `Nothing`.
 
@@ -261,18 +257,18 @@ ghci> fmap (replicate 3) (Left "foo")
 Left "foo"
 ```
 
-A seguir, vamos olhar para as **leis dos functores**.
-Para que algo seja um functor, ele deve satisfazer algumas leis.
-Todos os functores devem exibir certos tipos de propriedades e comportamentos semelhantes a functores.
+A seguir, vamos olhar para as **leis dos Functors**.
+Para que algo seja um Functor, ele deve satisfazer algumas leis.
+Todos os Functors devem exibir certos tipos de propriedades e comportamentos semelhantes a Functors.
 Eles devem se comportar de forma confiável como coisas que podem ser mapeadas.
-Chamar `fmap` em um functor deve apenas mapear uma função sobre o functor, nada mais.
-Esse comportamento é descrito nas leis dos functores.
+Chamar `fmap` em um Functor deve apenas mapear uma função sobre o Functor, nada mais.
+Esse comportamento é descrito nas leis dos Functors.
 Existem duas que todas as instâncias de `Functor` devem seguir.
 Elas não são aplicadas pelo Haskell automaticamente, então você tem que testá-las você mesmo.
 
-**A primeira lei dos functores afirma que se mapearmos a função `id` sobre um functor, o functor que obtemos de volta deve ser o mesmo que o functor original.**
+**A primeira lei dos Functors afirma que se mapearmos a função `id` sobre um Functor, o Functor que obtemos de volta deve ser o mesmo que o Functor original.**
 Se escrevermos isso um pouco mais formalmente, significa que `fmap id = id`{.label .law}.
-Então, essencialmente, isso diz que se fizermos `fmap id` sobre um functor, deve ser o mesmo que apenas chamar `id` no functor.
+Então, essencialmente, isso diz que se fizermos `fmap id` sobre um Functor, deve ser o mesmo que apenas chamar `id` no Functor.
 Lembre-se, `id` é a função identidade, que apenas retorna seu parâmetro não modificado.
 Também pode ser escrita como `\x -> x`.
 Se virmos o functor como algo que pode ser mapeado, a lei `fmap id = id`{.label .law} parece meio trivial ou óbvia.
@@ -311,15 +307,14 @@ Então, a partir dessas duas equações na implementação para `fmap`, vemos qu
 
 ![justice is blind, but so is my dog](assets/images/functors-applicative-functors-and-monoids/justice.png){.left width=345 height=428}
 
-**A segunda lei diz que compor duas funções e então mapear a função resultante sobre um functor deve ser o mesmo que primeiro mapear uma função sobre o functor e então mapear a outra.**
+**A segunda lei diz que compor duas funções e então mapear a função resultante sobre um Functor deve ser o mesmo que primeiro mapear uma função sobre o Functor e então mapear a outra.**
 Formalmente escrito, isso significa que `fmap (f . g) = fmap f . fmap g`{.label .law}.
-Ou para escrever de outra maneira, para qualquer functor *F*, o seguinte deve ser válido: `fmap (f . g) F = fmap f (fmap g F)`{.label .law}.
+Ou para escrever de outra maneira, para qualquer Functor *F*, o seguinte deve ser válido: `fmap (f . g) F = fmap f (fmap g F)`{.label .law}.
 
-Se pudermos mostrar que algum tipo obedece a ambas as leis dos functores, podemos confiar que ele terá os mesmos comportamentos fundamentais que outros functores quando se trata de mapeamento.
-Podemos saber que quando usamos `fmap` nele, não haverá nada além de mapeamento acontecendo nos bastidores e que ele agirá como uma coisa que pode ser mapeada, ou seja, um functor.
+Se pudermos mostrar que algum tipo obedece a ambas as leis dos Functors, podemos confiar que ele terá os mesmos comportamentos fundamentais que outros Functors quando se trata de mapeamento.
+Podemos saber que quando usamos `fmap` nele, não haverá nada além de mapeamento acontecendo nos bastidores e que ele agirá como uma coisa que pode ser mapeada, ou seja, um Functor.
 Você descobre como a segunda lei se sustenta para algum tipo olhando para a implementação de `fmap` para esse tipo e então usando o método que usamos para verificar se `Maybe` obedece à primeira lei.
-
-Se você quiser, podemos verificar como a segunda lei dos functores se sustenta para `Maybe`.
+Se você quiser, podemos verificar como a segunda lei dos Functors se sustenta para `Maybe`.
 Se fizermos `fmap (f . g)` sobre `Nothing`, obtemos `Nothing`, porque fazer um `fmap` com qualquer função sobre `Nothing` retorna `Nothing`.
 Se fizermos `fmap f (fmap g Nothing)`, obtemos `Nothing`, pela mesma razão.
 OK, ver como a segunda lei se sustenta para `Maybe` se for um valor `Nothing` é muito fácil, quase trivial.
@@ -414,11 +409,11 @@ Por exemplo, `Just 3` produz o valor `3` no contexto de que pode ou não produzi
 `[1,2,3]` produz três valores---`1`, `2` e `3`, o contexto é que pode haver múltiplos valores ou nenhum valor.
 A função `(+3)` produzirá um valor, dependendo de qual parâmetro for dada.
 
-## Functores aplicativos {#applicative-functors}
+## Applicative Functors {#applicative-functors}
 
 ![disregard this analogy](assets/images/functors-applicative-functors-and-monoids/present.png){.right width=302 height=284}
 
-Nesta seção, daremos uma olhada em functores aplicativos, que são functores reforçados, representados em Haskell pela typeclass `Applicative`, encontrada no módulo `Control.Applicative`.
+Nesta seção, daremos uma olhada em Applicative Functors, que são Functors reforçados, representados em Haskell pela typeclass `Applicative`, encontrada no módulo `Control.Applicative`.
 
 Como você sabe, as funções em Haskell são curried por padrão, o que significa que uma função que parece pegar vários parâmetros na verdade pega apenas um parâmetro e retorna uma função que pega o próximo parâmetro e assim por diante.
 Se uma função é do tipo `a -> b -> c`, costumamos dizer que ela pega dois parâmetros e retorna um `c`, mas na verdade ela pega um `a` e retorna uma função `b -> c`.
@@ -512,10 +507,10 @@ instance Applicative Maybe where
     (Just f) <*> something = fmap f something
 ```
 
-Novamente, da definição da classe vemos que o `f` que desempenha o papel do functor aplicativo deve pegar um tipo concreto como parâmetro, então escrevemos `instance Applicative Maybe where` em vez de escrever `instance Applicative (Maybe a) where`.
+Novamente, da definição da classe vemos que o `f` que desempenha o papel do Applicative Functor deve pegar um tipo concreto como parâmetro, então escrevemos `instance Applicative Maybe where` em vez de escrever `instance Applicative (Maybe a) where`.
 
 Primeiro, `pure`.
-Dissemos anteriormente que ele deve pegar algo e embrulhá-lo em um functor aplicativo.
+Dissemos anteriormente que ele deve pegar algo e embrulhá-lo em um Applicative Functor.
 Escrevemos `pure = Just`, porque construtores de valor como `Just` são funções normais.
 Poderíamos ter escrito também `pure x = Just x`.
 
@@ -547,11 +542,11 @@ Nothing
 
 Vemos como fazer `pure (+3)` e `Just (+3)` é o mesmo neste caso.
 Use `pure` se estiver lidando com valores `Maybe` em um contexto aplicativo (ou seja, usando-os com `<*>`), caso contrário, fique com `Just`.
-As primeiras quatro linhas de entrada demonstram como a função é extraída e então mapeada, mas neste caso, elas poderiam ter sido alcançadas apenas mapeando funções desembrulhadas sobre functores.
+As primeiras quatro linhas de entrada demonstram como a função é extraída e então mapeada, mas neste caso, elas poderiam ter sido alcançadas apenas mapeando funções desembrulhadas sobre Functors.
 A última linha é interessante, porque tentamos extrair uma função de um `Nothing` e então mapeá-la sobre algo, o que, claro, resulta em um `Nothing`.
 
-Com functores normais, você pode apenas mapear uma função sobre um functor e então não pode tirar o resultado de nenhuma maneira geral, mesmo que o resultado seja uma função parcialmente aplicada.
-Functores aplicativos, por outro lado, permitem operar em vários functores com uma única função.
+Com Functors normais, você pode apenas mapear uma função sobre um Functor e então não pode tirar o resultado de nenhuma maneira geral, mesmo que o resultado seja uma função parcialmente aplicada.
+Applicative Functors, por outro lado, permitem operar em vários Functors com uma única função.
 Confira este pedaço de código:
 
 ```{.haskell:hs}
@@ -577,15 +572,15 @@ Apenas aplicar `3` à função `+` resulta em uma função que pega um parâmetr
 Finalmente, `Just (3+) <*> Just 5` é realizado, o que resulta em um `Just 8`.
 
 Isso não é incrível?!
-Functores aplicativos e o estilo aplicativo de fazer `pure f <*> x <*> y <*> ...` nos permitem pegar uma função que espera parâmetros que não estão necessariamente embrulhados em functores e usar essa função para operar em vários valores que estão em contextos de functor.
+Applicative Functors e o Applicative style de fazer `pure f <*> x <*> y <*> ...` nos permitem pegar uma função que espera parâmetros que não estão necessariamente embrulhados em Functors e usar essa função para operar em vários valores que estão em contextos de Functor.
 A função pode pegar quantos parâmetros quisermos, porque é sempre parcialmente aplicada passo a passo entre ocorrências de `<*>`.
 
 Isso se torna ainda mais prático e aparente se considerarmos o fato de que `pure f <*> x` é igual a `fmap f x`.
-Esta é uma das leis dos aplicativos.
+Esta é uma das leis dos Applicatives.
 Daremos uma olhada mais de perto nelas mais tarde, mas por enquanto, podemos meio que intuitivamente ver que isso é verdade.
 Pense sobre isso, faz sentido.
 Como dissemos antes, `pure` coloca um valor em um contexto padrão.
-Se apenas colocarmos uma função em um contexto padrão e então extrairmos e a aplicarmos a um valor dentro de outro functor aplicativo, fizemos o mesmo que apenas mapear essa função sobre esse functor aplicativo.
+Se apenas colocarmos uma função em um contexto padrão e então extrairmos e a aplicarmos a um valor dentro de outro Applicative Functor, fizemos o mesmo que apenas mapear essa função sobre esse Applicative Functor.
 Em vez de escrever `pure f <*> x <*> y <*> ...`, podemos escrever `fmap f x <*> y <*> ...`.
 É por isso que `Control.Applicative` exporta uma função chamada `<$>`, que é apenas `fmap` como um operador infixo.
 Aqui está como ela é definida:
@@ -603,8 +598,8 @@ O `f` no corpo da função denota uma função que mapeamos sobre `x`.
 O fato de termos usado `f` para representar ambos não significa que eles de alguma forma representem a mesma coisa.
 :::
 
-Ao usar `<$>`, o estilo aplicativo realmente brilha, porque agora se quisermos aplicar uma função `f` entre três functores aplicativos, podemos escrever `f <$> x <*> y <*> z`.
-Se os parâmetros não fossem functores aplicativos, mas valores normais, escreveríamos `f x y z`.
+Ao usar `<$>`, o Applicative style realmente brilha, porque agora se quisermos aplicar uma função `f` entre três Applicative Functors, podemos escrever `f <$> x <*> y <*> z`.
+Se os parâmetros não fossem Applicative Functors, mas valores normais, escreveríamos `f x y z`.
 
 Vamos dar uma olhada mais de perto em como isso funciona.
 Temos um valor de `Just "johntra"` e um valor de `Just "volta"` e queremos juntá-los em uma `String` dentro de um functor `Maybe`.
@@ -623,7 +618,7 @@ ghci> (++) "johntra" "volta"
 ```
 
 Demais!
-Para usar uma função normal em functores aplicativos, apenas espalhe alguns `<$>` e `<*>` por aí e a função operará em aplicativos e retornará um aplicativo.
+Para usar uma função normal em Applicative Functors, apenas espalhe alguns `<$>` e `<*>` por aí e a função operará em Applicatives e retornará um Applicative.
 Quão legal é isso?
 
 De qualquer forma, quando fazemos `(++) <$> Just "johntra" <*> Just "volta"`, primeiro `(++)`, que tem um tipo de `(++) :: [a] -> [a] -> [a]` é mapeado sobre `Just "johntra"`, resultando em um valor que é o mesmo que `Just ("johntra"++)` e tem um tipo de `Maybe ([Char] -> [Char])`.
@@ -634,7 +629,7 @@ Se algum dos dois valores tivesse sido `Nothing`, o resultado também teria sido
 Até agora, usamos apenas `Maybe` em nossos exemplos e você pode estar pensando que functores aplicativos são todos sobre `Maybe`.
 Existem muitas outras instâncias de `Applicative`, então vamos conhecê-las!
 
-Listas (na verdade o construtor de tipo de lista, `[]`) são functores aplicativos.
+Listas (na verdade o construtor de tipo de lista, `[]`) são Applicative Functors.
 Que surpresa!
 Aqui está como `[]` é uma instância de `Applicative`:
 
@@ -698,7 +693,7 @@ Você pode ver listas como computações não determinísticas.
 Um valor como `100` ou `"what"` pode ser visto como uma computação determinística que tem apenas um resultado, enquanto uma lista como `[1,2,3]` pode ser vista como uma computação que não consegue decidir qual resultado quer ter, então ela nos apresenta todos os resultados possíveis.
 Então, quando você faz algo como `(+) <$> [1,2,3] <*> [4,5,6]`, pode pensar nisso como adicionar duas computações não determinísticas com `+`, apenas para produzir outra computação não determinística que é ainda menos certa sobre seu resultado.
 
-Usar o estilo aplicativo em listas é muitas vezes um bom substituto para compreensões de lista.
+Usar o Applicative style em listas é muitas vezes um bom substituto para compreensões de lista.
 No segundo capítulo, queríamos ver todos os produtos possíveis de `[2,5,10]` e `[8,10,11]`, então fizemos isso:
 
 ```{.haskell:hs}
@@ -707,7 +702,7 @@ ghci> [ x*y | x <- [2,5,10], y <- [8,10,11]]
 ```
 
 Estamos apenas extraindo de duas listas e aplicando uma função entre cada combinação de elementos.
-Isso pode ser feito no estilo aplicativo também:
+Isso pode ser feito no Applicative style também:
 
 ```{.haskell:hs}
 ghci> (*) <$> [2,5,10] <*> [8,10,11]
@@ -762,7 +757,7 @@ myAction = do
 
 Esta é uma ação de E/S que solicitará ao usuário duas linhas e produzirá como resultado essas duas linhas concatenadas.
 Conseguimos isso colando duas ações de E/S `getLine` e um `return`, porque queríamos que nossa nova ação de E/S colada contivesse o resultado de `a ++ b`.
-Outra maneira de escrever isso seria usar o estilo aplicativo.
+Outra maneira de escrever isso seria usar o Applicative style.
 
 ```{.haskell:hs}
 myAction :: IO String
@@ -771,7 +766,7 @@ myAction = (++) <$> getLine <*> getLine
 
 O que estávamos fazendo antes era fazer uma ação de E/S que aplicava uma função entre os resultados de duas outras ações de E/S, e isso é a mesma coisa.
 Lembre-se, `getLine` é uma ação de E/S com o tipo `getLine :: IO String`.
-Quando usamos `<*>` entre dois functores aplicativos, o resultado é um functor aplicativo, então tudo isso faz sentido.
+Quando usamos `<*>` entre dois Applicative Functors, o resultado é um Applicative Functor, então tudo isso faz sentido.
 
 Se regredirmos à analogia da caixa, podemos imaginar `getLine` como uma caixa que sairá para o mundo real e nos buscará uma string.
 Fazer `(++) <$> getLine <*> getLine` faz uma caixa nova e maior que envia essas duas caixas para buscar linhas do terminal e então apresenta a concatenação dessas duas linhas como seu resultado.
@@ -785,13 +780,13 @@ main = do
     putStrLn $ "The two lines concatenated turn out to be: " ++ a
 ```
 
-Se você se encontrar vinculando algumas ações de E/S a nomes e então chamando alguma função nelas e apresentando isso como resultado usando `return`, considere usar o estilo aplicativo porque é indiscutivelmente um pouco mais conciso e terso.
+Se você se encontrar vinculando algumas ações de E/S a nomes e então chamando alguma função nelas e apresentando isso como resultado usando `return`, considere usar o Applicative style porque é indiscutivelmente um pouco mais conciso e terso.
 
 Outra instância de `Applicative` é `(->) r`, então funções.
-Elas são raramente usadas com o estilo aplicativo fora do code golf, mas ainda são interessantes como aplicativos, então vamos dar uma olhada em como a instância da função é implementada.
+Elas são raramente usadas com o Applicative style fora do code golf, mas ainda são interessantes como aplicativos, então vamos dar uma olhada em como a instância da função é implementada.
 
 ::: {.hintbox}
-Se você está confuso sobre o que `(->) r` significa, confira a seção anterior onde explicamos como `(->) r` é um functor.
+Se você está confuso sobre o que `(->) r` significa, confira a seção anterior onde explicamos como `(->) r` é um Functor.
 :::
 
 ```{.haskell:hs}
@@ -800,7 +795,7 @@ instance Applicative ((->) r) where
     f <*> g = \x -> f x (g x)
 ```
 
-Quando embrulhamos um valor em um functor aplicativo com `pure`, o resultado que ele produz sempre tem que ser esse valor.
+Quando embrulhamos um valor em um Applicative Functor com `pure`, o resultado que ele produz sempre tem que ser esse valor.
 Um contexto padrão mínimo que ainda produz esse valor como resultado.
 É por isso que na implementação da instância de função, `pure` pega um valor e cria uma função que ignora seu parâmetro e sempre retorna esse valor.
 Se olharmos para o tipo de `pure`, mas especializado para a instância `(->) r`, é `pure :: a -> (r -> a)`.
@@ -817,7 +812,7 @@ ghci> pure 3 "blah"
 3
 ```
 
-A implementação da instância para `<*>` é um pouco enigmática, então é melhor apenas dar uma olhada em como usar funções como functores aplicativos no estilo aplicativo.
+A implementação da instância para `<*>` é um pouco enigmática, então é melhor apenas dar uma olhada em como usar funções como Applicative Functors no Applicative style.
 
 ```{.haskell:hs}
 ghci> :t (+) <$> (+3) <*> (*100)
@@ -826,7 +821,7 @@ ghci> (+) <$> (+3) <*> (*100) $ 5
 508
 ```
 
-Chamar `<*>` com dois functores aplicativos resulta em um functor aplicativo, então se o usarmos em duas funções, obtemos de volta uma função.
+Chamar `<*>` com dois Applicative Functors resulta em um Applicative Functor, então se o usarmos em duas funções, obtemos de volta uma função.
 Então o que acontece aqui?
 Quando fazemos `(+) <$> (+3) <*> (*100)`, estamos criando uma função que usará `+` nos resultados de `(+3)` e `(*100)` e retornará isso.
 Para demonstrar em um exemplo real, quando fizemos `(+) <$> (+3) <*> (*100) $ 5`, o `5` primeiro foi aplicado a `(+3)` e `(*100)`, resultando em `8` e `500`.
@@ -847,13 +842,13 @@ Você pode pensar em funções como caixas que contêm seus eventuais resultados
 Quando fazemos algo como `(+) <$> Just 3 <*> Just 5`, estamos usando `+` em valores que podem ou não estar lá, o que também resulta em um valor que pode ou não estar lá.
 Quando fazemos `(+) <$> (+10) <*> (+5)`, estamos usando `+` nos valores de retorno futuros de `(+10)` e `(+5)` e o resultado também é algo que produzirá um valor apenas quando chamado com um parâmetro.
 
-Não usamos funções como aplicativos com frequência, mas isso ainda é muito interessante.
+Não usamos funções como Applicatives com frequência, mas isso ainda é muito interessante.
 Não é muito importante que você entenda como a instância `(->) r` para `Applicative` funciona, então não se desespere se não estiver entendendo isso agora.
-Tente brincar com o estilo aplicativo e funções para construir uma intuição para funções como aplicativos.
+Tente brincar com o Applicative style e funções para construir uma intuição para funções como Applicatives.
 
 Uma instância de `Applicative` que ainda não encontramos é `ZipList`, e ela vive em `Control.Applicative`.
 
-Acontece que na verdade existem mais maneiras de listas serem functores aplicativos.
+Acontece que na verdade existem mais maneiras de listas serem Applicative Functors.
 Uma maneira é a que já cobrimos, que diz que chamar `<*>` com uma lista de funções e uma lista de valores resulta em uma lista que tem todas as combinações possíveis de aplicar funções da lista esquerda aos valores na lista direita.
 Se fizermos `[(+3),(*2)] <*> [1,2]`, `(+3)` será aplicado tanto a `1` quanto a `2` e `(*2)` também será aplicado tanto a `1` quanto a `2`, resultando em uma lista que tem quatro elementos, ou seja, `[4,5,2,4]`.
 
@@ -885,7 +880,7 @@ Isso também satisfaz a lei de que `pure f <*> xs` deve ser igual a `fmap f xs`.
 Se `pure 3` apenas retornasse `ZipList [3]`, `pure (*2) <*> ZipList [1,5,10]` resultaria em `ZipList [2]`, porque a lista resultante de duas listas zipadas tem o comprimento da mais curta das duas.
 Se ziparmos uma lista finita com uma lista infinita, o comprimento da lista resultante será sempre igual ao comprimento da lista finita.
 
-Então, como zip lists funcionam em um estilo aplicativo?
+Então, como zip lists funcionam em um Applicative style?
 Vamos ver.
 Ah, o tipo `ZipList a` não tem uma instância `Show`, então temos que usar a função `getZipList`{.label .function} para extrair uma lista bruta de uma zip list.
 
@@ -908,25 +903,14 @@ Além disso, a função `(,)` é a mesma que `\x y -> (x,y)`.
 Além de `zipWith`, a biblioteca padrão tem funções como `zipWith3`, `zipWith4`, até 7.
 `zipWith` pega uma função que pega dois parâmetros e zipa duas listas com ela.
 `zipWith3` pega uma função que pega três parâmetros e zipa três listas com ela, e assim por diante.
-Ao usar zip lists com um estilo aplicativo, não precisamos ter uma função zip separada para cada número de listas que queremos zipar juntas.
-Apenas usamos o estilo aplicativo para zipar uma quantidade arbitrária de listas com uma função, e isso é muito legal.
-
-`Control.Applicative` define uma função que é chamada `liftA2`{.label .function}, que tem um tipo de `liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c` .
-Ela é definida assim:
-
-```{.haskell:hs}
-liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c
-liftA2 f a b = f <$> a <*> b
-```
-
-Nada de especial, apenas aplica uma função entre dois aplicativos, escondendo o estilo aplicativo com o qual nos familiarizamos.
-A razão pela qual estamos olhando para isso é porque ela mostra claramente por que functores aplicativos são mais poderosos do que apenas functores comuns.
-Com functores comuns, podemos apenas mapear funções sobre um functor.
-Mas com functores aplicativos, podemos aplicar uma função entre vários functores.
+Nada de especial, apenas aplica uma função entre dois Applicatives, escondendo o Applicative style com o qual nos familiarizamos.
+A razão pela qual estamos olhando para isso é porque ela mostra claramente por que Applicative Functors são mais poderosos do que apenas Functors comuns.
+Com Functors comuns, podemos apenas mapear funções sobre um Functor.
+Mas com Applicative Functors, podemos aplicar uma função entre vários Functors.
 Também é interessante olhar para o tipo desta função como `(a -> b -> c) -> (f a -> f b -> f c)`.
-Quando olhamos para ela assim, podemos dizer que `liftA2` pega uma função binária normal e a promove para uma função que opera em dois functores.
+Quando olhamos para ela assim, podemos dizer que `liftA2` pega uma função binária normal e a promove para uma função que opera em dois Functors.
 
-Aqui está um conceito interessante: podemos pegar dois functores aplicativos e combiná-los em um functor aplicativo que tem dentro dele os resultados desses dois functores aplicativos em uma lista.
+Aqui está um conceito interessante: podemos pegar dois Applicative Functors e combiná-los em um Applicative Functor que tem dentro dele os resultados desses dois Applicative Functors em uma lista.
 Por exemplo, temos `Just 3` e `Just 4`.
 Vamos assumir que o segundo tem uma lista singleton dentro dele, porque isso é realmente fácil de conseguir:
 
@@ -949,8 +933,8 @@ Just [3,4]
 Lembre-se, `:` é uma função que pega um elemento e uma lista e retorna uma nova lista com esse elemento no início.
 Agora que temos `Just [3,4]`, poderíamos combinar isso com `Just 2` para produzir `Just [2,3,4]`?
 Claro que poderíamos.
-Parece que podemos combinar qualquer quantidade de aplicativos em um aplicativo que tem uma lista dos resultados desses aplicativos dentro dele.
-Vamos tentar implementar uma função que pega uma lista de aplicativos e retorna um aplicativo que tem uma lista como seu valor resultante.
+Parece que podemos combinar qualquer quantidade de Applicatives em um Applicative que tem uma lista dos resultados desses Applicatives dentro dele.
+Vamos tentar implementar uma função que pega uma lista de Applicatives e retorna um Applicative que tem uma lista como seu valor resultante.
 Vamos chamá-la de `sequenceA`.
 
 ```{.haskell:hs}
@@ -961,12 +945,12 @@ sequenceA (x:xs) = (:) <$> x <*> sequenceA xs
 
 Ah, recursão!
 Primeiro, olhamos para o tipo.
-Ela transformará uma lista de aplicativos em um aplicativo com uma lista.
+Ela transformará uma lista de Applicatives em um Applicative com uma lista.
 A partir disso, podemos estabelecer algumas bases para uma condição de borda.
-Se quisermos transformar uma lista vazia em um aplicativo com uma lista de resultados, bem, apenas colocamos uma lista vazia em um contexto padrão.
+Se quisermos transformar uma lista vazia em um Applicative com uma lista de resultados, bem, apenas colocamos uma lista vazia em um contexto padrão.
 Agora vem a recursão.
-Se tivermos uma lista com uma cabeça e uma cauda (lembre-se, `x` é um aplicativo e `xs` é uma lista deles), chamamos `sequenceA` na cauda, o que resulta em um aplicativo com uma lista.
-Então, apenas prefixamos o valor dentro do aplicativo `x` nessa lista dentro do aplicativo, e é isso!
+Se tivermos uma lista com uma cabeça e uma cauda (lembre-se, `x` é um Applicative e `xs` é uma lista deles), chamamos `sequenceA` na cauda, o que resulta em um Applicative com uma lista.
+Então, apenas prefixamos the valor dentro do Applicative `x` nessa lista dentro do Applicative, e é isso!
 
 Então se fizermos `sequenceA [Just 1, Just 2]`, isso é `(:) <$> Just 1 <*> sequenceA [Just 2]`.
 Isso é igual a `(:) <$> Just 1 <*> ((:) <$> Just 2 <*> sequenceA [])`.
@@ -985,7 +969,7 @@ Abordamos a lista pela direita e começamos com um valor acumulador de `pure []`
 Fazemos `liftA2 (:)` entre o acumulador e o último elemento da lista, o que resulta em um aplicativo que tem um singleton nele.
 Então fazemos `liftA2 (:)` com o agora último elemento e o acumulador atual e assim por diante, até ficarmos apenas com o acumulador, que contém uma lista dos resultados de todos os aplicativos.
 
-Vamos dar uma volta com nossa função em alguns aplicativos.
+Vamos dar uma volta com nossa função em alguns Applicatives.
 
 ```{.haskell:hs}
 ghci> sequenceA [Just 3, Just 2, Just 1]
@@ -1094,9 +1078,9 @@ woo
 ["heyh","ho","woo"]
 ```
 
-Como functores normais, functores aplicativos vêm com algumas leis.
+Como Functors normais, Applicative Functors vêm com algumas leis.
 A mais importante é a que já mencionamos, ou seja, que `pure f <*> x = fmap f x`{.label .law} se mantém.
-Como exercício, você pode provar esta lei para alguns dos functores aplicativos que encontramos neste capítulo. As outras leis dos functores aplicativos são:
+Como exercício, você pode provar esta lei para alguns dos Applicative Functors que encontramos neste capítulo. As outras leis dos Applicative Functors são:
 
 * `pure id <*> v = v`{.label .law}
 * `pure (.) <*> u <*> v <*> w = u <*> (v <*> w)`{.label .law}
@@ -1105,8 +1089,8 @@ Como exercício, você pode provar esta lei para alguns dos functores aplicativo
 
 Não vamos repasá-las em detalhes agora porque isso ocuparia muitas páginas e provavelmente seria meio chato, mas se você estiver pronto para a tarefa, pode dar uma olhada mais de perto nelas e ver se elas se mantêm para algumas das instâncias.
 
-Em conclusão, functores aplicativos não são apenas interessantes, eles também são úteis, porque nos permitem combinar diferentes computações, como computações de E/S, computações não determinísticas, computações que podem ter falhado, etc. usando o estilo aplicativo.
-Apenas usando `<$>` e `<*>` podemos usar funções normais para operar uniformemente em qualquer número de functores aplicativos e tirar proveito da semântica de cada um.
+Em conclusão, Applicative Functors não são apenas interessantes, eles também são úteis, porque nos permitem combinar diferentes computações, como computações de E/S, computações não determinísticas, computações que podem ter falhado, etc. usando o Applicative style.
+Apenas usando `<$>` e `<*>` podemos usar funções normais para operar uniformemente em qualquer número de Applicative Functors e tirar proveito da semântica de cada um.
 
 ## A palavra-chave newtype {#the-newtype-keyword}
 
@@ -1116,7 +1100,7 @@ Até agora, aprendemos como fazer nossos próprios tipos de dados algébricos us
 Também aprendemos como dar sinônimos a tipos existentes com a palavra-chave **type**.
 Nesta seção, daremos uma olhada em como fazer novos tipos a partir de tipos de dados existentes usando a palavra-chave **newtype** e por que gostaríamos de fazer isso em primeiro lugar.
 
-Na seção anterior, vimos que há na verdade mais maneiras para o tipo de lista ser um functor aplicativo.
+Na seção anterior, vimos que há na verdade mais maneiras para o tipo de lista ser um Applicative Functor.
 Uma maneira é ter `<*>` pegando cada função da lista que é seu parâmetro esquerdo e aplicando-a a cada valor na lista que está à direita, resultando em todas as combinações possíveis de aplicar uma função da lista esquerda a um valor na lista direita.
 
 ```{.haskell:hs}
@@ -1129,7 +1113,7 @@ Basicamente, é meio que como zipar as duas listas juntas.
 Mas as listas já são uma instância de `Applicative`, então como também fizemos das listas uma instância de `Applicative` dessa segunda maneira?
 Se você se lembra, dissemos que o tipo `ZipList a` foi introduzido por esse motivo, que tem um construtor de valor, `ZipList`, que tem apenas um campo.
 Colocamos a lista que estamos embrulhando nesse campo.
-Então, `ZipList` foi feita uma instância de `Applicative`, de modo que quando queremos usar listas como aplicativos na maneira de zipar, apenas as embrulhamos com o construtor `ZipList` e então, depois que terminamos, as desembrolhamos com `getZipList`:
+Então, `ZipList` foi feita uma instância de `Applicative`, de modo que quando queremos usar listas como Applicatives na maneira de zipar, apenas as embrulhamos com o construtor `ZipList` e então, depois que terminamos, as desembrolhamos com `getZipList`:
 
 ```{.haskell:hs}
 ghci> getZipList $ ZipList [(+1),(*100),(*5)] <*> ZipList [1,2,3]
@@ -1418,17 +1402,16 @@ Se você quer apenas que suas assinaturas de tipo pareçam mais limpas e sejam m
 Se você quer pegar um tipo existente e embrulhá-lo em um novo tipo para torná-lo uma instância de uma typeclass, é provável que você esteja procurando por um *newtype*.
 E se você quer fazer algo completamente novo, as chances são boas de que você esteja procurando pela palavra-chave *data*.
 
-## Monóides {#monoids}
+## Monoids {#monoids}
 
 ![wow this is pretty much the gayest pirate ship
 ever](assets/images/functors-applicative-functors-and-monoids/pirateship.png){.right width=460 height=417}
 
-Typeclasses em Haskell são usadas para apresentar uma interface para tipos que têm algum comportamento em comum.
 Começamos com typeclasses simples como `Eq`, que é para tipos cujos valores podem ser igualados, e `Ord`, que é para coisas que podem ser colocadas em uma ordem e depois passamos para outras mais interessantes, como `Functor` e `Applicative`.
 
 Quando criamos um tipo, pensamos sobre quais comportamentos ele suporta, ou seja, como ele pode agir e, com base nisso, decidimos de quais typeclasses torná-lo uma instância.
 Se faz sentido que os valores de nosso tipo sejam igualados, nós o tornamos uma instância da typeclass `Eq`.
-Se vemos que nosso tipo é algum tipo de functor, nós o tornamos uma instância de `Functor`, e assim por diante.
+Se vemos que nosso tipo é algum tipo de Functor, nós o tornamos uma instância de `Functor`, e assim por diante.
 
 Agora considere o seguinte: `*` é uma função que pega dois números e os multiplica.
 Se multiplicarmos algum número por `1`, o resultado é sempre igual a esse número.
@@ -1475,12 +1458,12 @@ Chamamos essa propriedade de *associatividade*.
 `*` é associativo, e `++` também, mas `-`, por exemplo, não é.
 As expressões `(5 - 3) - 4` e `5 - (3 - 4)` resultam em números diferentes.
 
-Ao perceber e anotar essas propriedades, nós encontramos *monóides*!
-Um monóide é quando você tem uma função binária associativa e um valor que age como uma identidade em relação a essa função.
+Ao perceber e anotar essas propriedades, nós encontramos Monoids!
+Um Monoid é quando você tem uma função binária associativa e um valor que age como uma identidade em relação a essa função.
 Quando algo age como uma identidade em relação a uma função, significa que quando chamado com essa função e algum outro valor, o resultado é sempre igual a esse outro valor.
 `1` é a identidade em relação a `*` e `[]` é a identidade em relação a `++`.
-Existem muitos outros monóides para serem encontrados no mundo de Haskell, e é por isso que a typeclass `Monoid` existe.
-É para tipos que podem agir como monóides.
+Existem muitos outros Monoids para serem encontrados no mundo de Haskell, e é por isso que a typeclass `Monoid` existe.
+É para tipos que podem agir como Monoids.
 Vamos ver como a typeclass é definida:
 
 ```{.haskell:hs}
@@ -1501,7 +1484,7 @@ Isso é diferente de `Functor` e `Applicative`, que exigem que suas instâncias 
 
 A primeira função é `mempty`.
 Não é realmente uma função, já que não pega parâmetros, então é uma constante polimórfica, meio que como `minBound` de `Bounded`.
-`mempty` representa o valor de identidade para um monóide específico.
+`mempty` representa o valor de identidade para um Monoid específico.
 
 Em seguido, temos `mappend`, que, como você provavelmente adivinhou, é a função binária.
 Ela pega dois valores do mesmo tipo e retorna um valor desse tipo também.
@@ -1516,9 +1499,9 @@ Como a implementação padrão é boa para a maioria das instâncias, não nos p
 Ao tornar um tipo uma instância de `Monoid`, basta implementar `mempty` e `mappend`.
 A razão pela qual `mconcat` está lá é porque para algumas instâncias, pode haver uma maneira mais eficiente de implementar `mconcat`, mas para a maioria das instâncias a implementação padrão é boa o suficiente.
 
-Antes de passar para instâncias específicas de `Monoid`, vamos dar uma breve olhada nas leis dos monóides.
+Antes de passar para instâncias específicas de `Monoid`, vamos dar uma breve olhada nas leis dos Monoids.
 Mencionamos que deve haver um valor que atue como identidade em relação à função binária e que a função binária deve ser associativa.
-É possível fazer instâncias de `Monoid` que não seguem essas regras, mas tais instâncias não servem para ninguém, porque ao usar a typeclass `Monoid`, confiamos em suas instâncias agindo como monóides.
+É possível fazer instâncias de `Monoid` que não seguem essas regras, mas tais instâncias não servem para ninguém, porque ao usar a typeclass `Monoid`, confiamos em suas instâncias agindo como Monoids.
 Caso contrário, qual é o ponto?
 É por isso que ao fazer instâncias, temos que ter certeza de que elas seguem essas leis:
 
@@ -1526,13 +1509,13 @@ Caso contrário, qual é o ponto?
 * ``x `mappend` mempty = x``{.label .law}
 * ``(x `mappend` y) `mappend` z = x `mappend` (y `mappend` z)``{.label .law}
 
-As duas primeiras afirmam que `mempty` tem que agir como a identidade em relação a `mappend` e a terceira diz que `mappend` tem que ser associativa, ou seja, que a ordem em que usamos `mappend` para reduzir vários valores de monóide em um não importa.
+As duas primeiras afirmam que `mempty` tem que agir como a identidade em relação a `mappend` e a terceira diz que `mappend` tem que ser associativa, ou seja, que a ordem em que usamos `mappend` para reduzir vários valores de Monoid em um não importa.
 O Haskell não impõe essas leis, então nós, como programadores, temos que ter cuidado para que nossas instâncias de fato as obedeçam.
 
-### Listas são monóides 
+### Listas são Monoids 
 
-Sim, listas são monóides!
-Como vimos, a função `++` e a lista vazia `[]` formam um monóide.
+Sim, listas são Monoids!
+Como vimos, a função `++` e a lista vazia `[]` formam um Monoid.
 A instância é muito simples:
 
 ```{.haskell:hs}
@@ -1572,10 +1555,10 @@ Como `mconcat` tem uma implementação padrão, nós a obtemos de graça quando 
 No caso da lista, `mconcat` acaba sendo apenas `concat`.
 Ela pega uma lista de listas e a achata, porque esse é o equivalente a fazer `++` entre todas as listas adjacentes em uma lista.
 
-As leis dos monóides realmente se mantêm para a instância da lista.
+As leis dos Monoids realmente se mantêm para a instância da lista.
 Quando temos várias listas e as `mappend` (ou `++`) juntas, não importa quais fazemos primeiro, porque elas são apenas unidas nas extremidades de qualquer maneira.
 Além disso, a lista vazia age como a identidade, então tudo está bem.
-Observe que os monóides não exigem que ``a `mappend` b`` seja igual a ``b `mappend` a``.
+Observe que os Monoids não exigem que ``a `mappend` b`` seja igual a ``b `mappend` a``.
 No caso da lista, eles claramente não são:
 
 ```{.haskell:hs}
@@ -1586,13 +1569,13 @@ ghci> "two" `mappend` "one"
 ```
 
 E tudo bem.
-O fato de que para multiplicação `3 * 5` e `5 * 3` são os mesmos é apenas uma propriedade da multiplicação, mas não se mantém para todos (e de fato, a maioria) os monóides.
+O fato de que para multiplicação `3 * 5` e `5 * 3` são os mesmos é apenas uma propriedade da multiplicação, mas não se mantém para todos (e de fato, a maioria) os Monoids.
 
 ### `Product` e `Sum` 
 
-Já examinamos uma maneira de os números serem considerados monóides.
+Já examinamos uma maneira de os números serem considerados Monoids.
 Basta ter a função binária sendo `*` e o valor de identidade `1`.
-Acontece que essa não é a única maneira de os números serem monóides.
+Acontece que essa não é a única maneira de os números serem Monoids.
 Outra maneira é ter a função binária sendo `+` e o valor de identidade `0`:
 
 ```{.haskell:hs}
@@ -1606,9 +1589,9 @@ ghci> 1 + (3 + 5)
 9
 ```
 
-As leis dos monóides se mantêm, porque se você adicionar 0 a qualquer número, o resultado é esse número.
+As leis dos Monoids se mantêm, porque se você adicionar 0 a qualquer número, o resultado é esse número.
 E a adição também é associativa, então não temos problemas lá.
-Então, agora que existem duas maneiras igualmente válidas para os números serem monóides, qual maneira escolher?
+Então, agora que existem duas maneiras igualmente válidas para os números serem Monoids, qual maneira escolher?
 Bem, não precisamos escolher.
 Lembre-se, quando existem várias maneiras de um tipo ser uma instância da mesma typeclass, podemos embrulhar esse tipo em um *newtype* e então tornar o novo tipo uma instância da typeclass de uma maneira diferente.
 Podemos ter nosso bolo e comê-lo também.
@@ -1664,7 +1647,7 @@ ghci> getSum . mconcat . map Sum $ [1,2,3]
 
 ### `Any` e `All` 
 
-Outro tipo que pode agir como um monóide de duas maneiras distintas, mas igualmente válidas, é `Bool`.
+Outro tipo que pode agir como um Monoid de duas maneiras distintas, mas igualmente válidas, é `Bool`.
 A primeira maneira é fazer a função *ou* `||` agir como a função binária juntamente com `False` como o valor de identidade.
 A maneira como o *ou* funciona na lógica é que se qualquer um de seus dois parâmetros for `True`, ele retorna `True`, caso contrário, retorna `False`.
 Então, se usarmos `False` como valor de identidade, ele retornará `False` quando fizermos *ou* com `False` e `True` quando fizermos *ou* com `True`.
@@ -1731,7 +1714,7 @@ False
 Assim como com multiplicação e adição, geralmente indicamos explicitamente as funções binárias em vez de embrulhá-las em *newtype*s e depois usar `mappend` e `mempty`.
 `mconcat` parece ser útil para `Any` e `All`, mas geralmente é mais fácil usar as funções `or` e `and`, que pegam listas de `Bool`s e retornam `True` se qualquer um deles for `True` ou se todos eles forem `True`, respectivamente.
 
-### O monóide `Ordering` 
+### The Ordering Monoid 
 
 Ei, lembra do tipo `Ordering`?
 Ele é usado como o resultado ao comparar coisas e pode ter três valores: `LT`, `EQ` e `GT`, que significam *less than* (menor que), *equal* (igual) e *greater than* (maior que), respectivamente:
@@ -1745,8 +1728,8 @@ ghci> 3 `compare` 2
 GT
 ```
 
-Com listas, números e valores booleanos, encontrar monóides foi apenas uma questão de olhar para funções comumente usadas já existentes e ver se elas exibem algum tipo de comportamento de monóide.
-Com `Ordering`, temos que olhar um pouco mais para reconhecer um monóide, mas acontece que sua instância `Monoid` é tão intuitiva quanto as que encontramos até agora e também bastante útil:
+Com listas, números e valores booleanos, encontrar Monoids foi apenas uma questão de olhar para funções comumente usadas já existentes e ver se elas exibem algum tipo de comportamento de Monoid.
+Com `Ordering`, temos que olhar um pouco mais para reconhecer um Monoid, mas acontece que sua instância `Monoid` é tão intuitiva quanto as que encontramos até agora e também bastante útil:
 
 ```{.haskell:hs}
 instance Monoid Ordering where
@@ -1797,7 +1780,7 @@ lengthCompare x y = let a = length x `compare` length y
 
 Nomeamos o resultado da comparação dos comprimentos de `a` e o resultado da comparação alfabética de `b` e então se acontecer de os comprimentos serem iguais, retornamos sua ordem alfabética.
 
-Mas ao empregar nosso entendimento de como `Ordering` é um monóide, podemos reescrever essa função de uma maneira muito mais simples:
+Mas ao empregar nosso entendimento de como `Ordering` é um Monoid, podemos reescrever essa função de uma maneira muito mais simples:
 
 ```{.haskell:hs}
 import Data.Monoid
@@ -1846,13 +1829,11 @@ Aqui, vemos como no primeiro exemplo os comprimentos são considerados diferente
 No segundo exemplo, os comprimentos são os mesmos, mas a segunda string tem mais vogais, então `LT` é retornado novamente.
 No terceiro exemplo, ambas têm o mesmo comprimento e o mesmo número de vogais, então são comparadas alfabeticamente e `"zen"` ganha.
 
-O monóide `Ordering` é muito legal porque nos permite comparar facilmente coisas por muitos critérios diferentes e colocar esses critérios em uma ordem eles mesmos, variando do mais importante para o menos.
-
-### `Maybe` o monóide 
+### The Maybe Monoid 
 
 Vamos dar uma olhada nas várias maneiras que `Maybe a` pode ser feito uma instância de `Monoid` e para que essas instâncias são úteis.
 
-Uma maneira é tratar `Maybe a` como um monóide apenas se seu parâmetro de tipo `a` for um monóide também e então implementar `mappend` de tal maneira que use a operação `mappend` dos valores que estão embrulhados com `Just`.
+Uma maneira é tratar `Maybe a` como um Monoid apenas se seu parâmetro de tipo `a` for um Monoid também e então implementar `mappend` de tal maneira que use a operação `mappend` dos valores que estão embrulhados com `Just`.
 Usamos `Nothing` como a identidade, e então se um dos dois valores que estamos fazendo `mappend` for `Nothing`, mantemos o outro valor.
 Aqui está a declaração da instância:
 
@@ -1879,12 +1860,12 @@ ghci> Just (Sum 3) `mappend` Just (Sum 4)
 Just (Sum {getSum = 7})
 ```
 
-Isso é útil quando você está lidando com monóides como resultados de cálculos que podem ter falhado.
-Por causa dessa instância, não temos que verificar se os cálculos falharam vendo se são um valor `Nothing` ou `Just`; podemos apenas continuar a tratá-los como monóides normais.
+Isso é útil quando você está lidando com Monoids como resultados de cálculos que podem ter falhado.
+Por causa dessa instância, não temos que verificar se os cálculos falharam vendo se são um valor `Nothing` ou `Just`; podemos apenas continuar a tratá-los como Monoids normais.
 
 Mas e se o tipo do conteúdo de `Maybe` não for uma instância de `Monoid`?
-Observe que na declaração de instância anterior, o único caso em que temos que confiar que o conteúdo são monóides é quando ambos os parâmetros de `mappend` são valores `Just`.
-Mas se não sabemos se o conteúdo são monóides, não podemos usar `mappend` entre eles, então o que devemos fazer?
+Observe que na declaração de instância anterior, o único caso em que temos que confiar que o conteúdo são Monoids é quando ambos os parâmetros de `mappend` são valores `Just`.
+Mas se não sabemos se o conteúdo são Monoids, não podemos usar `mappend` entre eles, então o que devemos fazer?
 Bem, uma coisa que podemos fazer é apenas descartar o segundo valor e manter o primeiro.
 Para isso, o tipo `First a` existe e esta é a sua definição:
 
@@ -1925,7 +1906,7 @@ ghci> getFirst . mconcat . map First $ [Nothing, Just 9, Just 10]
 Just 9
 ```
 
-Se quisermos um monóide sobre `Maybe a` de tal forma que o segundo parâmetro seja mantido se ambos os parâmetros de `mappend` forem valores `Just`, `Data.Monoid` fornece um tipo `Last a`, que funciona como `First a`, só que o último valor não-`Nothing` é mantido ao fazer `mappend` e usar `mconcat`:
+Se quisermos um Monoid sobre `Maybe a` de tal forma que o segundo parâmetro seja mantido se ambos os parâmetros de `mappend` forem valores `Just`, `Data.Monoid` fornece um tipo `Last a`, que funciona como `First a`, só que o último valor não-`Nothing` é mantido ao fazer `mappend` e usar `mconcat`:
 
 ```{.haskell:hs}
 ghci> getLast . mconcat . map Last $ [Nothing, Just 9, Just 10]
@@ -1934,9 +1915,9 @@ ghci> getLast $ Last (Just "one") `mappend` Last (Just "two")
 Just "two"
 ```
 
-### Usando monóides para dobrar estruturas de dados 
+### Usando Monoids para dobrar estruturas de dados 
 
-Uma das maneiras mais interessantes de colocar monóides para trabalhar é fazê-los nos ajudar a definir dobras (folds) sobre várias estruturas de dados.
+Uma das maneiras mais interessantes de colocar Monoids para trabalhar é fazê-los nos ajudar a definir dobras (folds) sobre várias estruturas de dados.
 Até agora, fizemos apenas dobras sobre listas, mas listas não são a única estrutura de dados que pode ser dobrada.
 Podemos definir dobras sobre quase qualquer estrutura de dados.
 Árvores especialmente se prestam bem a dobras.
@@ -2005,10 +1986,10 @@ A função `foldMap` tem o seguinte tipo:
 foldMap :: (Monoid m, Foldable t) => (a -> m) -> t a -> m
 ```
 
-Seu primeiro parâmetro é uma função que pega um valor do tipo que nossa estrutura dobrável contém (denotado aqui com `a`) e retorna um valor de monóide.
+Seu primeiro parâmetro é uma função que pega um valor do tipo que nossa estrutura dobrável contém (denotado aqui com `a`) e retorna um valor de Monoid.
 Seu segundo parâmetro é uma estrutura dobrável que contém valores do tipo `a`.
-Ela mapeia essa função sobre a estrutura dobrável, produzindo assim uma estrutura dobrável que contém valores de monóide.
-Então, fazendo `mappend` entre esses valores de monóide, ela os une todos em um único valor de monóide.
+Ela mapeia essa função sobre a estrutura dobrável, produzindo assim uma estrutura dobrável que contém valores de Monoid.
+Então, fazendo `mappend` entre esses valores de Monoid, ela os une todos em um único valor de Monoid.
 Essa função pode soar meio estranha no momento, mas veremos que é muito fácil de implementar.
 O que também é legal é que implementar essa função é tudo o que é preciso para o nosso tipo ser feito uma instância de `Foldable`.
 Então, se apenas implementarmos `foldMap` para algum tipo, obtemos `foldr` e `foldl` nesse tipo de graça!
@@ -2025,22 +2006,22 @@ instance F.Foldable Tree where
 
 ![find the visual pun or whatever](assets/images/functors-applicative-functors-and-monoids/accordion.png){.right width=366 height=280}
 
-Pensamos assim: se nos for fornecida uma função que pega um elemento de nossa árvore e retorna um valor de monóide, como reduzimos nossa árvore inteira a um único valor de monóide?
+Pensamos assim: se nos for fornecida uma função que pega um elemento de nossa árvore e retorna um valor de Monoid, como reduzimos nossa árvore inteira a um único valor de Monoid?
 Quando estávamos fazendo `fmap` sobre nossa árvore, aplicávamos a função que estávamos mapeando a um nó e então mapeávamos recursivamente a função sobre a subárvore esquerda, bem como a direita.
-Aqui, somos encarregados de não apenas mapear uma função, mas também de unir os resultados em um único valor de monóide usando `mappend`.
+Aqui, somos encarregados de não apenas mapear uma função, mas também de unir os resultados em um único valor de Monoid usando `mappend`.
 Primeiro consideramos o caso da árvore vazia --- uma árvore triste e solitária que não tem valores ou subárvores.
-Ela não contém nenhum valor que possamos dar à nossa função criadora de monóides, então apenas dizemos que se nossa árvore estiver vazia, o valor de monóide em que ela se torna é `mempty`.
+Ela não contém nenhum valor que possamos dar à nossa função criadora de Monoids, então apenas dizemos que se nossa árvore estiver vazia, o valor de Monoid em que ela se torna é `mempty`.
 
 O caso de um nó não vazio é um pouco mais interessante.
 Ele contém duas subárvores, bem como um valor.
 Neste caso, recursivamente `foldMap` a mesma função `f` sobre as subárvores esquerda e direita.
-Lembre-se, nosso `foldMap` resulta em um único valor de monóide.
+Lembre-se, nosso `foldMap` resulta em um único valor de Monoid.
 Também aplicamos nossa função `f` ao valor no nó.
-Agora temos três valores de monóide (dois de nossas subárvores e um da aplicação de `f` ao valor no nó) e apenas temos que juntá-los em um único valor.
+Agora temos três valores de Monoid (dois de nossas subárvores e um da aplicação de `f` ao valor no nó) e apenas temos que juntá-los em um único valor.
 Para esse propósito, usamos `mappend`, e naturalmente a subárvore esquerda vem primeiro, depois o valor do nó e então a subárvore direita.
 
-Observe que não tivemos que fornecer a função que pega um valor e retorna um valor de monóide.
-Recebemos essa função como parâmetro para `foldMap` e tudo o que temos a decidir é onde aplicar essa função e como unir os monóides resultantes dela.
+Observe que não tivemos que fornecer a função que pega um valor e retorna um valor de Monoid.
+Recebemos essa função como parâmetro para `foldMap` e tudo o que temos a decidir é onde aplicar essa função e como unir os Monoids resultantes dela.
 
 Agora que temos uma instância `Foldable` para nosso tipo de árvore, obtemos `foldr` e `foldl` de graça!
 Considere esta árvore:
@@ -2068,7 +2049,7 @@ ghci> F.foldl (*) 1 testTree
 64800
 ```
 
-E também, `foldMap` não é útil apenas para fazer novas instâncias de `Foldable`; ele vem a calhar para reduzir nossa estrutura a um único valor de monóide.
+E também, `foldMap` não é útil apenas para fazer novas instâncias de `Foldable`; ele vem a calhar para reduzir nossa estrutura a um único valor de Monoid.
 Por exemplo, se quisermos saber se algum número em nossa árvore é igual a `3`, podemos fazer isso:
 
 ```{.haskell:hs}
@@ -2076,8 +2057,8 @@ ghci> getAny $ F.foldMap (\x -> Any $ x == 3) testTree
 True
 ```
 
-Aqui, `\x -> Any $ x == 3` é uma função que pega um número e retorna um valor de monóide, ou seja, um `Bool` embrulhado em `Any`.
-`foldMap` aplica essa função a cada elemento em nossa árvore e então reduz os monóides resultantes em um único monóide com `mappend`.
+Aqui, `\x -> Any $ x == 3` é uma função que pega um número e retorna um valor de Monoid, ou seja, um `Bool` embrulhado em `Any`.
+`foldMap` aplica essa função a cada elemento em nossa árvore e então reduz os Monoids resultantes em um único Monoid com `mappend`.
 Se fizermos isso:
 
 ```{.haskell:hs}

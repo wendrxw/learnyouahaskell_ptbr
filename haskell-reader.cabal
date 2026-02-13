@@ -19,3 +19,16 @@ executable haskell-reader
                       transformers
     ghc-options:         -threaded -rtsopts -with-rtsopts=-N
     default-language: Haskell2010
+
+executable static-gen
+    main-is:          Static.hs
+    other-modules:    Files, Markdown, Templates
+    hs-source-dirs:   ., src
+    build-depends:    base >= 4.14 && < 5,
+                      text,
+                      pandoc,
+                      directory,
+                      filepath,
+                      transformers
+    ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+    default-language: Haskell2010

@@ -263,7 +263,7 @@ Como voltamos, por assim dizer, e pegamos a última migalha para recriar com ela
 
 Observe que esta função causa um erro se já estivermos no topo de uma árvore e quisermos subir.
 
-Mais tarde, usaremos a mônada `Maybe` para representar possíveis falhas ao mover o foco.
+Mais tarde, usaremos a Maybe Monad para representar possíveis falhas ao mover o foco.
 
 Com um par de `Tree a` e `Breadcrumbs a`, temos todas as informações para reconstruir a árvore inteira e também temos um foco em uma subárvore.
 Este esquema também nos permite mover facilmente para cima, para a esquerda e para a direita.
@@ -643,11 +643,11 @@ A mesma coisa aconteceria.
 Parece que, ao usar zippers, qualquer passo pode ser o nosso último (insira uma música sinistra aqui).
 Em outras palavras, qualquer movimento pode resultar em sucesso, mas também pode resultar em falha.
 Isso te lembra de algo?
-Claro, mônadas!
-Mais especificamente, a mônada `Maybe`, que adiciona um contexto de possível falha aos valores normais.
+Claro, Monads!
+Mais especificamente, a Maybe Monad, que adiciona um contexto de possível falha aos valores normais.
 
-Então, vamos usar a mônada `Maybe` para adicionar um contexto de possível falha aos nossos movimentos.
-Vamos pegar as funções que trabalham no nosso zipper de árvore binária e vamos transformá-las em funções monádicas.
+Então, vamos usar a Maybe Monad para adicionar um contexto de possível falha aos nossos movimentos.
+Vamos pegar as funções que trabalham no nosso zipper de árvore binária e vamos transformá-las em monadic functions.
 Primeiro, vamos cuidar da possível falha em `goLeft` e `goRight`.
 Até agora, a falha das funções que poderiam falhar foi sempre refletida no seu resultado, e desta vez não é diferente.
 Aqui estão `goLeft` e `goRight` com uma possibilidade adicional de falha:
@@ -700,7 +700,7 @@ ghci> let newFocus = (freeTree,[]) -: goLeft -: goRight
 ```
 
 Mas agora, em vez de retornar `Zipper a`, elas retornam `Maybe (Zipper a)`, então encadear funções desta forma não funcionará.
-Tivemos um problema semelhante quando estávamos [lidando com o nosso equilibrista](a-fistful-of-monads.html#walk-the-line) no capítulo sobre mônadas.
+Tivemos um problema semelhante quando estávamos [lidando com o nosso equilibrista](a-fistful-of-monads.html#walk-the-line) no capítulo sobre Monads.
 Ele também caminhava um passo de cada vez e cada um dos seus passos poderia resultar em falha porque um bando de pássaros poderia pousar num dos lados da sua vara de equilíbrio e fazê-lo cair.
 
 Agora, a piada é conosco porque somos nós que estamos caminhando e estamos atravessando um labirinto de nossa própria autoria.
@@ -729,4 +729,4 @@ Agora equipamos as nossas árvores com uma rede de segurança que nos pegará ca
 Uau, eu arrasei nesta metáfora.
 
 O nosso sistema de arquivos também tem muitos casos em que uma operação pode falhar, como tentar focar num arquivo ou pasta que não existe.
-Como exercício, você pode equipar o nosso sistema de arquivos com funções que falham graciosamente usando a mônada `Maybe`.
+Como exercício, você pode equipar o nosso sistema de arquivos com funções que falham graciosamente usando a Maybe Monad.

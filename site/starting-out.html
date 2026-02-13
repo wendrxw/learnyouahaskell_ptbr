@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprenda Haskell para o Bem de Todos!</title>
+    <link rel="stylesheet" href="assets/css/reset.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
+    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
+</head>
+<body>
+    <div class="bgwrapper">
+        <div id="content">
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="introduction.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="types-and-typeclasses.html">Próximo</a></li>
+    </ul>
+</div>
+
+            <article>
+<h1>Começando</h1>
+<h2>Preparar, apontar, já! {#ready-set-go}</h2>
+<p><img src="assets/images/starting-out/startingout.png"
+alt="egg" />{.right width=214 height=187} Tudo bem, vamos começar! Se
+você é o tipo de pessoa horrível que não lê introduções às coisas e a
+pulou, talvez queira ler a última seção da introdução, porque ela
+explica o que você precisa para seguir este tutorial e como vamos
+carregar as funções. A primeira coisa que faremos é executar o modo
+interativo do GHC e chamar alguma função para ter uma noção muito básica
+de Haskell. Abra seu terminal e digite <code>ghci</code>. Você será
+recebido com algo assim.</p>
+<p><code>{.haskell: .ghci} GHCi, version 9.2.4: https://www.haskell.org/ghc/  :? for help ghci&gt;</code></p>
+<p>Parabéns, você está no GHCI!</p>
+<p>Aqui está um pouco de aritmética simples.</p>
+<p><code>{.haskell: .ghci} ghci&gt; 2 + 15 17 ghci&gt; 49 * 100 4900 ghci&gt; 1892 - 1472 420 ghci&gt; 5 / 2 2.5 ghci&gt;</code></p>
+<p>Isso é bastante autoexplicativo. Também podemos usar vários
+operadores em uma linha e todas as regras de precedência usuais são
+obedecidas. Podemos usar parênteses para tornar a precedência explícita
+ou para alterá-la.</p>
+<p><code>{.haskell: .ghci} ghci&gt; (50 * 100) - 4999 1 ghci&gt; 50 * 100 - 4999 1 ghci&gt; 50 * (100 - 4999) -244950</code></p>
+<p>Muito legal, né? Sim, eu sei que não é, mas tenha paciência comigo.
+Uma pequena armadilha a ser observada aqui é negar números. Se queremos
+ter um número negativo, é sempre melhor cercá-lo com parênteses. Fazer
+<code>5 * -3</code> fará o GHCI gritar com você, mas fazer
+<code>5 * (-3)</code> funcionará muito bem.</p>
+<p>A álgebra booleana também é bastante direta. Como você provavelmente
+sabe, <code>&amp;&amp;</code> significa um booleano <em>e</em> (and),
+<code>||</code> significa um booleano <em>ou</em> (or). <code>not</code>
+nega um <code>True</code> ou um <code>False</code>.</p>
+<p><code>{.haskell: .ghci} ghci&gt; True &amp;&amp; False False ghci&gt; True &amp;&amp; True True ghci&gt; False || True True ghci&gt; not False True ghci&gt; not (True &amp;&amp; True) False</code></p>
+<p>O teste de igualdade é feito assim.</p>
+<p><code>{.haskell: .ghci} ghci&gt; 5 == 5 True ghci&gt; 1 == 0 False ghci&gt; 5 /= 5 False ghci&gt; 5 /= 4 True ghci&gt; "hello" == "hello" True</code></p>
+<p>Que tal fazer <code>5 + "llama"</code> ou <code>5 == True</code>?
+Bem, se tentarmos o primeiro trecho, receberemos uma mensagem de erro
+grande e assustadora!</p>
+<p><code>{.haskell: .ghci} &lt;interactive&gt;:1:1: error: [GHC-39999]     • No instance for ‘Num String’ arising from the literal ‘5’     • In the first argument of ‘(+)’, namely ‘5’       In the expression: 5 + "llama"       In an equation for ‘it’: it = 5 + "llama"</code></p>
+<p>Caramba! O que o GHCI está nos dizendo aqui é que
+<code>"llama"</code> não é um número e, portanto, não sabe como
+adicioná-lo a 5. Mesmo se não fosse <code>"llama"</code>, mas
+<code>"four"</code> ou <code>"4"</code>, Haskell ainda não consideraria
+isso um número. <code>+</code> espera que seu lado esquerdo e direito
+sejam números. Se tentássemos fazer <code>True == 5</code>, o GHCI nos
+diria que os tipos não correspondem. Considerando que <code>+</code>
+funciona apenas em coisas consideradas números, <code>==</code> funciona
+em quaisquer duas coisas que podem ser comparadas. Mas o problema é que
+ambos têm que ser o mesmo tipo de coisa. Você não pode comparar maçãs e
+laranjas. Vamos dar uma olhada nos tipos um pouco mais tarde. Nota: você
+pode fazer <code>5 + 4.0</code> porque <code>5</code> é sorrateiro e
+pode agir como um número inteiro ou um número de ponto flutuante.
+<code>4.0</code> não pode agir como um número inteiro, então
+<code>5</code> é quem tem que se adaptar.</p>
+<p>::: {.hintbox} <strong>Nota:</strong> Todos os erros do GHC recebem
+identificadores exclusivos, como <code>GHC-39999</code> acima. Sempre
+que você estiver preso a um erro persistente, pode procurá-lo em <a
+href="https://errors.haskell.org/">https://errors.haskell.org/</a> para
+aprender causas típicas e soluções. :::</p>
+<p>Você pode não saber, mas usamos funções o tempo todo. Por exemplo,
+<code>*</code> é uma função que pega dois números e os multiplica. Como
+você viu, nós a chamamos colocando-a entre eles. Isso é o que chamamos
+de função <em>infixa</em>. A maioria das funções que não são usadas com
+números são funções <em>prefixas</em>. Vamos dar uma olhada nelas.</p>
+<p><img src="assets/images/starting-out/ringring.png"
+alt="phoen" />{.right width=160 height=161} As funções geralmente são
+prefixas, portanto, a partir de agora, não declararemos explicitamente
+que uma função é da forma prefixa, apenas assumiremos. Na maioria das
+linguagens imperativas, as funções são chamadas escrevendo o nome da
+função e, em seguida, escrevendo seus parâmetros entre parênteses,
+geralmente separados por vírgulas. Em Haskell, as funções são chamadas
+escrevendo o nome da função, um espaço e depois os parâmetros, separados
+por espaços. Para começar, tentaremos chamar uma das funções mais chatas
+do Haskell.</p>
+<p><code>{.haskell: .ghci} ghci&gt; succ 8 9</code></p>
+<p>A função <code>succ</code> pega qualquer coisa que tenha um sucessor
+definido e retorna esse sucessor. Como você pode ver, apenas separamos o
+nome da função do parâmetro com um espaço. Chamar uma função com vários
+parâmetros também é simples. As funções <code>min</code> e
+<code>max</code> recebem duas coisas que podem ser colocadas em uma
+ordem (como números inteiros!). <code>min</code> retorna o que é menor e
+<code>max</code> retorna o que é maior. Veja você mesmo:</p>
+<p><code>{.haskell: .ghci} ghci&gt; min 9 10 9 ghci&gt; max 100 101 101</code></p>
+<p>A aplicação de função (chamar uma função colocando um espaço depois
+dela e digitando os parâmetros) tem a maior precedência de todas. O que
+isso significa para nós é que essas duas declarações são
+equivalentes.</p>
+<p><code>{.haskell: .ghci} ghci&gt; succ 9 + max 5 4 + 1 16 ghci&gt; (succ 9) + (max 5 4) + 1 16</code></p>
+<p>No entanto, se quiséssemos obter o sucessor do produto dos números 9
+e 10, não poderíamos escrever <code>succ 9 * 10</code> porque isso
+obteria o sucessor de 9, que seria multiplicado por 10. Então 100.
+Teríamos que escrever <code>succ (9 * 10)</code> para obter 91.</p>
+<p>Se uma função recebe dois parâmetros, também podemos chamá-la como
+uma função infixa, cercando-a com crases. Por exemplo, a função
+<code>div</code> pega dois inteiros e faz a divisão integral entre eles.
+Fazer <code>div 92 10</code> resulta em 9. Mas quando chamamos assim,
+pode haver alguma confusão sobre qual número está fazendo a divisão e
+qual está sendo dividido. Então, podemos chamá-la como uma função infixa
+fazendo <code>92 `div` 10</code> e de repente fica muito mais claro.</p>
+<p>Muitas pessoas que vêm de linguagens imperativas tendem a manter a
+noção de que os parênteses devem denotar a aplicação de funções. Por
+exemplo, em C, você usa parênteses para chamar funções como
+<code>foo()</code>, <code>bar(1)</code> ou <code>baz(3, "haha")</code>.
+Como dissemos, espaços são usados para aplicação de funções em Haskell.
+Portanto, essas funções em Haskell seriam <code>foo</code>,
+<code>bar 1</code> e <code>baz 3 "haha"</code>. Portanto, se você vir
+algo como <code>bar (bar 3)</code>, isso não significa que
+<code>bar</code> é chamado com <code>bar</code> e <code>3</code> como
+parâmetros. Isso significa que primeiro chamamos a função
+<code>bar</code> com <code>3</code> como parâmetro para obter algum
+número e depois chamamos <code>bar</code> novamente com esse número. Em
+C, isso seria algo como <code>bar(bar(3))</code>.</p>
+<h2>Primeiras funções do bebê {#babys-first-functions}</h2>
+<p>Na seção anterior, tivemos uma noção básica de como chamar funções.
+Agora vamos tentar fazer as nossas! Abra seu editor de texto favorito e
+digite esta função que pega um número e o multiplica por dois.</p>
+<p><code>{.haskell:hs} doubleMe x = x + x</code></p>
+<p>As funções são definidas de maneira semelhante a como são chamadas. O
+nome da função é seguido por parâmetros separados por espaços. Mas, ao
+definir funções, há um <code>=</code> e depois definimos o que a função
+faz. Salve isso como <code>baby.hs</code> ou algo assim. Agora navegue
+até onde está salvo e execute o <code>ghci</code> a partir daí. Uma vez
+dentro do GHCI, faça <code>:l baby</code>. Agora que nosso script está
+carregado, podemos brincar com a função que definimos.</p>
+<p><code>{.haskell: .ghci} ghci&gt; :l baby [1 of 1] Compiling Main             ( baby.hs, interpreted ) Ok, one module loaded. ghci&gt; doubleMe 9 18 ghci&gt; doubleMe 8.3 16.6</code></p>
+<p>Como o <code>+</code> funciona em números inteiros e em números de
+ponto flutuante (qualquer coisa que possa ser considerada um número, na
+verdade), nossa função também funciona em qualquer número. Vamos fazer
+uma função que pega dois números e multiplica cada um por dois e depois
+os soma.</p>
+<p><code>{.haskell:hs} doubleUs x y = x*2 + y*2</code></p>
+<p>Simples. Poderíamos também ter definido como
+<code>doubleUs x y = x + x + y + y</code>. Testá-lo produz resultados
+bastante previsíveis (lembre-se de anexar essa função ao arquivo
+<code>baby.hs</code>, salvá-lo e depois fazer <code>:l baby</code>
+dentro do GHCI).</p>
+<p><code>{.haskell: .ghci} ghci&gt; doubleUs 4 9 26 ghci&gt; doubleUs 2.3 34.2 73.0 ghci&gt; doubleUs 28 88 + doubleMe 123 478</code></p>
+<p>Como esperado, você pode chamar suas próprias funções de outras
+funções que você criou. Com isso em mente, poderíamos redefinir
+<code>doubleUs</code> assim:</p>
+<p><code>{.haskell:hs} doubleUs x y = doubleMe x + doubleMe y</code></p>
+<p>Este é um exemplo muito simples de um padrão comum que você verá em
+Haskell. Fazer funções básicas que são obviamente corretas e combiná-las
+em funções mais complexas. Dessa forma, você também evita repetições. E
+se alguns matemáticos decidissem que 2 é na verdade 3 e você tivesse que
+mudar seu programa? Você poderia simplesmente redefinir
+<code>doubleMe</code> para ser <code>x + x + x</code> e, como
+<code>doubleUs</code> chama <code>doubleMe</code>, funcionaria
+automaticamente neste estranho mundo novo onde 2 é 3.</p>
+<p>As funções em Haskell não precisam estar em nenhuma ordem específica,
+portanto, não importa se você define <code>doubleMe</code> primeiro e
+depois <code>doubleUs</code> ou se faz o contrário.</p>
+<p>Agora vamos fazer uma função que multiplica um número por 2, mas
+apenas se esse número for menor ou igual a 100, porque números maiores
+que 100 já são grandes o suficiente!</p>
+<p><code>{.haskell:hs} doubleSmallNumber x = if x &gt; 100                         then x                         else x*2</code></p>
+<p><img src="assets/images/starting-out/baby.png"
+alt="this is you" />{.left width=140 height=211}</p>
+<p>Bem aqui introduzimos a declaração if do Haskell. Você provavelmente
+está familiarizado com declarações if de outras linguagens. A diferença
+entre a declaração if do Haskell e as declarações if em linguagens
+imperativas é que a parte else é obrigatória no Haskell. Em linguagens
+imperativas, você pode pular algumas etapas se a condição não for
+satisfeita, mas em Haskell toda expressão e função deve retornar algo.
+Poderíamos ter escrito essa declaração if em uma linha, mas acho essa
+maneira mais legível. Outra coisa sobre a declaração if em Haskell é que
+ela é uma <em>expressão</em>. Uma expressão é basicamente um pedaço de
+código que retorna um valor. <code>5</code> é uma expressão porque
+retorna 5, <code>4 + 8</code> é uma expressão, <code>x + y</code> é uma
+expressão porque retorna a soma de <code>x</code> e <code>y</code>. Como
+o else é obrigatório, uma declaração if sempre retornará algo e é por
+isso que é uma expressão. Se quiséssemos adicionar um a cada número
+produzido em nossa função anterior, poderíamos ter escrito seu corpo
+assim.</p>
+<p><code>{.haskell:hs} doubleSmallNumber' x = (if x &gt; 100 then x else x*2) + 1</code></p>
+<p>Se tivéssemos omitido os parênteses, teria adicionado um apenas se
+<code>x</code> não fosse maior que 100. Observe o <code>'</code> no
+final do nome da função. Esse apóstrofo não tem nenhum significado
+especial na sintaxe do Haskell. É um caractere válido para usar em um
+nome de função. Geralmente usamos <code>'</code> para denotar uma versão
+estrita de uma função (uma que não é preguiçosa) ou uma versão
+ligeiramente modificada de uma função ou variável. Como <code>'</code> é
+um caractere válido em funções, podemos fazer uma função como esta.</p>
+<p><code>{.haskell:hs} conanO'Brien = "It's a-me, Conan O'Brien!"</code></p>
+<p>Há duas coisas dignas de nota aqui. A primeira é que no nome da
+função não colocamos o nome de Conan em maiúscula. Isso ocorre porque as
+funções não podem começar com letras maiúsculas. Veremos o porquê um
+pouco mais tarde. A segunda coisa é que essa função não recebe nenhum
+parâmetro. Quando uma função não recebe nenhum parâmetro, geralmente
+dizemos que é uma <em>definição</em> (ou um <em>nome</em>). Como não
+podemos mudar o que os nomes (e funções) significam depois de
+defini-los, <code>conanO'Brien</code> e a string
+<code>"It's a-me, Conan O'Brien!"</code> podem ser usados de forma
+intercambiável.</p>
+<h2>Uma introdução às listas {#an-intro-to-lists}</h2>
+<p><img src="assets/images/starting-out/list.png"
+alt="BUY A DOG" />{.left width=150 height=103} Assim como listas de
+compras no mundo real, as listas em Haskell são muito úteis. É a
+estrutura de dados mais usada e pode ser usada de várias maneiras
+diferentes para modelar e resolver um monte de problemas. Listas são TÃO
+incríveis. Nesta seção, veremos o básico de listas, strings (que são
+listas) e compreensões de lista (list comprehensions).</p>
+<p>Em Haskell, as listas são uma estrutura de dados
+<strong>homogênea</strong>. Elas armazenam vários elementos do mesmo
+tipo. Isso significa que podemos ter uma lista de números inteiros ou
+uma lista de caracteres, mas não podemos ter uma lista que tenha alguns
+números inteiros e depois alguns caracteres. E agora, uma lista!</p>
+<p><code>{.haskell: .ghci} ghci&gt; lostNumbers = [4,8,15,16,23,42] ghci&gt; lostNumbers [4,8,15,16,23,42]</code></p>
+<p>Como você pode ver, as listas são denotadas por colchetes e os
+valores nas listas são separados por vírgulas. Se tentássemos uma lista
+como <code>[1,2,'a',3,'b','c',4]</code>, Haskell reclamaria que
+caracteres (que são, a propósito, denotados como um caractere entre
+aspas simples) não são números. Falando em caracteres, strings são
+apenas listas de caracteres. <code>"hello"</code> é apenas açúcar
+sintático para <code>['h','e','l','l','o']</code>. Como strings são
+listas, podemos usar funções de lista nelas, o que é muito útil.</p>
+<p>Uma tarefa comum é juntar duas listas. Isso é feito usando o operador
+<code>++</code>.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [1,2,3,4] ++ [9,10,11,12] [1,2,3,4,9,10,11,12] ghci&gt; "hello" ++ " " ++ "world" "hello world" ghci&gt; ['w','o'] ++ ['o','t'] "woot"</code></p>
+<p>Cuidado ao usar repetidamente o operador <code>++</code> em strings
+longas. Quando você junta duas listas (mesmo se você anexar uma lista
+singleton a uma lista, por exemplo: <code>[1,2,3] ++ [4]</code>),
+internamente, Haskell tem que percorrer toda a lista do lado esquerdo de
+<code>++</code>. Isso não é um problema ao lidar com listas que não são
+muito grandes. Mas colocar algo no final de uma lista com cinquenta
+milhões de entradas vai demorar um pouco. No entanto, colocar algo no
+início de uma lista usando o operador <code>:</code> (também chamado de
+operador cons) é instantâneo.</p>
+<p><code>{.haskell: .ghci} ghci&gt; 'A':" SMALL CAT" "A SMALL CAT" ghci&gt; 5:[1,2,3,4,5] [5,1,2,3,4,5]</code></p>
+<p>Observe como <code>:</code> recebe um número e uma lista de números
+ou um caractere e uma lista de caracteres, enquanto <code>++</code>
+recebe duas listas. Mesmo se você estiver adicionando um elemento ao
+final de uma lista com <code>++</code>, deve cercá-lo com colchetes para
+que se torne uma lista.</p>
+<p><code>[1,2,3]</code> é na verdade apenas açúcar sintático para
+<code>1:2:3:[]</code>. <code>[]</code> é uma lista vazia. Se precedermos
+<code>3</code> a ela, ela se tornará <code>[3]</code>. Se precedermos
+<code>2</code> a isso, ela se tornará <code>[2,3]</code>, e assim por
+diante.</p>
+<p>::: {.hintbox} <strong>Nota:</strong> <code>[]</code>,
+<code>[[]]</code> e <code>[[],[],[]]</code> são todas coisas diferentes.
+O primeiro é uma lista vazia, o segundo é uma lista que contém uma lista
+vazia, o terceiro é uma lista que contém três listas vazias. :::</p>
+<p>Se você quiser obter um elemento de uma lista por índice, use
+<code>!!</code>. Os índices começam em 0.</p>
+<p><code>{.haskell: .ghci} ghci&gt; "Steve Buscemi" !! 6 'B' ghci&gt; [9.4,33.2,96.2,11.2,23.25] !! 1 33.2</code></p>
+<p>Mas se você tentar obter o sexto elemento de uma lista que tem apenas
+quatro elementos, receberá um erro, então tenha cuidado!</p>
+<p>Listas também podem conter listas. Elas também podem conter listas
+que contêm listas que contêm listas...</p>
+<p><code>{.haskell: .ghci} ghci&gt; b = [[1,2,3,4],[5,3,3,3],[1,2,2,3,4],[1,2,3]] ghci&gt; b [[1,2,3,4],[5,3,3,3],[1,2,2,3,4],[1,2,3]] ghci&gt; b ++ [[1,1,1,1]] [[1,2,3,4],[5,3,3,3],[1,2,2,3,4],[1,2,3],[1,1,1,1]] ghci&gt; [6,6,6]:b [[6,6,6],[1,2,3,4],[5,3,3,3],[1,2,2,3,4],[1,2,3]] ghci&gt; b !! 2 [1,2,2,3,4]</code></p>
+<p>As listas dentro de uma lista podem ter comprimentos diferentes, mas
+não podem ser de tipos diferentes. Assim como você não pode ter uma
+lista que tenha alguns caracteres e alguns números, você não pode ter
+uma lista que tenha algumas listas de caracteres e algumas listas de
+números.</p>
+<p>As listas podem ser comparadas se as coisas que elas contêm puderem
+ser comparadas. Ao usar <code>&lt;</code>, <code>&lt;=</code>,
+<code>&gt;</code> e <code>&gt;=</code> para comparar listas, elas são
+comparadas em ordem lexicográfica. Primeiro, as cabeças (heads) são
+comparadas. Se forem iguais, os segundos elementos são comparados,
+etc.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [3,2,1] &gt; [2,1,0] True ghci&gt; [3,2,1] &gt; [2,10,100] True ghci&gt; [3,4,2] &gt; [3,4] True ghci&gt; [3,4,2] &gt; [2,4] True ghci&gt; [3,4,2] == [3,4,2] True</code></p>
+<p>O que mais você pode fazer com listas? Aqui estão algumas funções
+básicas que operam em listas.</p>
+<p><code>head</code>{.label .function} pega uma lista e retorna sua
+cabeça (head). A cabeça de uma lista é basicamente seu primeiro
+elemento.</p>
+<p><code>{.haskell: .ghci} ghci&gt; head [5,4,3,2,1] 5</code></p>
+<p><code>tail</code>{.label .function} pega uma lista e retorna sua
+cauda (tail). Em outras palavras, corta a cabeça de uma lista.</p>
+<p><code>{.haskell: .ghci} ghci&gt; tail [5,4,3,2,1] [4,3,2,1]</code></p>
+<p><code>last</code>{.label .function} pega uma lista e retorna seu
+último elemento.</p>
+<p><code>{.haskell: .ghci} ghci&gt; last [5,4,3,2,1] 1</code></p>
+<p><code>init</code>{.label .function} pega uma lista e retorna tudo,
+exceto seu último elemento.</p>
+<p><code>{.haskell: .ghci} ghci&gt; init [5,4,3,2,1] [5,4,3,2]</code></p>
+<p>Se pensarmos em uma lista como um monstro, aqui está o que é o
+quê.</p>
+<p><img src="assets/images/starting-out/listmonster.png"
+alt="list monster" />{.center width=580 height=290}</p>
+<p>Mas o que acontece se tentarmos pegar a cabeça de uma lista
+vazia?</p>
+<p><code>{.haskell: .ghci} ghci&gt; head [] *** Exception: Prelude.head: empty list</code></p>
+<p>Oh céus! Tudo explode na nossa cara! Se não há monstro, ele não tem
+cabeça. Ao usar <code>head</code>, <code>tail</code>, <code>last</code>
+e <code>init</code>, tenha cuidado para não usá-los em listas vazias.
+Esse erro não pode ser detectado em tempo de compilação, portanto, é
+sempre uma boa prática tomar precauções contra dizer acidentalmente a
+Haskell para fornecer alguns elementos de uma lista vazia.</p>
+<p><code>length</code>{.label .function} pega uma lista e retorna seu
+comprimento, obviamente.</p>
+<p><code>{.haskell: .ghci} ghci&gt; length [5,4,3,2,1] 5</code></p>
+<p><code>null</code>{.label .function} verifica se uma lista está vazia.
+Se estiver, retorna <code>True</code>, caso contrário, retorna
+<code>False</code>. Use esta função em vez de <code>xs == []</code> (se
+você tiver uma lista chamada <code>xs</code>).</p>
+<p><code>{.haskell: .ghci} ghci&gt; null [1,2,3] False ghci&gt; null [] True</code></p>
+<p><code>reverse</code>{.label .function} inverte uma lista.</p>
+<p><code>{.haskell: .ghci} ghci&gt; reverse [5,4,3,2,1] [1,2,3,4,5]</code></p>
+<p><code>take</code>{.label .function} pega um número e uma lista. Ele
+extrai essa quantidade de elementos do início da lista. Veja.</p>
+<p><code>{.haskell: .ghci} ghci&gt; take 3 [5,4,3,2,1] [5,4,3] ghci&gt; take 1 [3,9,3] [3] ghci&gt; take 5 [1,2] [1,2] ghci&gt; take 0 [6,6,6] []</code></p>
+<p>Veja como, se tentarmos pegar mais elementos do que há na lista, ela
+apenas retorna a lista. Se tentarmos pegar 0 elementos, obtemos uma
+lista vazia.</p>
+<p><code>drop</code>{.label .function} funciona de maneira semelhante,
+apenas descarta o número de elementos do início de uma lista.</p>
+<p><code>{.haskell: .ghci} ghci&gt; drop 3 [8,4,2,1,5,6] [1,5,6] ghci&gt; drop 0 [1,2,3,4] [1,2,3,4] ghci&gt; drop 100 [1,2,3,4] []</code></p>
+<p><code>maximum</code>{.label .function} pega uma lista de coisas que
+podem ser colocadas em algum tipo de ordem e retorna o maior
+elemento.</p>
+<p><code>minimum</code>{.label .function} retorna o menor.</p>
+<p><code>{.haskell: .ghci} ghci&gt; minimum [8,4,2,1,5,6] 1 ghci&gt; maximum [1,9,2,3,4] 9</code></p>
+<p><code>sum</code>{.label .function} pega uma lista de números e
+retorna sua soma.</p>
+<p><code>product</code>{.label .function} pega uma lista de números e
+retorna seu produto.</p>
+<p><code>{.haskell: .ghci} ghci&gt; sum [5,2,1,6,3,2,5,7] 31 ghci&gt; product [6,2,1,2] 24 ghci&gt; product [1,2,5,6,7,9,2,0] 0</code></p>
+<p><code>elem</code>{.label .function} pega uma coisa e uma lista de
+coisas e nos diz se essa coisa é um elemento da lista. Geralmente é
+chamado como uma função infixa porque é mais fácil de ler dessa
+maneira.</p>
+<p><code>{.haskell: .ghci} ghci&gt; 4 `elem` [3,4,5,6] True ghci&gt; 10 `elem` [3,4,5,6] False</code></p>
+<p>Essas foram algumas funções básicas que operam em listas. Vamos dar
+uma olhada em mais funções de lista <a
+href="modules.html#data-list">mais tarde</a>.</p>
+<h2>Intervalos do Texas (Texas ranges) {#texas-ranges}</h2>
+<p><img src="assets/images/starting-out/cowboy.png" alt="draw" />{.right
+width=200 height=258} E se quisermos uma lista de todos os números entre
+1 e 20? Claro, poderíamos digitar todos eles, mas obviamente isso não é
+uma solução para cavalheiros que exigem excelência de suas linguagens de
+programação. Em vez disso, usaremos intervalos (ranges). Os intervalos
+são uma maneira de criar listas que são sequências aritméticas de
+elementos que podem ser enumerados. Os números podem ser enumerados. Um,
+dois, três, quatro, etc. Os caracteres também podem ser enumerados. O
+alfabeto é uma enumeração de caracteres de A a Z. Nomes não podem ser
+enumerados. O que vem depois de "John"? Eu não sei.</p>
+<p>Para fazer uma lista contendo todos os números naturais de 1 a 20,
+basta escrever <code>[1..20]</code>. Isso é o equivalente a escrever
+<code>[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]</code> e não
+há diferença entre escrever um ou outro, exceto que escrever longas
+sequências de enumeração manualmente é estúpido.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [1..20] [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] ghci&gt; ['a'..'z'] "abcdefghijklmnopqrstuvwxyz" ghci&gt; ['K'..'Z'] "KLMNOPQRSTUVWXYZ"</code></p>
+<p>Os intervalos são legais porque você também pode especificar um
+passo. E se quisermos todos os números pares entre 1 e 20? Ou a cada
+terceiro número entre 1 e 20?</p>
+<p><code>{.haskell: .ghci} ghci&gt; [2,4..20] [2,4,6,8,10,12,14,16,18,20] ghci&gt; [3,6..20] [3,6,9,12,15,18]</code></p>
+<p>É simplesmente uma questão de separar os dois primeiros elementos com
+uma vírgula e depois especificar qual é o limite superior. Embora
+bastante inteligentes, os intervalos com passos não são tão inteligentes
+quanto algumas pessoas esperam que sejam. Você não pode fazer
+<code>[1,2,4,8,16..100]</code> e esperar obter todas as potências de 2.
+Primeiro, porque você só pode especificar um passo. E segundo, porque
+algumas sequências que não são aritméticas são ambíguas se dadas apenas
+por alguns de seus primeiros termos.</p>
+<p>Para fazer uma lista com todos os números de 20 a 1, você não pode
+simplesmente fazer <code>[20..1]</code>, você tem que fazer
+<code>[20,19..1]</code>.</p>
+<p>Cuidado ao usar números de ponto flutuante em intervalos! Como eles
+não são completamente precisos (por definição), seu uso em intervalos
+pode gerar alguns resultados bastante estranhos.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [0.1, 0.3 .. 1] [0.1,0.3,0.5,0.7,0.8999999999999999,1.0999999999999999]</code></p>
+<p>Meu conselho é não usá-los em intervalos de lista.</p>
+<p>Você também pode usar intervalos para fazer listas infinitas
+simplesmente não especificando um limite superior. Mais tarde,
+entraremos em mais detalhes sobre listas infinitas. Por enquanto, vamos
+examinar como você obteria os primeiros 24 múltiplos de 13. Claro, você
+poderia fazer <code>[13,26..24*13]</code>. Mas há uma maneira melhor:
+<code>take 24 [13,26..]</code>. Como Haskell é preguiçoso, ele não
+tentará avaliar a lista infinita imediatamente, porque nunca terminaria.
+Ele vai esperar para ver o que você quer tirar dessas listas infinitas.
+E aqui ele vê que você quer apenas os primeiros 24 elementos e ele
+concorda com prazer.</p>
+<p>Um punhado de funções que produzem listas infinitas:</p>
+<p><code>cycle</code>{.label .function} pega uma lista e a alterna em
+uma lista infinita. Se você apenas tentar exibir o resultado, continuará
+para sempre, então você terá que cortá-lo em algum lugar.</p>
+<p><code>{.haskell: .ghci} ghci&gt; take 10 (cycle [1,2,3]) [1,2,3,1,2,3,1,2,3,1] ghci&gt; take 12 (cycle "LOL ") "LOL LOL LOL "</code></p>
+<p><code>repeat</code>{.label .function} pega um elemento e produz uma
+lista infinita apenas desse elemento. É como repetir uma lista com
+apenas um elemento.</p>
+<p><code>{.haskell: .ghci} ghci&gt; take 10 (repeat 5) [5,5,5,5,5,5,5,5,5,5]</code></p>
+<p>Embora seja mais simples usar a função <code>replicate</code>{.label
+.function} se você quiser algum número do mesmo elemento em uma lista.
+<code>replicate 3 10</code> retorna <code>[10,10,10]</code>.</p>
+<h2>Eu sou uma compreensão de lista (list comprehension)
+{#im-a-list-comprehension}</h2>
+<p><img src="assets/images/starting-out/kermit.png" alt="frog" />{.left
+width=180 height=156} Se você já fez um curso de matemática,
+provavelmente já se deparou com <em>compreensões de conjunto</em>. Elas
+são normalmente usadas para construir conjuntos mais específicos a
+partir de conjuntos gerais. Uma compreensão básica para um conjunto que
+contém os primeiros dez números naturais pares é <img
+src="assets/images/starting-out/setnotation.png" alt="set notation" />.
+A parte antes do pipe é chamada de função de saída, <code>x</code> é a
+variável, <code>N</code> é o conjunto de entrada e
+<code>x &lt;= 10</code> é o predicado. Isso significa que o conjunto
+contém os dobros de todos os números naturais que satisfazem o
+predicado.</p>
+<p>Se quiséssemos escrever isso em Haskell, poderíamos fazer algo como
+<code>take 10 [2,4..]</code>. Mas e se não quiséssemos dobros dos
+primeiros 10 números naturais, mas algum tipo de função mais complexa
+aplicada a eles? Poderíamos usar uma compreensão de lista para isso. As
+compreensões de lista são muito semelhantes às compreensões de conjunto.
+Vamos nos ater a obter os primeiros 10 números pares por enquanto. A
+compreensão de lista que poderíamos usar é
+<code>[x*2 | x &lt;- [1..10]]</code>. <code>x</code> é extraído de
+<code>[1..10]</code> e para cada elemento em <code>[1..10]</code> (que
+vinculamos a <code>x</code>), obtemos esse elemento, apenas dobrado.
+Aqui está essa compreensão em ação.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [x*2 | x &lt;- [1..10]] [2,4,6,8,10,12,14,16,18,20]</code></p>
+<p>Como você pode ver, obtemos os resultados desejados. Agora vamos
+adicionar uma condição (ou um predicado) a essa compreensão. Os
+predicados vêm depois das partes de ligação e são separados delas por
+uma vírgula. Digamos que queremos apenas os elementos que, dobrados, são
+maiores ou iguais a 12.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [x*2 | x &lt;- [1..10], x*2 &gt;= 12] [12,14,16,18,20]</code></p>
+<p>Legal, funciona. Que tal se quiséssemos todos os números de 50 a 100
+cujo resto quando dividido pelo número 7 é 3? Fácil.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [ x | x &lt;- [50..100], x `mod` 7 == 3] [52,59,66,73,80,87,94]</code></p>
+<p>Sucesso! Observe que remover listas por predicados também é chamado
+de <strong>filtragem</strong>. Pegamos uma lista de números e os
+filtramos pelo predicado. Agora, outro exemplo. Digamos que queremos uma
+compreensão que substitua cada número ímpar maior que 10 por
+<code>"BANG!"</code> e cada número ímpar menor que 10 por
+<code>"BOOM!"</code>. Se um número não for ímpar, nós o jogamos fora da
+nossa lista. Por conveniência, colocaremos essa compreensão dentro de
+uma função para que possamos reutilizá-la facilmente.</p>
+<p><code>{.haskell: .ghci} boomBangs xs = [ if x &lt; 10 then "BOOM!" else "BANG!" | x &lt;- xs, odd x]</code></p>
+<p>A última parte da compreensão é o predicado. A função
+<code>odd</code> retorna <code>True</code> em um número ímpar e
+<code>False</code> em um par. O elemento é incluído na lista somente se
+todos os predicados forem avaliados como <code>True</code>.</p>
+<p><code>{.haskell:hs} ghci&gt; boomBangs [7..13] ["BOOM!","BOOM!","BANG!","BANG!"]</code></p>
+<p>Podemos incluir vários predicados. Se quiséssemos todos os números de
+10 a 20 que não são 13, 15 ou 19, faríamos:</p>
+<p><code>{.haskell: .ghci} ghci&gt; [ x | x &lt;- [10..20], x /= 13, x /= 15, x /= 19] [10,11,12,14,16,17,18,20]</code></p>
+<p>Não apenas podemos ter vários predicados em compreensões de lista (um
+elemento deve satisfazer todos os predicados para ser incluído na lista
+resultante), também podemos extrair de várias listas. Ao extrair de
+várias listas, as compreensões produzem todas as combinações das listas
+fornecidas e, em seguida, as unem pela função de saída que fornecemos.
+Uma lista produzida por uma compreensão que extrai de duas listas de
+comprimento 4 terá um comprimento de 16, desde que não as filtremos. Se
+tivermos duas listas, <code>[2,5,10]</code> e <code>[8,10,11]</code> e
+quisermos obter os produtos de todas as combinações possíveis entre
+números nessas listas, eis o que faríamos.</p>
+<p><code>{.haskell: .ghci} ghci&gt; [ x*y | x &lt;- [2,5,10], y &lt;- [8,10,11]] [16,20,22,40,50,55,80,100,110]</code></p>
+<p>Como esperado, o comprimento da nova lista é 9. E se quiséssemos
+todos os produtos possíveis com mais de 50?</p>
+<p><code>{.haskell: .ghci} ghci&gt; [ x*y | x &lt;- [2,5,10], y &lt;- [8,10,11], x*y &gt; 50] [55,80,100,110]</code></p>
+<p>Que tal uma compreensão de lista que combina uma lista de adjetivos e
+uma lista de substantivos... para uma hilaridade épica.</p>
+<p><code>{.haskell: .ghci} ghci&gt; nouns = ["hobo","frog","pope"] ghci&gt; adjectives = ["lazy","grouchy","scheming"] ghci&gt; [adjective ++ " " ++ noun | adjective &lt;- adjectives, noun &lt;- nouns] ["lazy hobo","lazy frog","lazy pope","grouchy hobo","grouchy frog", "grouchy pope","scheming hobo","scheming frog","scheming pope"]</code></p>
+<p>Eu sei! Vamos escrever nossa própria versão de <code>length</code>!
+Vamos chamá-la de <code>length'</code>.</p>
+<p><code>{.haskell:hs} length' xs = sum [1 | _ &lt;- xs]</code></p>
+<p><code>_</code> significa que não nos importamos com o que extrairemos
+da lista de qualquer maneira; portanto, em vez de escrever um nome de
+variável que nunca usaremos, apenas escrevemos <code>_</code>. Essa
+função substitui cada elemento de uma lista por <code>1</code> e depois
+soma tudo. Isso significa que a soma resultante será o comprimento da
+nossa lista.</p>
+<p>Apenas um lembrete amigável: como as strings são listas, podemos usar
+compreensões de lista para processar e produzir strings. Aqui está uma
+função que pega uma string e remove tudo, exceto letras maiúsculas.</p>
+<p><code>{.haskell:hs} removeNonUppercase st = [ c | c &lt;- st, c `elem` ['A'..'Z']]</code></p>
+<p>Testando:</p>
+<p><code>{.haskell: .ghci} ghci&gt; removeNonUppercase "Hahaha! Ahahaha!" "HA" ghci&gt; removeNonUppercase "IdontLIKEFROGS" "ILIKEFROGS"</code></p>
+<p>O predicado aqui faz todo o trabalho. Diz que o caractere será
+incluído na nova lista apenas se for um elemento da lista
+<code>['A'..'Z']</code>. Compreensões de lista aninhadas também são
+possíveis se você estiver operando em listas que contêm listas. Uma
+lista contém várias listas de números. Vamos remover todos os números
+ímpares sem achatar a lista.</p>
+<p><code>{.haskell: .ghci} ghci&gt; let xxs = [[1,3,5,2,3,1,2,4,5],[1,2,3,4,5,6,7,8,9],[1,2,4,2,1,6,3,1,3,2,3,6]] ghci&gt; [ [ x | x &lt;- xs, even x ] | xs &lt;- xxs] [[2,2,4],[2,4,6,8],[2,4,2,6,2,6]]</code></p>
+<p>Você pode escrever compreensões de lista em várias linhas. Portanto,
+se você não estiver no GHCI, é melhor dividir compreensões de lista mais
+longas em várias linhas, especialmente se estiverem aninhadas.</p>
+<h2>Tuplas {#tuples}</h2>
+<p><img src="assets/images/starting-out/tuple.png"
+alt="tuples" />{.right width=160 height=162}</p>
+<p>De certa forma, as tuplas são como listas --- são uma maneira de
+armazenar vários valores em um único valor. No entanto, existem algumas
+diferenças fundamentais. Uma lista de números é uma lista de números.
+Esse é o seu tipo e não importa se tem apenas um número ou uma
+quantidade infinita de números. As tuplas, no entanto, são usadas quando
+você sabe exatamente quantos valores deseja combinar e seu tipo depende
+de quantos componentes ela tem e dos tipos dos componentes. Elas são
+denotadas com parênteses e seus componentes são separados por
+vírgulas.</p>
+<p>Outra diferença fundamental é que elas não precisam ser homogêneas.
+Ao contrário de uma lista, uma tupla pode conter uma combinação de
+vários tipos.</p>
+<p>Pense em como representaríamos um vetor bidimensional em Haskell. Uma
+maneira seria usar uma lista. Isso meio que funcionaria. E se
+quiséssemos colocar alguns vetores em uma lista para representar pontos
+de uma forma em um plano bidimensional? Poderíamos fazer algo como
+<code>[[1,2],[8,11],[4,5]]</code>. O problema com esse método é que
+também poderíamos fazer coisas como <code>[[1,2],[8,11,5],[4,5]]</code>,
+com o que Haskell não tem problema, pois ainda é uma lista de listas com
+números, mas meio que não faz sentido. Mas uma tupla de tamanho dois
+(também chamada de par) é seu próprio tipo, o que significa que uma
+lista não pode ter alguns pares nela e depois um trio (uma tupla de
+tamanho três), então vamos usar isso. Em vez de cercar os vetores com
+colchetes, usamos parênteses: <code>[(1,2),(8,11),(4,5)]</code>. E se
+tentássemos fazer uma forma como <code>[(1,2),(8,11,5),(4,5)]</code>?
+Bem, teríamos este erro:</p>
+<p><code>{.haskell: .ghci} &lt;interactive&gt;:1:8: error: [GHC-83865]     • Couldn't match expected type: (a, b)                   with actual type: (a0, b0, c0)     • In the expression: (8, 11, 5)       In the expression: [(1, 2), (8, 11, 5), (4, 5)]       In an equation for ‘it’: it = [(1, 2), (8, 11, 5), (4, 5)]     • Relevant bindings include         it :: [(a, b)] (bound at &lt;interactive&gt;:1:1)</code></p>
+<p>Ele está nos dizendo que tentamos usar um par e um trio na mesma
+lista, o que não deveria acontecer. Você também não poderia fazer uma
+lista como <code>[(1,2),("One",2)]</code> porque o primeiro elemento da
+lista é um par de números e o segundo elemento é um par consistindo de
+uma string e um número. As tuplas também podem ser usadas para
+representar uma grande variedade de dados. Por exemplo, se quiséssemos
+representar o nome e a idade de alguém em Haskell, poderíamos usar um
+trio: <code>("Christopher", "Walken", 55)</code>. Como visto neste
+exemplo, as tuplas também podem conter listas.</p>
+<p>Use tuplas quando souber com antecedência quantos componentes algum
+dado deve ter. As tuplas são muito mais rígidas porque cada tamanho
+diferente de tupla é seu próprio tipo, então você não pode escrever uma
+função geral para anexar um elemento a uma tupla --- você teria que
+escrever uma função para anexar a um par, uma função para anexar a um
+trio, uma função para anexar a uma 4-tupla, etc.</p>
+<p>Embora existam listas singleton, não existe tupla singleton. Na
+verdade, não faz muito sentido quando você pensa sobre isso. Uma tupla
+singleton seria apenas o valor que ela contém e, como tal, não teria
+nenhum benefício para nós.</p>
+<p>Como listas, as tuplas podem ser comparadas entre si se seus
+componentes puderem ser comparados. Só que você não pode comparar duas
+tuplas de tamanhos diferentes, enquanto pode comparar duas listas de
+tamanhos diferentes. Duas funções úteis que operam em pares:</p>
+<p><code>fst</code>{.label .function} pega um par e retorna seu primeiro
+componente.</p>
+<p><code>{.haskell: .ghci} ghci&gt; fst (8,11) 8 ghci&gt; fst ("Wow", False) "Wow"</code></p>
+<p><code>snd</code>{.label .function} pega um par e retorna seu segundo
+componente. Surpresa!</p>
+<p><code>{.haskell: .ghci} ghci&gt; snd (8,11) 11 ghci&gt; snd ("Wow", False) False</code></p>
+<p>::: {.hintbox} <strong>Nota:</strong> essas funções operam apenas em
+pares. Elas não funcionarão em trios, 4-tuplas, 5-tuplas, etc. Veremos a
+extração de dados de tuplas de maneiras diferentes um pouco mais tarde.
+:::</p>
+<p>Uma função legal que produz uma lista de pares:
+<code>zip</code>{.label .function}. Ela pega duas listas e as compacta
+em uma lista unindo os elementos correspondentes em pares. É uma função
+muito simples, mas tem muitos usos. É especialmente útil para quando
+você deseja combinar duas listas de uma maneira ou percorrer duas listas
+simultaneamente. Aqui está uma demonstração.</p>
+<p><code>{.haskell: .ghci} ghci&gt; zip [1,2,3,4,5] [5,5,5,5,5] [(1,5),(2,5),(3,5),(4,5),(5,5)] ghci&gt; zip [1 .. 5] ["one", "two", "three", "four", "five"] [(1,"one"),(2,"two"),(3,"three"),(4,"four"),(5,"five")]</code></p>
+<p>Ela emparelha os elementos e produz uma nova lista. O primeiro
+elemento vai com o primeiro, o segundo com o segundo, etc. Observe que,
+como os pares podem ter tipos diferentes neles, o <code>zip</code> pode
+pegar duas listas que contêm tipos diferentes e compactá-las. O que
+acontece se os comprimentos das listas não corresponderem?</p>
+<p><code>{.haskell: .ghci} ghci&gt; zip [5,3,2,6,2,7,2,5,4,6,6] ["im","a","turtle"] [(5,"im"),(3,"a"),(2,"turtle")]</code></p>
+<p>A lista mais longa é simplesmente cortada para corresponder ao
+comprimento da mais curta. Como Haskell é preguiçoso, podemos compactar
+listas finitas com listas infinitas:</p>
+<p><code>{.haskell: .ghci} ghci&gt; zip [1..] ["apple", "orange", "cherry", "mango"] [(1,"apple"),(2,"orange"),(3,"cherry"),(4,"mango")]</code></p>
+<p><img src="assets/images/starting-out/pythag.png"
+alt="look at meee" />{.center width=350 height=315}</p>
+<p>Aqui está um problema que combina tuplas e compreensões de lista:
+qual triângulo retângulo que tem inteiros para todos os lados e todos os
+lados iguais ou menores que 10 tem um perímetro de 24? Primeiro, vamos
+tentar gerar todos os triângulos com lados iguais ou menores a 10:</p>
+<p><code>{.haskell: .ghci} ghci&gt; triangles = [ (a,b,c) | c &lt;- [1..10], b &lt;- [1..10], a &lt;- [1..10] ]</code></p>
+<p>Estamos apenas extraindo de três listas e nossa função de saída as
+está combinando em um trio. Se você avaliar isso digitando
+<code>triangles</code> no GHCI, obterá uma lista de todos os triângulos
+possíveis com lados menores ou iguais a 10. Em seguida, adicionaremos
+uma condição de que todos eles devem ser triângulos retângulos. Também
+modificaremos essa função levando em consideração que o lado b não é
+maior que a hipotenusa e que o lado a não é maior que o lado b.</p>
+<p><code>{.haskell: .ghci} ghci&gt; rightTriangles = [ (a,b,c) | c &lt;- [1..10], b &lt;- [1..c], a &lt;- [1..b], a^2 + b^2 == c^2]</code></p>
+<p>Estamos quase terminando. Agora, apenas modificamos a função dizendo
+que queremos aqueles em que o perímetro é 24.</p>
+<p><code>{.haskell: .ghci} ghci&gt; rightTriangles' = [ (a,b,c) | c &lt;- [1..10], b &lt;- [1..c], a &lt;- [1..b], a^2 + b^2 == c^2, a+b+c == 24] ghci&gt; rightTriangles' [(6,8,10)]</code></p>
+<p>E aí está a nossa resposta! Esse é um padrão comum na programação
+funcional. Você pega um conjunto inicial de soluções e depois aplica
+transformações a essas soluções e as filtra até obter as certas.</p>
+            </article>
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="introduction.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="types-and-typeclasses.html">Próximo</a></li>
+    </ul>
+</div>
+
+        </div>
+    </div>
+    <script type="text/javascript" src="sh/Scripts/shCore.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushHaskell.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushPlain.js"></script>
+    <script type="text/javascript" src="assets/js/toggleShow.js"></script>
+    <script type="text/javascript">
+        dp.SyntaxHighlighter.HighlightAll('code');
+    </script>
+</body>
+</html>

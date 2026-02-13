@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprenda Haskell para o Bem de Todos!</title>
+    <link rel="stylesheet" href="assets/css/reset.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
+    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
+</head>
+<body>
+    <div class="bgwrapper">
+        <div id="content">
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="types-and-typeclasses.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="recursion.html">Próximo</a></li>
+    </ul>
+</div>
+
+            <article>
+<h1>Sintaxe em Funções</h1>
+<h2>Pattern matching (Correspondência de Padrões)
+{#pattern-matching}</h2>
+<p><img src="assets/images/syntax-in-functions/pattern.png"
+alt="four!" />{.right width=162 height=250}</p>
+<p>Este capítulo cobrirá algumas das construções sintáticas legais do
+Haskell e começaremos com pattern matching. Pattern matching consiste em
+especificar padrões aos quais alguns dados devem estar em conformidade
+e, em seguida, verificar se eles estão e desconstruir os dados de acordo
+com esses padrões.</p>
+<p>Ao definir funções, você pode definir corpos de função separados para
+diferentes padrões. Isso leva a um código muito limpo, simples e
+legível. Você pode fazer pattern matching em qualquer tipo de dado ---
+números, caracteres, listas, tuplas, etc. Vamos fazer uma função
+realmente trivial que verifica se o número que fornecemos a ela é um
+sete ou não.</p>
+<p><code>{.haskell:hs} lucky :: (Integral a) =&gt; a -&gt; String lucky 7 = "LUCKY NUMBER SEVEN!" lucky x = "Sorry, you're out of luck, pal!"</code></p>
+<p>Quando você chama <code>lucky</code>, os padrões serão verificados de
+cima para baixo e, quando estiver em conformidade com um padrão, o corpo
+da função correspondente será usado. A única maneira de um número estar
+em conformidade com o primeiro padrão aqui é se for 7. Se não for, ele
+cai para o segundo padrão, que corresponde a qualquer coisa e o vincula
+a <code>x</code>. Esta função também poderia ter sido implementada
+usando uma instrução if. Mas e se quiséssemos uma função que diga os
+números de 1 a 5 e diga <code>"Not between 1 and 5"</code> para qualquer
+outro número? Sem pattern matching, teríamos que fazer uma árvore if
+then else bastante complicada. No entanto, com ele:</p>
+<p><code>{.haskell:hs} sayMe :: (Integral a) =&gt; a -&gt; String sayMe 1 = "One!" sayMe 2 = "Two!" sayMe 3 = "Three!" sayMe 4 = "Four!" sayMe 5 = "Five!" sayMe x = "Not between 1 and 5"</code></p>
+<p>Observe que, se movêssemos o último padrão (o padrão catch-all) para
+o topo, ele sempre diria <code>"Not between 1 and 5"</code>, porque
+pegaria todos os números e eles não teriam a chance de cair e ser
+verificados por outros padrões.</p>
+<p>Lembra da função fatorial que implementamos anteriormente? Definimos
+o fatorial de um número <code>n</code> como <code>product [1..n]</code>.
+Também podemos definir uma função fatorial <em>recursivamente</em>, da
+maneira como é geralmente definida em matemática. Começamos dizendo que
+o fatorial de 0 é 1. Em seguida, afirmamos que o fatorial de qualquer
+número inteiro positivo é esse número inteiro multiplicado pelo fatorial
+de seu antecessor. Veja como isso se parece traduzido em termos de
+Haskell.</p>
+<p><code>{.haskell:hs} factorial :: (Integral a) =&gt; a -&gt; a factorial 0 = 1 factorial n = n * factorial (n - 1)</code></p>
+<p>Esta é a primeira vez que definimos uma função recursivamente. A
+recursão é importante em Haskell e daremos uma olhada mais de perto nela
+mais tarde. Mas, em poucas palavras, é isso que acontece se tentarmos
+obter o fatorial de, digamos, 3. Ele tenta calcular
+<code>3 * factorial 2</code>. O fatorial de 2 é
+<code>2 * factorial 1</code>, então, por enquanto, temos
+<code>3 * (2 * factorial 1)</code>. <code>factorial 1</code> é
+<code>1 * factorial 0</code>, então temos
+<code>3 * (2 * (1 * factorial 0))</code>. Agora vem o truque ---
+definimos o fatorial de 0 como apenas 1 e, como ele encontra esse padrão
+antes do catch-all, ele apenas retorna 1. Portanto, o resultado final é
+equivalente a <code>3 * (2 * (1 * 1))</code>. Se tivéssemos escrito o
+segundo padrão em cima do primeiro, ele pegaria todos os números,
+incluindo 0, e nosso cálculo nunca terminaria. É por isso que a ordem é
+importante ao especificar padrões e é sempre melhor especificar os mais
+específicos primeiro e depois os mais gerais mais tarde.</p>
+<p>O pattern matching também pode falhar. Se definirmos uma função como
+esta:</p>
+<p><code>{.haskell:hs} charName :: Char -&gt; String charName 'a' = "Albert" charName 'b' = "Broseph" charName 'c' = "Cecil"</code></p>
+<p>e depois tentarmos chamá-la com uma entrada que não esperávamos, é
+isso que acontece:</p>
+<p><code>{.haskell: .ghci} ghci&gt; charName 'a' "Albert" ghci&gt; charName 'b' "Broseph" ghci&gt; charName 'h' "*** Exception: tut.hs:(53,0)-(55,21): Non-exhaustive patterns in function charName</code></p>
+<p>Ele reclama que temos padrões não exaustivos, e com razão. Ao criar
+padrões, devemos sempre incluir um padrão catch-all para que nosso
+programa não falhe se recebermos alguma entrada inesperada.</p>
+<p>O pattern matching também pode ser usado em tuplas. E se quiséssemos
+fazer uma função que pega dois vetores em um espaço 2D (que estão na
+forma de pares) e os soma? Para somar dois vetores, somamos seus
+componentes x separadamente e depois seus componentes y separadamente.
+Veja como teríamos feito se não soubéssemos sobre pattern matching:</p>
+<p><code>{.haskell:hs} addVectors :: (Num a) =&gt; (a, a) -&gt; (a, a) -&gt; (a, a) addVectors a b = (fst a + fst b, snd a + snd b)</code></p>
+<p>Bem, isso funciona, mas há uma maneira melhor de fazer isso. Vamos
+modificar a função para que ela use pattern matching.</p>
+<p><code>{.haskell:hs} addVectors :: (Num a) =&gt; (a, a) -&gt; (a, a) -&gt; (a, a) addVectors (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)</code></p>
+<p>Aí está! Muito melhor. Observe que este já é um padrão catch-all. O
+tipo de <code>addVectors</code> (em ambos os casos) é
+<code>addVectors :: (Num a) =&gt; (a, a) -&gt; (a, a) -&gt; (a, a)</code>,
+portanto, temos a garantia de obter dois pares como parâmetros.</p>
+<p><code>fst</code> e <code>snd</code> extraem os componentes de pares.
+Mas e os trios? Bem, não há funções fornecidas que façam isso, mas
+podemos fazer as nossas.</p>
+<p>```{.haskell:hs} first :: (a, b, c) -&gt; a first (x, <em>, </em>) =
+x</p>
+<p>second :: (a, b, c) -&gt; b second (<em>, y, </em>) = y</p>
+<p>third :: (a, b, c) -&gt; c third (<em>, </em>, z) = z ```</p>
+<p>O <code>_</code> significa a mesma coisa que nas compreensões de
+lista. Isso significa que realmente não nos importamos com o que é essa
+parte, então apenas escrevemos um <code>_</code>.</p>
+<p>O que me lembra, você também pode usar pattern matching em
+compreensões de lista. Confira isso:</p>
+<p><code>{.haskell: .ghci} ghci&gt; let xs = [(1,3), (4,3), (2,4), (5,3), (5,6), (3,1)] ghci&gt; [a+b | (a,b) &lt;- xs] [4,7,6,8,11,4]</code></p>
+<p>Se um pattern match falhar, ele apenas passará para o próximo
+elemento.</p>
+<p>As próprias listas também podem ser usadas em pattern matching. Você
+pode combinar com a lista vazia <code>[]</code> ou qualquer padrão que
+envolva <code>:</code> e a lista vazia. Mas como <code>[1,2,3]</code> é
+apenas açúcar sintático para <code>1:2:3:[]</code>, você também pode
+usar o padrão anterior. Um padrão como <code>x:xs</code> vinculará a
+cabeça da lista a <code>x</code> e o restante dela a <code>xs</code>,
+mesmo que haja apenas um elemento, de modo que <code>xs</code> acabe
+sendo uma lista vazia.</p>
+<p>::: {.hintbox} <strong>Nota</strong>: O padrão <code>x:xs</code> é
+muito usado, especialmente com funções recursivas. Mas os padrões que
+têm <code>:</code> neles correspondem apenas a listas de comprimento 1
+ou mais. :::</p>
+<p>Se você quiser vincular, digamos, os três primeiros elementos a
+variáveis e o restante da lista a outra variável, poderá usar algo como
+<code>x:y:z:zs</code>. Ele corresponderá apenas a listas que tenham três
+elementos ou mais.</p>
+<p>Agora que sabemos como fazer pattern matching em listas, vamos fazer
+nossa própria implementação da função <code>head</code>.</p>
+<p><code>{.haskell:hs} head' :: [a] -&gt; a head' [] = error "Can't call head on an empty list, dummy!" head' (x:_) = x</code></p>
+<p>Verificando se funciona:</p>
+<p><code>{.haskell: .ghci} ghci&gt; head' [4,5,6] 4 ghci&gt; head' "Hello" 'H'</code></p>
+<p>Legal! Observe que se você quiser vincular a várias variáveis (mesmo
+se uma delas for apenas <code>_</code> e não vincular a nada), temos que
+cercá-las com parênteses. Observe também a função <code>error</code> que
+usamos. Ele pega uma string e gera um erro de tempo de execução, usando
+essa string como informação sobre que tipo de erro ocorreu. Faz o
+programa travar, então não é bom usá-lo muito. Mas chamar
+<code>head</code> em uma lista vazia não faz sentido.</p>
+<p>Vamos fazer uma função trivial que nos diz alguns dos primeiros
+elementos da lista em inglês (in)conveniente.</p>
+<p><code>{.haskell:hs} tell :: (Show a) =&gt; [a] -&gt; String tell [] = "The list is empty" tell (x:[]) = "The list has one element: " ++ show x tell (x:y:[]) = "The list has two elements: " ++ show x ++ " and " ++ show y tell (x:y:_) = "This list is long. The first two elements are: " ++ show x ++ " and " ++ show y</code></p>
+<p>Esta função é segura porque cuida da lista vazia, uma lista
+singleton, uma lista com dois elementos e uma lista com mais de dois
+elementos. Observe que <code>(x:[])</code> e <code>(x:y:[])</code> podem
+ser reescritos como <code>[x]</code> e <code>[x,y]</code> (porque é
+açúcar sintático, não precisamos dos parênteses). Não podemos reescrever
+<code>(x:y:_)</code> com colchetes porque corresponde a qualquer lista
+de comprimento 2 ou mais.</p>
+<p>Já implementamos nossa própria função <code>length</code> usando
+compreensão de lista. Agora faremos isso usando pattern matching e um
+pouco de recursão:</p>
+<p><code>{.haskell:hs} length' :: (Num b) =&gt; [a] -&gt; b length' [] = 0 length' (_:xs) = 1 + length' xs</code></p>
+<p>Isso é semelhante à função fatorial que escrevemos anteriormente.
+Primeiro, definimos o resultado de uma entrada conhecida --- a lista
+vazia. Isso também é conhecido como condição de borda (edge condition).
+Então, no segundo padrão, desmontamos a lista dividindo-a em cabeça e
+cauda. Dizemos que o comprimento é igual a 1 mais o comprimento da
+cauda. Usamos <code>_</code> para combinar a cabeça porque não nos
+importamos com o que ela é. Observe também que cuidamos de todos os
+padrões possíveis de uma lista. O primeiro padrão corresponde a uma
+lista vazia e o segundo corresponde a qualquer coisa que não seja uma
+lista vazia.</p>
+<p>Vamos ver o que acontece se chamarmos <code>length'</code> em
+<code>"ham"</code>. Primeiro, ele verificará se é uma lista vazia. Como
+não é, ele cai para o segundo padrão. Ele corresponde ao segundo padrão
+e lá diz que o comprimento é <code>1 + length' "am"</code>, porque o
+dividimos em uma cabeça e uma cauda e descartamos a cabeça. Ok. O
+<code>length'</code> de <code>"am"</code> é, da mesma forma,
+<code>1 + length' "m"</code>. Então, agora temos
+<code>1 + (1 + length' "m")</code>. <code>length' "m"</code> é
+<code>1 + length' ""</code> (também pode ser escrito como
+<code>1 + length' []</code>). E definimos <code>length' []</code> como
+<code>0</code>. Então, no final, temos
+<code>1 + (1 + (1 + 0))</code>.</p>
+<p>Vamos implementar <code>sum</code>. Sabemos que a soma de uma lista
+vazia é 0. Escrevemos isso como um padrão. E também sabemos que a soma
+de uma lista é a cabeça mais a soma do restante da lista. Então, se
+Escrevemos isso, obtemos:</p>
+<p><code>{.haskell:nogutter:nocontrols:hs} sum' :: (Num a) =&gt; [a] -&gt; a sum' [] = 0 sum' (x:xs) = x + sum' xs</code></p>
+<p>Há também uma coisa chamada <em>padrões as</em> (as patterns). Essas
+são uma maneira prática de dividir algo de acordo com um padrão e
+vinculá-lo a nomes, mantendo uma referência à coisa toda. Você faz isso
+colocando um nome e um <code>@</code> na frente de um padrão. Por
+exemplo, o padrão <code>xs@(x:y:ys)</code>. Este padrão corresponderá
+exatamente à mesma coisa que <code>x:y:ys</code>, mas você pode obter
+facilmente a lista inteira via <code>xs</code> em vez de se repetir
+digitando <code>x:y:ys</code> no corpo da função novamente. Aqui está um
+exemplo rápido e sujo:</p>
+<p><code>{.haskell:nogutter:nocontrols:hs} capital :: String -&gt; String capital "" = "Empty string, whoops!" capital all@(x:xs) = "The first letter of " ++ all ++ " is " ++ [x]</code></p>
+<p><code>{.haskell:ghci} ghci&gt; capital "Dracula" "The first letter of Dracula is D"</code></p>
+<p>Normalmente, usamos <em>padrões as</em> para evitar nos repetir ao
+combinar com um padrão maior, quando temos que usar a coisa toda
+novamente no corpo da função.</p>
+<p>Mais uma coisa --- você não pode usar <code>++</code> em pattern
+matches. Se você tentasse fazer pattern match contra
+<code>(xs ++ ys)</code>, o que estaria na primeira e o que estaria na
+segunda lista? Não faz muito sentido. Faria sentido combinar coisas
+contra <code>(xs ++ [x,y,z])</code> ou apenas <code>(xs ++ [x])</code>,
+mas devido à natureza das listas, você não pode fazer isso.</p>
+<h2>Guardas, guardas! (Guards, guards!) {#guards-guards}</h2>
+<p><img src="assets/images/syntax-in-functions/guards.png"
+alt="guards" />{.left width=83 height=180}</p>
+<p>Considerando que os padrões são uma maneira de garantir que um valor
+esteja em conformidade com alguma forma e desconstruí-lo, as guardas
+(guards) são uma maneira de testar se alguma propriedade de um valor (ou
+vários deles) é verdadeira ou falsa. Isso soa muito como uma instrução
+if e é muito semelhante. Acontece que as guardas são muito mais legíveis
+quando você tem várias condições e elas jogam muito bem com padrões.</p>
+<p>Em vez de explicar sua sintaxe, vamos mergulhar e fazer uma função
+usando guardas. Vamos fazer uma função simples que responda de maneira
+diferente, dependendo da <a
+href="https://en.wikipedia.org/wiki/Density">densidade</a> fornecida.
+Densidade (ou massa específica) é a massa de uma substância por unidade
+de volume (aqui, gramas por litro). Se uma substância tiver uma
+densidade inferior a 1.2, ela flutuará no ar, pois 1.2g/L é a densidade
+do ar. Se tiver mais de 1000g/L (a densidade da água), afundará na água.
+Entre eles estão coisas (como pessoas, geralmente) que nem flutuarão nem
+afundarão na água. Então aqui está a função (não calcularemos a
+densidade agora, essa função apenas recebe uma densidade e responde)</p>
+<p><code>{.haskell:hs} densityTell :: (RealFloat a) =&gt; a -&gt; String densityTell density     | density &lt; 1.2 = "Wow! You're going for a ride in the sky!"     | density &lt;= 1000.0 = "Have fun swimming, but watch out for sharks!"     | otherwise   = "If it's sink or swim, you're going to sink."</code></p>
+<p>Guardas são indicadas por pipes que seguem o nome de uma função e
+seus parâmetros. Geralmente, eles são recuados um pouco para a direita e
+alinhados. Uma guarda pode ser uma de duas coisas. A primeira é
+basicamente uma expressão booleana. Se for avaliada como
+<code>True</code>, o corpo da função correspondente será usado. Se for
+avaliada como <code>False</code>, a verificação cairá para a próxima
+guarda e assim por diante. Se chamarmos essa função com
+<code>24.3</code>, ela verificará primeiro se é menor ou igual a
+<code>1.2</code>. Porque não é, cai para a próxima guarda. A verificação
+é realizada com a segunda guarda e, como <code>24.3</code> é menor que
+<code>1000.0</code>, a segunda string é retornada.</p>
+<p>Isso lembra muito uma grande árvore if else em linguagens
+imperativas, só que isso é muito melhor e mais legível. Embora grandes
+árvores if else geralmente sejam desaprovadas, às vezes um problema é
+definido de maneira tão discreta que você não pode contorná-las. Guardas
+são uma alternativa muito boa para isso.</p>
+<p>Muitas vezes, a última guarda é <code>otherwise</code>.
+<code>otherwise</code> é definido simplesmente como
+<code>otherwise = True</code> e pega tudo. Isso é muito semelhante aos
+padrões, apenas eles verificam se a entrada satisfaz um padrão, mas as
+guardas booleanas verificam as condições booleanas. Se todas as guardas
+de uma função forem avaliadas como <code>False</code> (e não tivermos
+fornecido uma guarda catch-all <code>otherwise</code>), a avaliação
+cairá para o próximo <strong>padrão</strong>. É assim que padrões e
+guardas jogam bem juntos. Se nenhuma guarda ou padrão adequado for
+encontrado, um erro será lançado.</p>
+<p>Claro que podemos usar guardas com funções que recebem quantos
+parâmetros quisermos. Em vez de fazer o usuário calcular a densidade da
+substância por conta própria antes de chamar a função, vamos modificar
+essa função para que ela leve uma massa (em gramas) e volume (em
+litros).</p>
+<p><code>{.haskell:hs} densityTell :: (RealFloat a) =&gt; a -&gt; a -&gt; String densityTell mass volume     | mass / volume &lt; 1.2 = "Wow! You're going for a ride in the sky!"     | mass / volume &lt;= 1000.0 = "Have fun swimming, but watch out for sharks!"     | otherwise   = "If it's sink or swim, you're going to sink."</code></p>
+<p>Vamos ver se comida de gato flutua...</p>
+<p><code>{.haskell:ghci} ghci&gt; densityTell 400 1 "Have fun swimming, but watch out for sharks!"</code></p>
+<p>Parece que vai! Pelo menos até se dissolver na piscina... Eca!</p>
+<p>Observe que não há <code>=</code> logo após o nome da função e seus
+parâmetros, antes da primeira guarda. Muitos novatos recebem erros de
+sintaxe porque às vezes o colocam lá.</p>
+<p>Outro exemplo muito simples: vamos implementar nossa própria função
+<code>max</code>. Se você se lembra, leva duas coisas que podem ser
+comparadas e retorna a maior delas.</p>
+<p><code>{.haskell:hs} max' :: (Ord a) =&gt; a -&gt; a -&gt; a max' a b     | a &gt; b     = a     | otherwise = b</code></p>
+<p>Guardas também podem ser escritas inline, embora eu desaconselhe isso
+porque é menos legível, mesmo para funções muito curtas. Mas, para
+demonstrar, poderíamos escrever <code>max'</code> assim:</p>
+<p><code>{.haskell:hs} max' :: (Ord a) =&gt; a -&gt; a -&gt; a max' a b | a &gt; b = a | otherwise = b</code></p>
+<p>Ugh! Nem um pouco legível!</p>
+<p>Continuando: vamos implementar nosso próprio <code>compare</code>
+usando guardas.</p>
+<p><code>{.haskell:hs} myCompare :: (Ord a) =&gt; a -&gt; a -&gt; Ordering a `myCompare` b     | a &gt; b     = GT     | a == b    = EQ     | otherwise = LT</code></p>
+<p><code>{.haskell:hs} ghci&gt; 3 `myCompare` 2 GT</code></p>
+<p>::: {.hintbox} <strong>Nota:</strong> Não apenas podemos chamar
+funções como infixas com crases, também podemos defini-las usando
+crases. Às vezes é mais fácil ler dessa maneira. :::</p>
+<p>Mas espere! Não é o único tipo de guarda. Às vezes, você deseja
+verificar não se um argumento satisfaz algum padrão, mas se o resultado
+de alguma função satisfaz (e pattern match no resultado, é claro). É
+para isso que servem as guardas de padrão (pattern guards):</p>
+<p><code>{.haskell:hs} densityTell :: String -&gt; String   densityTell input       | Just density &lt;- readMaybe input, density &lt; 1.2 = "Wow! You're going for a ride in the sky!"       | Just density &lt;- readMaybe input, density &lt;= 1000.0 = "Have fun swimming, but watch out for sharks!"       | Nothing &lt;- readMaybe input :: (RealFloat a =&gt; Maybe a) = "You know I need a density, right?"       | otherwise   = "If it's sink or swim, you're going to sink."</code></p>
+<p>A sintaxe completa das guardas é uma série de expressões booleanas ou
+guardas de padrão, separadas por vírgulas.</p>
+<p>::: {.hintbox} <strong>Nota:</strong> Haskell foi projetado para ser
+uma linguagem que evolui e inclui os resultados de pesquisa e
+experimentação. As guardas de padrão não foram incluídas na primeira
+versão estável do Haskell (chamada <strong>Haskell98</strong>), mas
+foram adicionadas à próxima (chamada <strong>Haskell2010</strong>).
+:::</p>
+<h2>Onde!? (Where!?) {#where}</h2>
+<p>Na seção anterior, definimos uma função de calculadora de densidade e
+respondedor como esta:</p>
+<p><code>{.haskell:hs} densityTell :: (RealFloat a) =&gt; a -&gt; a -&gt; String densityTell mass volume     | mass / volume &lt; 1.2 = "Wow! You're going for a ride in the sky!"     | mass / volume &lt;= 1000.0 = "Have fun swimming, but watch out for sharks!"     | otherwise   = "If it's sink or swim, you're going to sink."</code></p>
+<p>Observe que nos repetimos aqui duas vezes. Nós nos repetimos duas
+vezes. Repetir-se (duas vezes) durante a programação é tão desejável
+quanto levar um chute na cabeça. Como repetimos a mesma expressão duas
+vezes, seria ideal se pudéssemos calculá-la uma vez, vinculá-la a um
+nome e depois usar esse nome em vez da expressão. Bem, podemos modificar
+nossa função assim:</p>
+<p><code>{.haskell:hs} densityTell :: (RealFloat a) =&gt; a -&gt; a -&gt; String densityTell mass volume     | density &lt; 1.2 = "Wow! You're going for a ride in the sky!"     | density &lt;= 1000.0 = "Have fun swimming, but watch out for sharks!"     | otherwise   = "If it's sink or swim, you're going to sink."     where density = mass / volume</code></p>
+<p>Colocamos a palavra-chave <code>where</code> após as guardas
+(geralmente é melhor recuá-la tanto quanto os pipes são recuados) e
+depois definimos vários nomes ou funções. Esses nomes são visíveis nas
+guardas e nos dão a vantagem de não ter que nos repetir. Se decidirmos
+que queremos calcular a densidade de maneira um pouco diferente, só
+precisamos alterá-la uma vez. Também melhora a legibilidade ao dar nomes
+às coisas e pode tornar nossos programas mais rápidos, já que coisas
+como nossa variável <code>density</code> aqui são calculadas apenas uma
+vez. Poderíamos exagerar um pouco e apresentar nossa função assim:</p>
+<p><code>{.haskell:hs} densityTell :: (RealFloat a) =&gt; a -&gt; a -&gt; String densityTell mass volume     | density &lt; air = "Wow! You're going for a ride in the sky!"     | density &lt;= water = "Have fun swimming, but watch out for sharks!"     | otherwise   = "If it's sink or swim, you're going to sink."     where density = mass / volume           air = 1.2           water = 1000.0</code></p>
+<p>Os nomes que definimos na seção where de uma função são visíveis
+apenas para essa função, portanto, não precisamos nos preocupar com eles
+poluindo o namespace de outras funções. Observe que todos os nomes estão
+alinhados em uma única coluna. Se não os alinharmos bem e corretamente,
+o Haskell ficará confuso porque não sabe que todos fazem parte do mesmo
+bloco.</p>
+<p>As ligações <em>where</em> não são compartilhadas entre corpos de
+função de padrões diferentes. Se você deseja que vários padrões de uma
+função acessem algum nome compartilhado, deve defini-lo globalmente.</p>
+<p>Você também pode usar ligações where para fazer <strong>pattern
+match</strong>! Poderíamos ter reescrito a seção where da nossa função
+anterior como:</p>
+<p><code>{.haskell:hs} ...     where density = mass / volume           (air, water) = (1.2, 1000.0)</code></p>
+<p>Vamos fazer outra função bastante trivial, onde obtemos um nome e um
+sobrenome e devolvemos a alguém suas iniciais.</p>
+<p><code>{.haskell:hs} initials :: String -&gt; String -&gt; String initials firstname lastname = [f] ++ ". " ++ [l] ++ "."     where (f:_) = firstname           (l:_) = lastname</code></p>
+<p>Poderíamos ter feito esse pattern matching diretamente nos parâmetros
+da função (teria sido mais curto e claro, na verdade), mas isso apenas
+mostra que é possível fazê-lo nas ligações where também.</p>
+<p>Assim como definimos constantes em blocos where, você também pode
+definir funções. Mantendo-nos fiéis ao nosso tema de programação de
+sólidos, vamos fazer uma função que pega uma lista de pares de
+massa-volume e retorna uma lista de densidades.</p>
+<p><code>{.haskell:hs} calcDensities :: (RealFloat a) =&gt; [(a, a)] -&gt; [a] calcDensities xs = [density m v | (m, v) &lt;- xs]     where density mass volume = mass / volume</code></p>
+<p>E só isso! A razão pela qual tivemos que introduzir
+<code>density</code> como uma função neste exemplo é porque não podemos
+calcular apenas uma densidade a partir dos parâmetros da função. Temos
+que examinar a lista passada para a função e há uma densidade diferente
+para cada par lá.</p>
+<p>As ligações <em>where</em> também podem ser aninhadas. É um idioma
+comum fazer uma função e definir alguma função auxiliar em sua cláusula
+<em>where</em> e, em seguida, fornecer a essas funções funções
+auxiliares também, cada uma com sua própria cláusula <em>where</em>.</p>
+<h2>Deixe estar (Let it be) {#let-it-be}</h2>
+<p>Muito semelhantes às ligações where são as ligações let. Ligações
+where são uma construção sintática que permite vincular a variáveis no
+final de uma função e toda a função pode vê-las, incluindo todas as
+guardas. Ligações let permitem vincular a variáveis em qualquer lugar e
+são expressões em si mesmas, mas são muito locais, portanto não abrangem
+guardas. Assim como qualquer construção em Haskell usada para vincular
+valores a nomes, as ligações let podem ser usadas para pattern matching.
+Vamos vê-las em ação! É assim que poderíamos definir uma função que nos
+dá a área de superfície de um cilindro com base em sua altura e
+raio:</p>
+<p><code>{.haskell:hs} cylinder :: (RealFloat a) =&gt; a -&gt; a -&gt; a cylinder r h =     let sideArea = 2 * pi * r * h         topArea = pi * r ^2     in  sideArea + 2 * topArea</code></p>
+<p><img src="assets/images/syntax-in-functions/letitbe.png"
+alt="let it be" />{.right width=215 height=240}</p>
+<p>A forma é <code>let &lt;bindings&gt; in &lt;expression&gt;</code>. Os
+nomes que você define na parte <em>let</em> são acessíveis à expressão
+após a parte <em>in</em>. Como você pode ver, também poderíamos ter
+definido isso com uma ligação <em>where</em>. Observe que os nomes
+também estão alinhados em uma única coluna. Então, qual é a diferença
+entre os dois? Por enquanto, parece que <em>let</em> coloca as ligações
+primeiro e a expressão que as usa depois, enquanto <em>where</em> é o
+contrário.</p>
+<p>A diferença é que as ligações <em>let</em> são expressões em si
+mesmas. Ligações <em>where</em> são apenas construções sintáticas.
+Lembra quando fizemos a instrução if e foi explicado que uma instrução
+if else é uma expressão e você pode encaixá-la em quase qualquer
+lugar?</p>
+<p><code>{.haskell:ghci} ghci&gt; [if 5 &gt; 3 then "Woo" else "Boo", if 'a' &gt; 'b' then "Foo" else "Bar"] ["Woo", "Bar"] ghci&gt; 4 * (if 10 &gt; 5 then 10 else 0) + 2 42</code></p>
+<p>Você também pode fazer isso com ligações let.</p>
+<p><code>{.haskell:ghci} ghci&gt; 4 * (let a = 9 in a + 1) + 2 42</code></p>
+<p>Eles também podem ser usados para introduzir funções em um escopo
+local:</p>
+<p><code>{.haskell:ghci} ghci&gt; [let square x = x * x in (square 5, square 3, square 2)] [(25,9,4)]</code></p>
+<p>Se quisermos vincular a várias variáveis inline, obviamente não
+podemos alinhá-las em colunas. É por isso que podemos separá-las com
+ponto e vírgula.</p>
+<p><code>{.haskell:ghci} ghci&gt; (let a = 100; b = 200; c = 300 in a*b*c, let foo="Hey "; bar = "there!" in foo ++ bar) (6000000,"Hey there!")</code></p>
+<p>Você não precisa colocar um ponto e vírgula após a última ligação,
+mas pode se quiser. Como dissemos antes, você pode fazer pattern match
+com ligações <em>let</em>. Elas são muito úteis para desmantelar
+rapidamente uma tupla em componentes e vinculá-las a nomes e assim por
+diante.</p>
+<p><code>{.haskell:ghci} ghci&gt; (let (a,b,c) = (1,2,3) in a+b+c) * 100 600</code></p>
+<p>Você também pode colocar ligações <em>let</em> dentro de compreensões
+de lista. Vamos reescrever nosso exemplo anterior de cálculo de listas
+de pares massa-volume para usar um <em>let</em> dentro de uma
+compreensão de lista em vez de definir uma função auxiliar com um
+<em>where</em>.</p>
+<p><code>{.haskell:hs} calcDensities :: (RealFloat a) =&gt; [(a, a)] -&gt; [a] calcDensities xs = [density | (m, v) &lt;- xs, let density = m / v]</code></p>
+<p>Incluímos um <em>let</em> dentro de uma compreensão de lista da mesma
+forma que faríamos com um predicado, só que ele não filtra a lista,
+apenas vincula a nomes. Os nomes definidos em um <em>let</em> dentro de
+uma compreensão de lista são visíveis para a função de saída (a parte
+anterior ao <code>|</code>) e todos os predicados e seções que vêm após
+a ligação. Para que pudéssemos fazer nossa função retornar apenas as
+densidades que flutuarão no ar:</p>
+<p><code>{.haskell:hs} calcDensities :: (RealFloat a) =&gt; [(a, a)] -&gt; [a] calcDensities xs = [density | (m, v) &lt;- xs, let density = m / v, density &lt; 1.2]</code></p>
+<p>Não podemos usar o nome <code>density</code> na parte
+<code>(m, v) &lt;- xs</code> porque é definido antes da ligação
+<em>let</em>.</p>
+<p>Omitimos a parte <em>in</em> da ligação <em>let</em> quando as usamos
+em compreensões de lista porque a visibilidade dos nomes já está
+predefinida lá. No entanto, poderíamos usar uma ligação <em>let in</em>
+em um predicado e os nomes definidos seriam visíveis apenas para esse
+predicado. A parte <em>in</em> também pode ser omitida ao definir
+funções e constantes diretamente no GHCi. Se fizermos isso, os nomes
+ficarão visíveis durante toda a sessão interativa.</p>
+<p><code>{.haskell:ghci} ghci&gt; let zoot x y z = x * y + z ghci&gt; zoot 3 9 2 29 ghci&gt; let boot x y z = x * y + z in boot 3 4 2 14 ghci&gt; boot &lt;interactive&gt;:1:0: Not in scope: `boot'</code></p>
+<p>Se as ligações <em>let</em> são tão legais, por que não usá-las o
+tempo todo em vez de ligações <em>where</em>, você pergunta? Bem, como
+as ligações <em>let</em> são expressões e são bastante locais em seu
+escopo, elas não podem ser usadas entre guardas. Algumas pessoas
+preferem ligações <em>where</em> porque os nomes vêm depois da função em
+que estão sendo usados. Dessa forma, o corpo da função está mais próximo
+de seu nome e declaração de tipo e para alguns isso é mais legível.</p>
+<h2>Expressões case (Case expressions) {#case-expressions}</h2>
+<p><img src="assets/images/syntax-in-functions/case.png"
+alt="case" />{.right width=185 height=164}</p>
+<p>Muitas linguagens imperativas (C, C++, Java, etc.) têm sintaxe case
+e, se você já programou nelas, provavelmente sabe do que se trata.
+Trata-se de pegar uma variável e executar blocos de código para valores
+específicos dessa variável e, em seguida, talvez incluir um bloco de
+código catch-all no caso de a variável ter algum valor para o qual não
+configuramos um caso.</p>
+<p>Haskell pega esse conceito e o supera. Como o nome indica, expressões
+case são, bem, expressões, muito parecidas com expressões if else e
+ligações <em>let</em>. Não apenas podemos avaliar expressões com base
+nos casos possíveis do valor de uma variável, mas também podemos fazer
+pattern matching. Hmmm, pegar uma variável, fazer pattern matching nela,
+avaliar pedaços de código com base em seu valor, onde já ouvimos isso
+antes? Ah, sim, pattern matching em parâmetros nas definições de função!
+Bem, isso é na verdade apenas açúcar sintático para expressões case.
+Esses dois pedaços de código fazem a mesma coisa e são
+intercambiáveis:</p>
+<p><code>{.haskell:hs} head' :: [a] -&gt; a head' [] = error "No head for empty lists!" head' (x:_) = x</code></p>
+<p><code>{.haskell:hs} head' :: [a] -&gt; a head' xs = case xs of [] -&gt; error "No head for empty lists!"                       (x:_) -&gt; x</code></p>
+<p>Como você pode ver, a sintaxe para expressões case é bastante
+simples:</p>
+<p><code>{.haskell:hs} case expression of pattern -&gt; result                    pattern -&gt; result                    pattern -&gt; result                    ...</code></p>
+<p><code>expression</code> é correspondida com os padrões. A ação de
+pattern matching é a mesma esperada: o primeiro padrão que corresponde à
+expressão é usado. Se cair por toda a expressão case e nenhum padrão
+adequado for encontrado, ocorrerá um erro de tempo de execução.</p>
+<p>Considerando que o pattern matching nos parâmetros de função pode ser
+feito apenas ao definir funções, as expressões case podem ser usadas em
+praticamente qualquer lugar. Por exemplo:</p>
+<p><code>{.haskell:hs} describeList :: [a] -&gt; String describeList xs = "The list is " ++ case xs of [] -&gt; "empty."                                                [x] -&gt; "a singleton list."                                                xs -&gt; "a longer list."</code></p>
+<p>Elas são úteis para fazer pattern matching em algo no meio de uma
+expressão. Como o pattern matching nas definições de função é açúcar
+sintático para expressões case, também poderíamos ter definido isso
+assim:</p>
+<p><code>{.haskell:hs} describeList :: [a] -&gt; String describeList xs = "The list is " ++ what xs     where what [] = "empty."           what [x] = "a singleton list."           what xs = "a longer list."</code></p>
+            </article>
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="types-and-typeclasses.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="recursion.html">Próximo</a></li>
+    </ul>
+</div>
+
+        </div>
+    </div>
+    <script type="text/javascript" src="sh/Scripts/shCore.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushHaskell.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushPlain.js"></script>
+    <script type="text/javascript" src="assets/js/toggleShow.js"></script>
+    <script type="text/javascript">
+        dp.SyntaxHighlighter.HighlightAll('code');
+    </script>
+</body>
+</html>

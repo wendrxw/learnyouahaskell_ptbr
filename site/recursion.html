@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprenda Haskell para o Bem de Todos!</title>
+    <link rel="stylesheet" href="assets/css/reset.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
+    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
+</head>
+<body>
+    <div class="bgwrapper">
+        <div id="content">
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="syntax-in-functions.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="higher-order-functions.html">Próximo</a></li>
+    </ul>
+</div>
+
+            <article>
+<h1>Recursão (Recursion) {#recursion}</h1>
+<h2>Olá recursão! (Hello recursion!) {#hello-recursion}</h2>
+<p><img src="assets/images/recursion/recursion.png"
+alt="SOVIET RUSSIA" />{.left width=250 height=179}</p>
+<p>Mencionamos brevemente a recursão no capítulo anterior. Neste
+capítulo, examinaremos mais de perto a recursão, por que ela é
+importante para o Haskell e como podemos elaborar soluções muito
+concisas e elegantes para problemas pensando recursivamente.</p>
+<p>Se você ainda não sabe o que é recursão, leia esta frase. Haha!
+Brincadeirinha! A recursão é na verdade uma maneira de definir funções
+nas quais a função é aplicada dentro de sua própria definição. As
+definições em matemática são frequentemente dadas recursivamente. Por
+exemplo, a sequência de fibonacci é definida recursivamente. Primeiro,
+definimos os dois primeiros números de fibonacci não recursivamente.
+Dizemos que <em>F(0) = 0</em> e <em>F(1) = 1</em>, o que significa que
+os 0-ésimo e 1-ésimo números de fibonacci são 0 e 1, respectivamente.
+Então dizemos que, para qualquer outro número natural, esse número de
+fibonacci é a soma dos dois números de fibonacci anteriores. Então
+<em>F(n) = F(n-1) + F(n-2)</em>. Dessa forma, <em>F(3)</em> é <em>F(2) +
+F(1)</em>, que é <em>(F(1) + F(0)) + F(1)</em>. Como agora chegamos
+apenas aos números de fibonacci definidos não recursivamente, podemos
+dizer com segurança que <em>F(3)</em> é 2. Ter um elemento ou dois em
+uma definição de recursão definidos não recursivamente (como
+<em>F(0)</em> e <em>F(1)</em> aqui) também é chamado de <strong>condição
+de borda</strong> (edge condition) e é importante se você deseja que sua
+função recursiva termine. Se não tivéssemos definido <em>F(0)</em> e
+<em>F(1)</em> não recursivamente, você nunca obteria uma solução para
+qualquer número, pois chegaria a 0 e depois entraria em números
+negativos. De repente, você estaria dizendo que <em>F(-2000)</em> é
+<em>F(-2001) + F(-2002)</em> e ainda não haveria um fim à vista!</p>
+<p>A recursão é importante para o Haskell porque, ao contrário das
+linguagens imperativas, você faz cálculos em Haskell declarando o que
+algo <em>é</em> em vez de declarar <em>como</em> obtê-lo. É por isso que
+não há loops while ou for em Haskell e, em vez disso, muitas vezes temos
+que usar recursão para declarar o que algo é.</p>
+<h2>Incrível máximo (Maximum awesome) {#maximum-awesome}</h2>
+<p>A função <code>maximum</code> pega uma lista de coisas que podem ser
+ordenadas (por exemplo, instâncias da typeclass <code>Ord</code>) e
+retorna a maior delas. Pense em como você implementaria isso de maneira
+imperativa. Você provavelmente configuraria uma variável para conter o
+valor máximo até o momento e, em seguida, percorreria os elementos de
+uma lista e, se um elemento fosse maior do que o valor máximo atual,
+você o substituiria por esse elemento. O valor máximo que permanece no
+final é o resultado. Ufa! São muitas palavras para descrever um
+algoritmo tão simples!</p>
+<p>Agora vamos ver como o definiríamos recursivamente. Poderíamos
+primeiro estabelecer uma condição de borda e dizer que o máximo de uma
+lista singleton é igual ao único elemento nela. Então podemos dizer que
+o máximo de uma lista mais longa é a cabeça se a cabeça for maior que o
+máximo da cauda. Se o máximo da cauda for maior, bem, então é o máximo
+da cauda. É isso! Agora vamos implementar isso em Haskell.</p>
+<p><code>{.haskell:hs} maximum' :: (Ord a) =&gt; [a] -&gt; a maximum' [] = error "maximum of empty list" maximum' [x] = x maximum' (x:xs)     | x &gt; maxTail = x     | otherwise = maxTail     where maxTail = maximum' xs</code></p>
+<p>Como você pode ver, o pattern matching combina muito bem com a
+recursão! A maioria das linguagens imperativas não tem pattern matching,
+então você precisa fazer muitas instruções if else para testar as
+condições de borda. Aqui, simplesmente as colocamos como padrões.
+Portanto, a primeira condição de borda diz que, se a lista estiver
+vazia, falhe! Faz sentido porque qual é o máximo de uma lista vazia? Eu
+não sei. O segundo padrão também estabelece uma condição de borda. Ele
+diz que, se for a lista singleton, apenas devolva o único elemento.</p>
+<p>Agora, o terceiro padrão é onde a ação acontece. Usamos pattern
+matching para dividir uma lista em cabeça e cauda. Este é um idioma
+muito comum ao fazer recursão com listas, então acostume-se. Usamos uma
+ligação <em>where</em> para definir <code>maxTail</code> como o máximo
+do restante da lista. Em seguida, verificamos se a cabeça é maior que o
+máximo do restante da lista. Se for, retornamos a cabeça. Caso
+contrário, retornamos o máximo do restante da lista.</p>
+<p>Vamos pegar uma lista de números de exemplo e verificar como isso
+funcionaria neles: <code>[2,5,1]</code>. Se chamarmos
+<code>maximum'</code> nisso, os dois primeiros padrões não
+corresponderão. O terceiro corresponderá e a lista será dividida em
+<code>2</code> e <code>[5,1]</code>. A cláusula <em>where</em> quer
+saber o máximo de <code>[5,1]</code>, então seguimos esse caminho. Ele
+corresponde ao terceiro padrão novamente e <code>[5,1]</code> é dividido
+em <code>5</code> e <code>[1]</code>. Novamente, a cláusula
+<code>where</code> quer saber o máximo de <code>[1]</code>. Como essa é
+a condição de borda, ela retorna <code>1</code>. Finalmente! Então,
+subindo um degrau, comparando <code>5</code> com o máximo de
+<code>[1]</code> (que é <code>1</code>), obviamente obtemos
+<code>5</code>. Portanto, agora sabemos que o máximo de
+<code>[5,1]</code> é <code>5</code>. Subimos um degrau novamente onde
+tínhamos <code>2</code> e <code>[5,1]</code>. Comparando <code>2</code>
+com o máximo de <code>[5,1]</code>, que é <code>5</code>, escolhemos
+<code>5</code>.</p>
+<p>Uma maneira ainda mais clara de escrever essa função é usar
+<code>max</code>. Se você se lembra, <code>max</code> é uma função que
+pega dois números e retorna o maior deles. Veja como poderíamos
+reescrever <code>maximum'</code> usando <code>max</code>:</p>
+<p><code>{.haskell:hs} maximum' :: (Ord a) =&gt; [a] -&gt; a maximum' [] = error "maximum of empty list" maximum' [x] = x maximum' (x:xs) = max x (maximum' xs)</code></p>
+<p>Que tal isso para elegante! Em essência, o máximo de uma lista é o
+máximo do primeiro elemento e o máximo da cauda.</p>
+<p><img src="assets/images/recursion/maxs.png" alt="max" />{.center
+width=651 height=267}</p>
+<h2>Mais algumas funções recursivas
+{#a-few-more-recursive-functions}</h2>
+<p>Agora que sabemos como pensar recursivamente em geral, vamos
+implementar algumas funções usando recursão. Primeiro, implementaremos
+<code>replicate</code>. <code>replicate</code> recebe um
+<code>Int</code> e algum elemento e retorna uma lista que tem várias
+repetições do mesmo elemento. Por exemplo, <code>replicate 3 5</code>
+retorna <code>[5,5,5]</code>. Vamos pensar na condição de borda. Meu
+palpite é que a condição de borda seja 0 ou menos. Se tentarmos replicar
+algo zero vezes, ele deve retornar uma lista vazia. Também para números
+negativos, porque realmente não faz sentido.</p>
+<p><code>{.haskell:hs} replicate' :: (Num i, Ord i) =&gt; i -&gt; a -&gt; [a] replicate' n x     | n &lt;= 0    = []     | otherwise = x:replicate' (n-1) x</code></p>
+<p>Usamos guardas aqui em vez de padrões porque estamos testando uma
+condição booleana. Se <code>n</code> for menor ou igual a 0, retorne uma
+lista vazia. Caso contrário, retorne uma lista que tenha <code>x</code>
+como o primeiro elemento e depois <code>x</code> replicado n-1 vezes
+como a cauda. Eventualmente, a parte <code>(n-1)</code> fará com que
+nossa função atinja a condição de borda.</p>
+<p>::: {.hintbox} <strong>Nota:</strong> <code>Num</code> não é uma
+subclasse de <code>Ord</code>. Isso ocorre porque nem todo tipo de
+número tem uma ordenação, por exemplo, números complexos não são
+ordenados. É por isso que temos que especificar as restrições de classe
+<code>Num</code> e <code>Ord</code> ao fazer adição ou subtração e
+também comparação. :::</p>
+<p>A seguir, implementaremos <code>take</code>. Ele retira um certo
+número de elementos de uma lista. Por exemplo,
+<code>take 3 [5,4,3,2,1]</code> retornará <code>[5,4,3]</code>. Se
+tentarmos tirar 0 ou menos elementos de uma lista, obtemos uma lista
+vazia. Além disso, se tentarmos tirar qualquer coisa de uma lista vazia,
+obtemos uma lista vazia. Observe que essas são duas condições de borda
+bem ali. Então vamos escrever isso:</p>
+<p><code>{.haskell:hs} take' :: (Num i, Ord i) =&gt; i -&gt; [a] -&gt; [a] take' n _     | n &lt;= 0   = [] take' _ []     = [] take' n (x:xs) = x : take' (n-1) xs</code></p>
+<p><img src="assets/images/recursion/painter.png"
+alt="painter" />{.right width=350 height=276}</p>
+<p>O primeiro padrão especifica que, se tentarmos obter um número 0 ou
+negativo de elementos, obteremos uma lista vazia. Observe que estamos
+usando <code>_</code> para corresponder à lista porque não nos
+importamos com o que é neste caso. Observe também que usamos uma guarda,
+mas sem uma parte <code>otherwise</code>. Isso significa que, se
+<code>n</code> for maior que 0, a correspondência cairá para o próximo
+padrão. O segundo padrão indica que, se tentarmos tirar qualquer coisa
+de uma lista vazia, obteremos uma lista vazia. O terceiro padrão quebra
+a lista em uma cabeça e uma cauda. E então afirmamos que pegar
+<code>n</code> elementos de uma lista é igual a uma lista que tem
+<code>x</code> como cabeça e depois uma lista que pega <code>n-1</code>
+elementos da cauda como cauda. Tente usar um pedaço de papel para
+escrever como seria a avaliação se tentássemos tirar, digamos, 3 de
+<code>[4,3,2,1]</code>.</p>
+<p><code>reverse</code> simplesmente inverte uma lista. Pense na
+condição de borda. O que é? Vamos lá... é a lista vazia! Uma lista vazia
+invertida é igual à própria lista vazia. Ok. E o resto? Bem, você
+poderia dizer que, se dividirmos uma lista em uma cabeça e uma cauda, a
+lista invertida é igual à cauda invertida e depois a cabeça no
+final.</p>
+<p><code>{.haskell:hs} reverse' :: [a] -&gt; [a] reverse' [] = [] reverse' (x:xs) = reverse' xs ++ [x]</code></p>
+<p>Aí está!</p>
+<p>Como o Haskell suporta listas infinitas, nossa recursão realmente não
+precisa ter uma condição de borda. Mas se não tiver, continuará
+produzindo algo infinitamente ou produzirá uma estrutura de dados
+infinita, como uma lista infinita. A coisa boa sobre listas infinitas,
+porém, é que podemos cortá-las onde quisermos. <code>repeat</code> pega
+um elemento e retorna uma lista infinita que apenas tem esse elemento.
+Uma implementação recursiva disso é muito fácil, observe.</p>
+<p><code>{.haskell:hs} repeat' :: a -&gt; [a] repeat' x = x:repeat' x</code></p>
+<p>Chamar <code>repeat 3</code> nos dará uma lista que começa com
+<code>3</code> e depois tem uma quantidade infinita de 3s como cauda.
+Portanto, chamar <code>repeat 3</code> seria avaliado como
+<code>3:repeat 3</code>, que é <code>3:(3:repeat 3)</code>, que é
+<code>3:(3:(3:repeat 3))</code>, etc. <code>repeat 3</code> nunca
+terminará de avaliar, enquanto <code>take 5 (repeat 3)</code> nos dará
+uma lista de cinco 3s. Então, essencialmente, é como fazer
+<code>replicate 5 3</code>.</p>
+<p><code>zip</code> pega duas listas e as compacta.
+<code>zip [1,2,3] [2,3]</code> retorna <code>[(1,2),(2,3)]</code>,
+porque trunca a lista mais longa para corresponder ao comprimento da
+mais curta. E se compactarmos algo com uma lista vazia? Bem, obtemos uma
+lista vazia de volta. Então, aí está nossa condição de borda. No
+entanto, <code>zip</code> recebe duas listas como parâmetros, então
+existem, na verdade, duas condições de borda.</p>
+<p><code>{.haskell:hs} zip' :: [a] -&gt; [b] -&gt; [(a,b)] zip' _ [] = [] zip' [] _ = [] zip' (x:xs) (y:ys) = (x,y):zip' xs ys</code></p>
+<p>Os dois primeiros padrões dizem que, se a primeira lista ou a segunda
+lista estiver vazia, obteremos uma lista vazia. O terceiro diz que duas
+listas compactadas são iguais a emparelhar suas cabeças e depois
+adicionar as caudas compactadas. Compactar <code>[1,2,3]</code> e
+<code>['a','b']</code> acabará tentando compactar <code>[3]</code> com
+<code>[]</code>. Os padrões de condição de borda entram em ação e o
+resultado é <code>(1,'a'):(2,'b'):[]</code>, que é exatamente o mesmo
+que <code>[(1,'a'),(2,'b')]</code>.</p>
+<p>Vamos implementar mais uma função da biblioteca padrão ---
+<code>elem</code>. Ela pega um elemento e uma lista e verifica se esse
+elemento está na lista. A condição de borda, como na maioria das vezes
+com listas, é a lista vazia. Sabemos que uma lista vazia não contém
+elementos, então certamente não tem os droides que estamos
+procurando.</p>
+<p><code>{.haskell:hs} elem' :: (Eq a) =&gt; a -&gt; [a] -&gt; Bool elem' a [] = False elem' a (x:xs)     | a == x    = True     | otherwise = a `elem'` xs</code></p>
+<p>Bastante simples e esperado. Se a cabeça não for o elemento,
+verificamos a cauda. Se chegarmos a uma lista vazia, o resultado é
+<code>False</code>.</p>
+<h2>Rápido, ordene! (Quick, sort!) {#quick-sort}</h2>
+<p>Temos uma lista de itens que podem ser ordenados. O tipo deles é uma
+instância da typeclass <code>Ord</code>. E agora, queremos ordená-los!
+Existe um algoritmo muito legal para ordenação chamado quicksort. É uma
+maneira muito inteligente de ordenar itens. Embora leve mais de 10
+linhas para implementar o quicksort em linguagens imperativas, a
+implementação é muito mais curta e elegante em Haskell. O Quicksort se
+tornou uma espécie de "garoto-propaganda" do Haskell. Portanto, vamos
+implementá-lo aqui, embora implementar o quicksort em Haskell seja
+considerado muito clichê, porque todo mundo faz isso para mostrar como o
+Haskell é elegante.</p>
+<p><img src="assets/images/recursion/quickman.png"
+alt="quickman" />{.left width=180 height=235}</p>
+<p>Então, a assinatura de tipo será
+<code>quicksort :: (Ord a) =&gt; [a] -&gt; [a]</code>. Sem surpresas aí.
+A condição de borda? Lista vazia, como é esperado. Uma lista vazia
+ordenada é uma lista vazia. Agora vem o algoritmo principal: <strong>uma
+lista ordenada é uma lista que tem todos os valores menores (ou iguais)
+à cabeça da lista na frente (e esses valores são ordenados), depois vem
+a cabeça da lista no meio e depois vêm todos os valores maiores que a
+cabeça (eles também são ordenados).</strong> Observe que dissemos
+<em>ordenados</em> duas vezes nesta definição, então provavelmente
+teremos que fazer a chamada recursiva duas vezes! Observe também que
+definimos usando o verbo <em>é</em> para definir o algoritmo em vez de
+dizer <em>faça isso, faça aquilo, depois faça aquilo...</em>. Essa é a
+beleza da programação funcional! Como vamos filtrar a lista para obter
+apenas os elementos menores que a cabeça da nossa lista e apenas
+elementos maiores? Compreensões de lista. Então, vamos mergulhar e
+definir esta função.</p>
+<p><code>{.haskell:hs} quicksort :: (Ord a) =&gt; [a] -&gt; [a] quicksort [] = [] quicksort (x:xs) =     let smallerSorted = quicksort [a | a &lt;- xs, a &lt;= x]         biggerSorted = quicksort [a | a &lt;- xs, a &gt; x]     in  smallerSorted ++ [x] ++ biggerSorted</code></p>
+<p>Vamos fazer um pequeno teste para ver se parece se comportar
+corretamente.</p>
+<p><code>{.haskell:ghci} ghci&gt; quicksort [10,2,5,3,1,6,7,4,2,3,4,8,9] [1,2,2,3,3,4,4,5,6,7,8,9,10] ghci&gt; quicksort "the quick brown fox jumps over the lazy dog" "        abcdeeefghhijklmnoooopqrrsttuuvwxyz"</code></p>
+<p>Booyah! É disso que estou falando! Então, se tivermos, digamos
+<code>[5,1,9,4,6,7,3]</code> e quisermos ordená-lo, esse algoritmo
+pegará primeiro a cabeça, que é <code>5</code>, e depois a colocará no
+meio de duas listas menores e maiores que ela. Então, em um ponto, você
+terá <code>[1,4,3] ++ [5] ++ [9,6,7]</code>. Sabemos que, uma vez que a
+lista esteja completamente ordenada, o número <code>5</code> permanecerá
+no quarto lugar, pois há 3 números menores que ele e 3 números maiores
+que ele. Agora, se ordenarmos <code>[1,4,3]</code> e
+<code>[9,6,7]</code>, temos uma lista ordenada! Ordenamos as duas listas
+usando a mesma função. Eventualmente, vamos quebrá-la tanto que
+chegaremos a listas vazias e uma lista vazia já está ordenada de certa
+forma, em virtude de estar vazia. Aqui está uma ilustração:</p>
+<p><img src="assets/images/recursion/quicksort.png"
+alt="quicksort" />{.center width=799 height=332}</p>
+<p>Um elemento que está no lugar e não se moverá mais é representado em
+[laranja]{style=color:#FF6600;font-weight:bold;}. Se você lê-los da
+esquerda para a direita, verá a lista ordenada. Embora tenhamos
+escolhido comparar todos os elementos com as cabeças, poderíamos ter
+usado qualquer elemento para comparar. No quicksort, um elemento com o
+qual você compara é chamado de pivô. Eles estão em
+[verde]{style=color:#009900;font-weight:bold} aqui. Escolhemos a cabeça
+porque é fácil de obter por pattern matching. Os elementos menores que o
+pivô são [verde claro]{style=color:#0f0;font-weight:bold} e os elementos
+maiores que o pivô são [verde
+escuro]{style=color:#030;font-weight:bold}. A coisa de gradiente
+amarelado representa uma aplicação de quicksort.</p>
+<h2>Pensando recursivamente {#thinking-recursively}</h2>
+<p>Fizemos um pouco de recursão até agora e, como você provavelmente
+notou, há um padrão aqui. Normalmente, você define um caso de borda e
+define uma função que faz algo entre algum elemento e a função aplicada
+ao resto. Não importa se é uma lista, uma árvore ou qualquer outra
+estrutura de dados. Uma soma é o primeiro elemento de uma lista mais a
+soma do restante da lista. Um produto de uma lista é o primeiro elemento
+da lista vezes o produto do restante da lista. O comprimento de uma
+lista é um mais o comprimento da cauda da lista. Et cetera, et
+cetera...</p>
+<p><img src="assets/images/recursion/brain.png" alt="brain" />{.left
+width=250 height=219}</p>
+<p>Claro, estes também têm casos de borda. Geralmente, o caso de borda é
+algum cenário em que uma aplicação recursiva não faz sentido. Ao lidar
+com listas, o caso de borda é na maioria das vezes a lista vazia. Se
+você estiver lidando com árvores, o caso de borda geralmente é um nó que
+não tem filhos.</p>
+<p>É semelhante quando você está lidando com números recursivamente.
+Geralmente tem a ver com algum número e a função aplicada a esse número
+modificado. Fizemos a função fatorial anteriormente e é o produto de um
+número e o fatorial desse número menos um. Tal aplicação recursiva não
+faz sentido com zero, porque os fatoriais são definidos apenas para
+números inteiros positivos. Muitas vezes, o valor do caso de borda acaba
+sendo uma identidade. A identidade para multiplicação é 1 porque se você
+multiplicar algo por 1, você recebe isso de volta. Também ao fazer somas
+de listas, definimos a soma de uma lista vazia como 0 e 0 é a identidade
+para adição. No quicksort, o caso de borda é a lista vazia e a
+identidade também é a lista vazia, porque se você adicionar uma lista
+vazia a uma lista, apenas obterá a lista original de volta.</p>
+<p>Portanto, ao tentar pensar em uma maneira recursiva de resolver um
+problema, tente pensar em quando uma solução recursiva não se aplica e
+veja se você pode usar isso como um caso de borda, pense em identidades
+e pense se você quebrará os parâmetros da função (por exemplo, listas
+geralmente são quebradas em cabeça e cauda via pattern matching) e em
+qual parte você usará a chamada recursiva.</p>
+            </article>
+<div class="footdiv">
+    <ul>
+<li class="prev"><a href="syntax-in-functions.html">Anterior</a></li>
+        <li class="toc"><a href="index.html">Sumário</a></li>
+<li class="next"><a href="higher-order-functions.html">Próximo</a></li>
+    </ul>
+</div>
+
+        </div>
+    </div>
+    <script type="text/javascript" src="sh/Scripts/shCore.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushHaskell.js"></script>
+    <script type="text/javascript" src="sh/Scripts/shBrushPlain.js"></script>
+    <script type="text/javascript" src="assets/js/toggleShow.js"></script>
+    <script type="text/javascript">
+        dp.SyntaxHighlighter.HighlightAll('code');
+    </script>
+</body>
+</html>
