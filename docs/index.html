@@ -6,55 +6,37 @@
     <title>Aprenda Haskell para o Bem de Todos!</title>
     <link rel="stylesheet" href="assets/css/reset.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/style.css" type="text/css" />
-    <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
+    <style>
+        body { background-color: #67A7CD; padding-top: 20px; color: white; text-shadow: #24536F -1px 1px 1px; }
+        .newsplash { width: min(880px, 100vw); margin: 0 auto; position: relative; text-align: center; }
+        .splash-text { margin-top: 20px; font-size: 1.2em; line-height: 1.6em; padding: 0 40px; }
+        .splash-buttons { margin-top: 40px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .splash-button { display: inline-block; padding: 15px 30px; background-color: #408156; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.4em; border: 2px solid white; transition: background 0.3s; }
+        .splash-button:hover { background-color: #51a36d; text-decoration: none; }
+        h1 { color: white; font-size: 3.5em; margin-bottom: 30px; }
+        .brazil-flag { font-size: 1.5em; vertical-align: middle; }
+    </style>
 </head>
-<body class="introcontent">
-    <div class="bgwrapper">
-        <div id="content">
-<div class="footdiv" style="margin-bottom:25px;">
-    <ul>
-        <li style="text-align:left">
-
-        </li>
-        <li style="text-align:center">
-            <a href="chapters.html">Índice de capítulos</a>
-        </li>
-        <li style="text-align:right">
-
-        </li>
-    </ul>
-</div>
-
-            <article>
-<h1>Índice de capítulos</h1>
-<ol class="chapters" type="1">
-    <li><a href="introduction.html">Introdução</a></li>    <li><a href="starting-out.html">Começando</a></li>    <li><a href="types-and-typeclasses.html">Tipos e Typeclasses</a></li>    <li><a href="syntax-in-functions.html">Sintaxe em Funções</a></li>    <li><a href="recursion.html">Recursão</a></li>    <li><a href="higher-order-functions.html">Funções de Alta Ordem</a></li>    <li><a href="modules.html">Módulos</a></li>    <li><a href="making-our-own-types-and-typeclasses.html">Criando Nossos Próprios Tipos e Typeclasses</a></li>    <li><a href="input-and-output.html">Entrada e Saída</a></li>    <li><a href="functionally-solving-problems.html">Resolvendo Problemas Funcionalmente</a></li>    <li><a href="functors-applicative-functors-and-monoids.html">Funtores, Funtores Aplicativos e Monoides</a></li>    <li><a href="a-fistful-of-monads.html">Por um Punhado de Monads</a></li>    <li><a href="for-a-few-monads-more.html">Por mais Alguns Monads</a></li>    <li><a href="zippers.html">Zippers</a></li>
-</ol>
-
-            </article>
-<div class="footdiv">
-    <ul>
-        <li style="text-align:left">
-
-        </li>
-        <li style="text-align:center">
-            <a href="chapters.html">Índice de capítulos</a>
-        </li>
-        <li style="text-align:right">
-
-        </li>
-    </ul>
-</div>
-
+<body>
+    <div class="newsplash">
+        <div id="content" style="width: 100%;">
+            <img src="assets/images/brasileirado_splash.png" style="max-width: 400px; height: auto; margin: 0 auto; display: block; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);" alt="Splash Banner" />
+            <div class="splash-text">
+<p>Salve, dev! 🇧🇷 Este é um guia prático, divertido e totalmente
+traduzido de <strong>Aprenda Haskell para o Bem de Todos!</strong>
+(LYAH).</p>
+<p>Se você já programa mas nunca se aventurou no mundo funcional, este é
+o lugar certo. Sem enrolação, com exemplos reais e aquele toque
+brasileiro.</p>
+<p>O guia é totalmente gratuito para ler online. Bora dominar o Haskell?
+🚀</p>
+            </div>
+            <div class="splash-buttons">
+                <a href="chapters.html" class="splash-button">Começar a ler online! 📖</a>
+                <a href="faq.html" class="splash-button" style="background-color: #BD2A33;">Dúvidas? (FAQ) ❓</a>
+            </div>
         </div>
     </div>
-    <script type="text/javascript" src="sh/Scripts/shCore.js"></script>
-    <script type="text/javascript" src="sh/Scripts/shBrushHaskell.js"></script>
-    <script type="text/javascript" src="sh/Scripts/shBrushPlain.js"></script>
-    <script type="text/javascript" src="assets/js/toggleShow.js"></script>
-    <script type="text/javascript">
-        dp.SyntaxHighlighter.HighlightAll('code');
-    </script>
 </body>
 </html>

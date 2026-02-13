@@ -111,6 +111,46 @@ layout bodyClass mPrev mNext content = T.unlines
     , "</html>"
     ]
 
+-- | Splash layout for the home page.
+splashLayout :: Text -> Text
+splashLayout content = T.unlines
+    [ "<!DOCTYPE html>"
+    , "<html lang=\"pt-BR\">"
+    , "<head>"
+    , "    <meta charset=\"UTF-8\">"
+    , "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+    , "    <title>Aprenda Haskell para o Bem de Todos!</title>"
+    , "    <link rel=\"stylesheet\" href=\"assets/css/reset.css\" type=\"text/css\" />"
+    , "    <link rel=\"stylesheet\" href=\"assets/css/style.css\" type=\"text/css\" />"
+    , "    <link rel=\"shortcut icon\" href=\"assets/images/favicon.png\" type=\"image/png\" />"
+    , "    <style>"
+    , "        body { background-color: #67A7CD; padding-top: 20px; color: white; text-shadow: #24536F -1px 1px 1px; }"
+    , "        .newsplash { width: min(880px, 100vw); margin: 0 auto; position: relative; text-align: center; }"
+    , "        .splash-text { margin-top: 20px; font-size: 1.2em; line-height: 1.6em; padding: 0 40px; }"
+    , "        .splash-buttons { margin-top: 40px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }"
+    , "        .splash-button { display: inline-block; padding: 15px 30px; background-color: #408156; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.4em; border: 2px solid white; transition: background 0.3s; }"
+    , "        .splash-button:hover { background-color: #51a36d; text-decoration: none; }"
+    , "        h1 { color: white; font-size: 3.5em; margin-bottom: 30px; }"
+    , "        .brazil-flag { font-size: 1.5em; vertical-align: middle; }"
+    , "    </style>"
+    , "</head>"
+    , "<body>"
+    , "    <div class=\"newsplash\">"
+    , "        <div id=\"content\" style=\"width: 100%;\">"
+    , "            <img src=\"assets/images/brasileirado_splash.png\" style=\"max-width: 400px; height: auto; margin: 0 auto; display: block; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);\" alt=\"Splash Banner\" />"
+    , "            <div class=\"splash-text\">"
+    ,           content
+    , "            </div>"
+    , "            <div class=\"splash-buttons\">"
+    , "                <a href=\"chapters.html\" class=\"splash-button\">Começar a ler online! 📖</a>"
+    , "                <a href=\"faq.html\" class=\"splash-button\" style=\"background-color: #BD2A33;\">Dúvidas? (FAQ) ❓</a>"
+    , "            </div>"
+    , "        </div>"
+    , "    </div>"
+    , "</body>"
+    , "</html>"
+    ]
+
 renderFootDiv :: Bool -> Maybe (String, String) -> Maybe (String, String) -> Text
 renderFootDiv isTop mPrev mNext = T.unlines
     [ "<div class=\"footdiv\"" <> (if isTop then " style=\"margin-bottom:25px;\"" else "") <> ">"
@@ -132,21 +172,6 @@ renderFootDiv isTop mPrev mNext = T.unlines
     , "</div>"
     ]
 
--- ==========================================
--- TOC GENERATION
--- ==========================================
-
-generateTOC :: IO ()
-generateTOC = do
-    putStrLn "Gerando chapters.html (TOC)..."
-    let tocContent = T.unlines
-            [ "<h1>Índice de capítulos</h1>"
-            , "<ol class=\"chapters\" type=\"1\">"
-            , T.concat (map renderTocItem orderedChapters)
-            , "</ol>"
-            ]
-    let finalHtml = layout "introcontent" Nothing Nothing tocContent
-    TIO.writeFile (outputDir </> "chapters.html") finalHtml
 
 renderTocItem :: (String, String) -> Text
 renderTocItem (file, title) = 
@@ -158,33 +183,53 @@ renderTocItem (file, title) =
 
 main :: IO ()
 main = do
-    putStrLn "--- Iniciando build de alta fidelidade ---"
+    putStrLn "--- Iniciando build de alta fidelidade (Splash BR) ---"
     createDirectoryIfMissing True outputDir
     
+    -- 1. Renderizar Página de Splash (index.html)
+    putStrLn "Renderizando página de splash (index.html)..."
+    welcomeContent <- TIO.readFile "welcome.md"
+    welcomeHtml <- renderMarkdown welcomeContent
+    let welcomeFinalHtml = splashLayout welcomeHtml
+    TIO.writeFile (outputDir </> "index.html") welcomeFinalHtml
+
+    -- 2. Renderizar Página de Índice (chapters.html)
+    putStrLn "Gerando chapters.html (TOC)..."
+    let tocBody = T.unlines
+            [ "<h1>Índice de capítulos</h1>"
+            , "<ol class=\"chapters\" type=\"1\">"
+            , T.concat (map renderTocItem orderedChapters)
+            , "</ol>"
+            ]
+    let tocFinalHtml = layout "introcontent" (Just ("index", "Início")) (Just ("introduction", "Introdução")) tocBody
+    TIO.writeFile (outputDir </> "chapters.html") tocFinalHtml
+
+    -- 3. Renderizar FAQ
+    putStrLn "Renderizando FAQ..."
+    faqContent <- TIO.readFile "faq.md"
+    faqHtml <- renderMarkdown faqContent
+    let faqFinalHtml = layout "introcontent" (Just ("index", "Início")) Nothing faqHtml
+    TIO.writeFile (outputDir </> "faq.html") faqFinalHtml
+
+    -- 4. Renderizar Capítulos
     let total = length orderedChapters
-    
     forM_ (zip [0..] orderedChapters) $ \(i, (name, chapterTitle)) -> do
         putStrLn $ "Renderizando [" ++ show (i+1) ++ "/" ++ show total ++ "]: " ++ name ++ " (" ++ chapterTitle ++ ")"
         
-        -- Lê MD da raiz
         content <- TIO.readFile (name ++ ".md")
         htmlBody <- renderMarkdown content
         
-        let mPrev = if i > 0 then Just (orderedChapters !! (i-1)) else Nothing
-        let mNext = if i < total - 1 then Just (orderedChapters !! (i+1)) else Nothing
+        let mPrev = if i == 0 
+                    then Just ("chapters", "Sumário") 
+                    else Just (orderedChapters !! (i-1))
+        let mNext = if i < total - 1 
+                    then Just (orderedChapters !! (i+1)) 
+                    else Nothing
         
-        -- Capítulos no LYAH original usam "introcontent" como classe
         let finalHtml = layout "introcontent" mPrev mNext htmlBody
         TIO.writeFile (outputDir </> name ++ ".html") finalHtml
     
-    -- Gerar TOC
-    generateTOC
-    
-    -- index.html redireciona para chapters.html ou é uma cópia da intro
-    copyFile (outputDir </> "chapters.html") (outputDir </> "index.html")
-    putStrLn "index.html criado a partir de chapters.html"
-    
-    -- Copiar Assets
+    -- 4. Copiar Assets
     putStrLn "Copiando ativos..."
     copyDirRecursive "assets" (outputDir </> "assets")
     copyDirRecursive "sh" (outputDir </> "sh")
