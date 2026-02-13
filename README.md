@@ -1,41 +1,51 @@
-# Haskell Documentation Reader
+# Aprenda Haskell para o Bem de Todos! (Tradução PT-BR)
 
-Este é um leitor moderno de documentação Haskell escrito em Haskell usando Scotty e Pandoc.
+Este projeto é uma tradução para o Português Brasileiro (PT-BR) do renomado tutorial **"Learn You a Haskell for Great Good!"**.
 
-## Pré-requisitos
+O repositório foi simplificado para priorizar os arquivos Markdown: você edita os capítulos diretamente na raiz e gera a versão estática para o GitHub Pages com um comando simples.
 
-Você precisa ter o **GHC** (Haskell Compiler) e o **Cabal** instalados. A maneira recomendada é através do [GHCup](https://www.haskell.org/ghcup/).
+---
 
-## Como Rodar
+## 📖 Sobre o Projeto Original
 
-1.  Abra o terminal na pasta do projeto:
-    ```bash
-    cd learnyouahaskellptbr/haskell-reader
-    ```
+O **Learn You a Haskell for Great Good! (LYAH)** é um dos guias mais populares e acessíveis para aprender Haskell.
 
-2.  Atualize a lista de pacotes (opcional, mas recomendado):
-    ```bash
-    cabal update
-    ```
+- **Autor Original:** Miran Lipovača ([@learnyouahaskell](https://github.com/learnyouahaskell))
+- **Site Original:** [learnyouahaskell.com](http://learnyouahaskell.com/)
+- **Mantenedores da Versão Comunitária:** Baseado em [learnyouahaskell.github.io](https://github.com/learnyouahaskell/learnyouahaskell.github.io).
 
-3.  Compile e execute o projeto:
-    ```bash
-    cabal run
-    ```
+---
 
-    *O Cabal irá baixar automaticamente as dependências (scotty, pandoc, etc.) na primeira vez.*
+## 🛠️ Como Funciona (Workflow Simplificado)
 
-4.  Acesse no seu navegador:
-    [http://localhost:3000](http://localhost:3000)
+Este repositório segue uma estrutura "flat":
 
-## Estrutura do Projeto
+1.  **Edição:** Os capítulos traduzidos estão na raiz (`introduction.md`, `starting-out.md`, etc.).
+2.  **Build:** O script `build.hs` transpila esses arquivos para HTML usando o estilo clássico do LYAH.
+3.  **Deploy:** Os arquivos gerados ficam na pasta `docs/`, que o GitHub Pages usa para renderizar o site.
 
-- `Main.hs`: Lógica do servidor e rotas.
-- `src/Files.hs`: Manipulação de arquivos .md.
-- `src/Markdown.hs`: Conversão de Markdown para HTML.
-- `src/Templates.hs`: Design e interface (UI).
-- `docs/`: Pasta contendo os arquivos .md traduzidos.
+### Pré-requisitos
+Você precisa do **GHC** e do **Cabal** (instalados via **GHCup**).
 
-## Customização
+### Gerar o Site (Build)
+Para atualizar o site na pasta `docs/` após fazer edições nos Markdowns:
+```bash
+cabal run build-site
+```
 
-Você pode adicionar novos arquivos `.md` na pasta `docs/` e eles aparecerão automaticamente na barra lateral do leitor.
+---
+
+## 📂 Estrutura Simplificada
+
+- `*.md`: Capítulos traduzidos (edite estes arquivos).
+- `assets/`: Imagens e estilos originais.
+- `sh/`: Scripts de Syntax Highlighting original.
+- `build.hs`: Script consolidado de geração do site.
+- `docs/`: (Gerado) Site final pronto para GitHub Pages.
+
+---
+
+## 🤝 Créditos
+
+- Conteúdo original por **Miran Lipovača**.
+- Tradução e adaptação técnica para PT-BR por **wendrxw**.
