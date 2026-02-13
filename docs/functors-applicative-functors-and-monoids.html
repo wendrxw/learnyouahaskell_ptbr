@@ -9,19 +9,26 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="functionally-solving-problems.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="a-fistful-of-monads.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="functionally-solving-problems.html">Anterior (Resolvendo Problemas Funcionalmente)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="a-fistful-of-monads.html" class="nxtlink">Próximo (Por um Punhado de Monads)</a>
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Functors, Applicative Functors e Monoids</h1>
+<h1 id="functors-applicative-functors-e-monoids">Functors, Applicative
+Functors e Monoids</h1>
 <p>A combinação de pureza, funções de alta ordem, tipos de dados
 algébricos parametrizados e typeclasses do Haskell nos permite
 implementar polimorfismo em um nível muito mais alto do que é possível
@@ -48,10 +55,11 @@ capítulo, examinaremos mais de perto os Functors, juntamente com versões
 ligeiramente mais fortes e úteis de Functors chamadas Applicative
 Functors. Também daremos uma olhada em Monoids, que são meio que como
 meias.</p>
-<h2>Functors redux {#functors-redux}</h2>
+<h2 id="functors-redux">Functors redux</h2>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/frogtor.png"
-alt="frogs dont even need money" />{.right width=369 height=243}</p>
+class="right" width="369" height="243"
+alt="frogs dont even need money" /></p>
 <p>Ainda assim, aqui vai uma rápida recapitulação: Functors são coisas
 que podem ser mapeadas, como listas, <code>Maybe</code>s, árvores e
 afins. Em Haskell, eles são descritos pela typeclass
@@ -62,17 +70,19 @@ função que pega um <code>a</code> e retorna um <code>b</code> e uma
 caixa com um <code>a</code> (ou vários deles) dentro dela e eu te darei
 uma caixa com um <code>b</code> (ou vários deles) dentro dela. Ele meio
 que aplica a função ao elemento dentro da caixa.</p>
-<p>::: {.hintbox} <strong>Um conselho.</strong> Muitas vezes a analogia
-da caixa é usada para ajudar você a ter alguma intuição de como os
-Functors funcionam, e mais tarde, provavelmente usaremos a mesma
-analogia para Applicative Functors e Monads. É uma analogia ok que ajuda
-as pessoas a entender Functors no início, apenas não leve muito ao pé da
-letra, porque para alguns Functors a analogia da caixa tem que ser
-esticada muito para ainda manter alguma verdade. Um termo mais correto
-para o que é um Functor seria <em>contexto computacional</em>. O
-contexto pode ser que a computação pode ter um valor ou pode ter falhado
+<div class="hintbox">
+<p><strong>Um conselho.</strong> Muitas vezes a analogia da caixa é
+usada para ajudar você a ter alguma intuição de como os Functors
+funcionam, e mais tarde, provavelmente usaremos a mesma analogia para
+Applicative Functors e Monads. É uma analogia ok que ajuda as pessoas a
+entender Functors no início, apenas não leve muito ao pé da letra,
+porque para alguns Functors a analogia da caixa tem que ser esticada
+muito para ainda manter alguma verdade. Um termo mais correto para o que
+é um Functor seria <em>contexto computacional</em>. O contexto pode ser
+que a computação pode ter um valor ou pode ter falhado
 (<code>Maybe</code> e <code>Either a</code>) ou que pode haver mais
-valores (listas), coisas assim. :::</p>
+valores (listas), coisas assim.</p>
+</div>
 <p>Se quisermos fazer de um construtor de tipo uma instância de
 <code>Functor</code>, ele tem que ter um kind de <code>* -&gt; *</code>,
 o que significa que ele tem que tomar exatamente um tipo concreto como
@@ -113,7 +123,10 @@ como um functor.</p>
 <code>Functor</code>. Quando damos <code>fmap</code> de uma função sobre
 uma ação de E/S, queremos obter de volta uma ação de E/S que faz a mesma
 coisa, mas tem nossa função aplicada sobre seu valor resultante.</p>
-<p><code>{.haskell:hs} instance Functor IO where     fmap f action = do         result &lt;- action         return (f result)</code></p>
+<pre class="haskell:hs"><code>instance Functor IO where
+    fmap f action = do
+        result &lt;- action
+        return (f result)</code></pre>
 <p>O resultado de mapear algo sobre uma ação de E/S será uma ação de
 E/S, então logo de cara usamos a sintaxe <em>do</em> para colar duas
 ações e fazer uma nova. Na implementação para <code>fmap</code>, fazemos
@@ -128,14 +141,19 @@ apresenta <code>f result</code> como o resultado da nova ação de
 E/S.</p>
 <p>Podemos brincar com isso para ganhar alguma intuição. É muito
 simples, na verdade. Confira este pedaço de código:</p>
-<p><code>{.haskell:hs} main = do line &lt;- getLine           let line' = reverse line           putStrLn $ "You said " ++ line' ++ " backwards!"           putStrLn $ "Yes, you really said" ++ line' ++ " backwards!"</code></p>
+<pre class="haskell:hs"><code>main = do line &lt;- getLine
+          let line&#39; = reverse line
+          putStrLn $ &quot;You said &quot; ++ line&#39; ++ &quot; backwards!&quot;
+          putStrLn $ &quot;Yes, you really said&quot; ++ line&#39; ++ &quot; backwards!&quot;</code></pre>
 <p>O usuário é solicitado por uma linha e nós a devolvemos ao usuário,
 só que invertida. Aqui está como reescrever isso usando
 <code>fmap</code>:</p>
-<p><code>{.haskell:hs} main = do line &lt;- fmap reverse getLine           putStrLn $ "You said " ++ line ++ " backwards!"           putStrLn $ "Yes, you really said" ++ line ++ " backwards!"</code></p>
+<pre class="haskell:hs"><code>main = do line &lt;- fmap reverse getLine
+          putStrLn $ &quot;You said &quot; ++ line ++ &quot; backwards!&quot;
+          putStrLn $ &quot;Yes, you really said&quot; ++ line ++ &quot; backwards!&quot;</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/alien.png"
-alt="w00ooOoooOO" />{.left width=262 height=212}</p>
+class="left" width="262" height="212" alt="w00ooOoooOO" /></p>
 <p>Assim como quando damos <code>fmap</code> de <code>reverse</code>
 sobre <code>Just "blah"</code> para obter <code>Just "halb"</code>,
 podemos dar <code>fmap</code> de <code>reverse</code> sobre
@@ -164,10 +182,14 @@ coisa, considere usar <code>fmap</code>, porque parece mais bonito. Se
 você quiser aplicar múltiplas transformações a alguns dados dentro de um
 functor, você pode declarar sua própria função no nível superior, fazer
 uma função lambda ou, idealmente, usar composição de funções:</p>
-<p>```{.haskell:hs} import Data.Char import Data.List</p>
-<p>main = do line &lt;- fmap (intersperse '-' . reverse . map toUpper)
-getLine putStrLn line ```</p>
-<p><code>{.plain} $ runhaskell fmapping_io.hs hello there E-R-E-H-T- -O-L-L-E-H</code></p>
+<pre class="haskell:hs"><code>import Data.Char
+import Data.List
+
+main = do line &lt;- fmap (intersperse &#39;-&#39; . reverse . map toUpper) getLine
+          putStrLn line</code></pre>
+<pre class="plain"><code>$ runhaskell fmapping_io.hs
+hello there
+E-R-E-H-T- -O-L-L-E-H</code></pre>
 <p>Como você provavelmente sabe,
 <code>intersperse '-' . reverse . map toUpper</code> é uma função que
 pega uma string, mapeia <code>toUpper</code> sobre ela, aplica
@@ -196,13 +218,17 @@ fazendo <code>(2+)</code>, que é o mesmo que <code>(+) 2</code>), você
 poderia escrever <code>(-&gt;) r</code> como <code>(r -&gt;)</code>.
 Como as funções são Functors? Bem, vamos dar uma olhada na
 implementação, que fica em <code>Control.Monad.Instances</code></p>
-<p>::: {.hintbox} Geralmente marcamos funções que pegam qualquer coisa e
-retornam qualquer coisa como <code>a -&gt; b</code>.
-<code>r -&gt; a</code> é a mesma coisa, apenas usamos letras diferentes
-para as variáveis de tipo. :::</p>
-<p><code>{.haskell:hs} instance Functor ((-&gt;) r) where     fmap f g = (\x -&gt; f (g x))</code></p>
+<div class="hintbox">
+<p>Geralmente marcamos funções que pegam qualquer coisa e retornam
+qualquer coisa como <code>a -&gt; b</code>. <code>r -&gt; a</code> é a
+mesma coisa, apenas usamos letras diferentes para as variáveis de
+tipo.</p>
+</div>
+<pre class="haskell:hs"><code>instance Functor ((-&gt;) r) where
+    fmap f g = (\x -&gt; f (g x))</code></pre>
 <p>Se a sintaxe permitisse, poderia ter sido escrito como</p>
-<p><code>{.haskell:hs} instance Functor (r -&gt;) where     fmap f g = (\x -&gt; f (g x))</code></p>
+<pre class="haskell:hs"><code>instance Functor (r -&gt;) where
+    fmap f g = (\x -&gt; f (g x))</code></pre>
 <p>Mas não permite, então temos que escrever da maneira anterior.</p>
 <p>Primeiro de tudo, vamos pensar sobre o tipo de <code>fmap</code>. É
 <code>fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code>. Agora o que
@@ -230,12 +256,22 @@ Canalizamos a saída de <code>r -&gt; a</code> para a entrada de
 é exatamente do que se trata a composição de funções. Se você olhar como
 a instância é definida acima, verá que é apenas composição de funções.
 Outra maneira de escrever esta instância seria:</p>
-<p><code>{.haskell:hs} instance Functor ((-&gt;) r) where     fmap = (.)</code></p>
+<pre class="haskell:hs"><code>instance Functor ((-&gt;) r) where
+    fmap = (.)</code></pre>
 <p>Isso torna a revelação de que usar <code>fmap</code> sobre funções é
 apenas composição meio óbvia. Faça
 <code>:m + Control.Monad.Instances</code>, já que é onde a instância é
 definida e então tente brincar mapeando sobre funções.</p>
-<p><code>{.haskell:hs} ghci&gt; :t fmap (*3) (+100) fmap (*3) (+100) :: (Num a) =&gt; a -&gt; a ghci&gt; fmap (*3) (+100) 1 303 ghci&gt; (*3) `fmap` (+100) $ 1 303 ghci&gt; (*3) . (+100) $ 1 303 ghci&gt; fmap (show . (*3)) (*100) 1 "300"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t fmap (*3) (+100)
+fmap (*3) (+100) :: (Num a) =&gt; a -&gt; a
+ghci&gt; fmap (*3) (+100) 1
+303
+ghci&gt; (*3) `fmap` (+100) $ 1
+303
+ghci&gt; (*3) . (+100) $ 1
+303
+ghci&gt; fmap (show . (*3)) (*100) 1
+&quot;300&quot;</code></pre>
 <p>Podemos chamar <code>fmap</code> como uma função infixa para que a
 semelhança com <code>.</code> seja clara. Na segunda linha de entrada,
 estamos mapeando <code>(*3)</code> sobre <code>(+100)</code>, o que
@@ -264,8 +300,8 @@ uma computação resulta na mesma computação, mas o resultado dessa
 computação é modificado com a função.</p>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/lifter.png"
-alt="lifting a function is easier than lifting a million pounds" />{.right
-width=443 height=450}</p>
+class="right" width="443" height="450"
+alt="lifting a function is easier than lifting a million pounds" /></p>
 <p>Antes de prosseguirmos para as regras que <code>fmap</code> deve
 seguir, vamos pensar sobre o tipo de <code>fmap</code> mais uma vez. Seu
 tipo é <code>fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code>. Estamos
@@ -295,17 +331,22 @@ função <code>a -&gt; b</code> e retorna uma função
 <code>f a -&gt; f b</code>. Isso é chamado de <em>levantar</em>
 (lifting) uma função. Vamos brincar com essa ideia usando o comando
 <code>:t</code> do GHCI:</p>
-<p><code>{.haskell:hs} ghci&gt; :t fmap (*2) fmap (*2) :: (Num a, Functor f) =&gt; f a -&gt; f a ghci&gt; :t fmap (replicate 3) fmap (replicate 3) :: (Functor f) =&gt; f a -&gt; f [a]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t fmap (*2)
+fmap (*2) :: (Num a, Functor f) =&gt; f a -&gt; f a
+ghci&gt; :t fmap (replicate 3)
+fmap (replicate 3) :: (Functor f) =&gt; f a -&gt; f [a]</code></pre>
 <p>A expressão <code>fmap (*2)</code> é uma função que pega um functor
 <code>f</code> sobre números e retorna um functor sobre números. Esse
 functor pode ser uma lista, um <code>Maybe</code>, um
 <code>Either String</code>, o que for. A expressão
 <code>fmap (replicate 3)</code> pegará um functor sobre qualquer tipo e
 retornará um functor sobre uma lista de elementos desse tipo.</p>
-<p>::: {.hintbox} Quando dizemos <em>um functor sobre números</em>, você
-pode pensar nisso como <em>um functor que tem números nele</em>. O
-primeiro é um pouco mais chique e tecnicamente mais correto, mas o
-último é geralmente mais fácil de entender. :::</p>
+<div class="hintbox">
+<p>Quando dizemos <em>um functor sobre números</em>, você pode pensar
+nisso como <em>um functor que tem números nele</em>. O primeiro é um
+pouco mais chique e tecnicamente mais correto, mas o último é geralmente
+mais fácil de entender.</p>
+</div>
 <p>Isso é ainda mais aparente se aplicarmos parcialmente, digamos,
 <code>fmap (++"!")</code> e então vincularmos a um nome no GHCI.</p>
 <p>Você pode pensar em <code>fmap</code> como uma função que pega uma
@@ -322,7 +363,16 @@ para <code>fmap</code> será escolhida, que é apenas <code>map</code>. Se
 usarmos em um <code>Maybe a</code>, ela aplicará
 <code>replicate 3</code> ao valor dentro do <code>Just</code>, ou se for
 <code>Nothing</code>, então permanece <code>Nothing</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; fmap (replicate 3) [1,2,3,4] [[1,1,1],[2,2,2],[3,3,3],[4,4,4]] ghci&gt; fmap (replicate 3) (Just 4) Just [4,4,4] ghci&gt; fmap (replicate 3) (Right "blah") Right ["blah","blah","blah"] ghci&gt; fmap (replicate 3) Nothing Nothing ghci&gt; fmap (replicate 3) (Left "foo") Left "foo"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap (replicate 3) [1,2,3,4]
+[[1,1,1],[2,2,2],[3,3,3],[4,4,4]]
+ghci&gt; fmap (replicate 3) (Just 4)
+Just [4,4,4]
+ghci&gt; fmap (replicate 3) (Right &quot;blah&quot;)
+Right [&quot;blah&quot;,&quot;blah&quot;,&quot;blah&quot;]
+ghci&gt; fmap (replicate 3) Nothing
+Nothing
+ghci&gt; fmap (replicate 3) (Left &quot;foo&quot;)
+Left &quot;foo&quot;</code></pre>
 <p>A seguir, vamos olhar para as <strong>leis dos Functors</strong>.
 Para que algo seja um Functor, ele deve satisfazer algumas leis. Todos
 os Functors devem exibir certos tipos de propriedades e comportamentos
@@ -336,21 +386,34 @@ você mesmo.</p>
 <p><strong>A primeira lei dos Functors afirma que se mapearmos a função
 <code>id</code> sobre um Functor, o Functor que obtemos de volta deve
 ser o mesmo que o Functor original.</strong> Se escrevermos isso um
-pouco mais formalmente, significa que <code>fmap id = id</code>{.label
-.law}. Então, essencialmente, isso diz que se fizermos
-<code>fmap id</code> sobre um Functor, deve ser o mesmo que apenas
-chamar <code>id</code> no Functor. Lembre-se, <code>id</code> é a função
-identidade, que apenas retorna seu parâmetro não modificado. Também pode
-ser escrita como <code>\x -&gt; x</code>. Se virmos o functor como algo
-que pode ser mapeado, a lei <code>fmap id = id</code>{.label .law}
-parece meio trivial ou óbvia.</p>
+pouco mais formalmente, significa que <code
+class="label law">fmap id = id</code>. Então, essencialmente, isso diz
+que se fizermos <code>fmap id</code> sobre um Functor, deve ser o mesmo
+que apenas chamar <code>id</code> no Functor. Lembre-se, <code>id</code>
+é a função identidade, que apenas retorna seu parâmetro não modificado.
+Também pode ser escrita como <code>\x -&gt; x</code>. Se virmos o
+functor como algo que pode ser mapeado, a lei <code
+class="label law">fmap id = id</code> parece meio trivial ou óbvia.</p>
 <p>Vamos ver se essa lei se sustenta para alguns valores de
 functores.</p>
-<p><code>{.haskell:hs} ghci&gt; fmap id (Just 3) Just 3 ghci&gt; id (Just 3) Just 3 ghci&gt; fmap id [1..5] [1,2,3,4,5] ghci&gt; id [1..5] [1,2,3,4,5] ghci&gt; fmap id [] [] ghci&gt; fmap id Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap id (Just 3)
+Just 3
+ghci&gt; id (Just 3)
+Just 3
+ghci&gt; fmap id [1..5]
+[1,2,3,4,5]
+ghci&gt; id [1..5]
+[1,2,3,4,5]
+ghci&gt; fmap id []
+[]
+ghci&gt; fmap id Nothing
+Nothing</code></pre>
 <p>Se olharmos para a implementação de <code>fmap</code> para, digamos,
 <code>Maybe</code>, podemos descobrir por que a primeira lei dos
 functores se sustenta.</p>
-<p><code>{.haskell:hs} instance Functor Maybe where     fmap f (Just x) = Just (f x)     fmap f Nothing = Nothing</code></p>
+<pre class="haskell:hs"><code>instance Functor Maybe where
+    fmap f (Just x) = Just (f x)
+    fmap f Nothing = Nothing</code></pre>
 <p>Imaginamos que <code>id</code> desempenha o papel do parâmetro
 <code>f</code> na implementação. Vemos que se dermos
 <code>fmap id</code> sobre <code>Just x</code>, o resultado será
@@ -365,16 +428,16 @@ implementação para <code>fmap</code>, vemos que a lei
 <code>fmap id = id</code> se sustenta.</p>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/justice.png"
-alt="justice is blind, but so is my dog" />{.left width=345
-height=428}</p>
+class="left" width="345" height="428"
+alt="justice is blind, but so is my dog" /></p>
 <p><strong>A segunda lei diz que compor duas funções e então mapear a
 função resultante sobre um Functor deve ser o mesmo que primeiro mapear
 uma função sobre o Functor e então mapear a outra.</strong> Formalmente
-escrito, isso significa que
-<code>fmap (f . g) = fmap f . fmap g</code>{.label .law}. Ou para
+escrito, isso significa que <code
+class="label law">fmap (f . g) = fmap f . fmap g</code>. Ou para
 escrever de outra maneira, para qualquer Functor <em>F</em>, o seguinte
-deve ser válido: <code>fmap (f . g) F = fmap f (fmap g F)</code>{.label
-.law}.</p>
+deve ser válido: <code
+class="label law">fmap (f . g) F = fmap f (fmap g F)</code>.</p>
 <p>Se pudermos mostrar que algum tipo obedece a ambas as leis dos
 Functors, podemos confiar que ele terá os mesmos comportamentos
 fundamentais que outros Functors quando se trata de mapeamento. Podemos
@@ -392,9 +455,9 @@ podemos verificar como a segunda lei dos Functors se sustenta para
 obtemos <code>Nothing</code>, pela mesma razão. OK, ver como a segunda
 lei se sustenta para <code>Maybe</code> se for um valor
 <code>Nothing</code> é muito fácil, quase trivial.</p>
-<p>E se for um valor &lt;code&gt;Just <em>algo</em>&lt;/code&gt;? Bem,
-se fizermos <code>fmap (f . g) (Just x)</code>, vemos pela implementação
-que é implementado como <code>Just ((f . g) x)</code>, que é, claro,
+<p>E se for um valor <code>Just <em>algo</em></code>? Bem, se fizermos
+<code>fmap (f . g) (Just x)</code>, vemos pela implementação que é
+implementado como <code>Just ((f . g) x)</code>, que é, claro,
 <code>Just (f (g x))</code>. Se fizermos
 <code>fmap f (fmap g (Just x))</code>, vemos pela implementação que
 <code>fmap g (Just x)</code> é <code>Just (g x)</code>. Logo,
@@ -413,7 +476,7 @@ leis.</p>
 tipo sendo uma instância da typeclass <code>Functor</code>, mas não
 sendo realmente um functor, porque ele não satisfaz as leis. Vamos dizer
 que temos um tipo:</p>
-<p><code>{.haskell:hs} data CMaybe a = CNothing | CJust Int a deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data CMaybe a = CNothing | CJust Int a deriving (Show)</code></pre>
 <p>O C aqui significa <em>contador</em> (counter). É um tipo de dados
 que se parece muito com <code>Maybe a</code>, só que a parte
 <code>Just</code> contém dois campos em vez de um. O primeiro campo no
@@ -423,24 +486,43 @@ tipo <code>a</code>, que vem do parâmetro de tipo e seu tipo, claro,
 dependerá do tipo concreto que escolhermos para <code>CMaybe a</code>.
 Vamos brincar com nosso novo tipo para ter alguma intuição sobre
 ele.</p>
-<p><code>{.haskell:hs} ghci&gt; CNothing CNothing ghci&gt; CJust 0 "haha" CJust 0 "haha" ghci&gt; :t CNothing CNothing :: CMaybe a ghci&gt; :t CJust 0 "haha" CJust 0 "haha" :: CMaybe [Char] ghci&gt; CJust 100 [1,2,3] CJust 100 [1,2,3]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; CNothing
+CNothing
+ghci&gt; CJust 0 &quot;haha&quot;
+CJust 0 &quot;haha&quot;
+ghci&gt; :t CNothing
+CNothing :: CMaybe a
+ghci&gt; :t CJust 0 &quot;haha&quot;
+CJust 0 &quot;haha&quot; :: CMaybe [Char]
+ghci&gt; CJust 100 [1,2,3]
+CJust 100 [1,2,3]</code></pre>
 <p>Se usarmos o construtor <code>CNothing</code>, não há campos, e se
 usarmos o construtor <code>CJust</code>, o primeiro campo é um inteiro e
 o segundo campo pode ser qualquer tipo. Vamos fazer disso uma instância
 de <code>Functor</code> para que toda vez que usarmos <code>fmap</code>,
 a função seja aplicada ao segundo campo, enquanto o primeiro campo é
 incrementado em 1.</p>
-<p><code>{.haskell:hs} instance Functor CMaybe where     fmap f CNothing = CNothing     fmap f (CJust counter x) = CJust (counter+1) (f x)</code></p>
+<pre class="haskell:hs"><code>instance Functor CMaybe where
+    fmap f CNothing = CNothing
+    fmap f (CJust counter x) = CJust (counter+1) (f x)</code></pre>
 <p>Isso é meio que como a implementação da instância para
 <code>Maybe</code>, exceto que quando damos <code>fmap</code> sobre um
 valor que não representa uma caixa vazia (um valor <code>CJust</code>),
 não aplicamos apenas a função ao conteúdo, também aumentamos o contador
 em 1. Tudo parece legal até agora, podemos até brincar com isso um
 pouco:</p>
-<p><code>{.haskell:hs} ghci&gt; fmap (++"ha") (CJust 0 "ho") CJust 1 "hoha" ghci&gt; fmap (++"he") (fmap (++"ha") (CJust 0 "ho")) CJust 2 "hohahe" ghci&gt; fmap (++"blah") CNothing CNothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap (++&quot;ha&quot;) (CJust 0 &quot;ho&quot;)
+CJust 1 &quot;hoha&quot;
+ghci&gt; fmap (++&quot;he&quot;) (fmap (++&quot;ha&quot;) (CJust 0 &quot;ho&quot;))
+CJust 2 &quot;hohahe&quot;
+ghci&gt; fmap (++&quot;blah&quot;) CNothing
+CNothing</code></pre>
 <p>Isso obedece às leis dos functores? Para ver que algo não obedece a
 uma lei, é suficiente encontrar apenas um contra-exemplo.</p>
-<p><code>{.haskell:hs} ghci&gt; fmap id (CJust 0 "haha") CJust 1 "haha" ghci&gt; id (CJust 0 "haha") CJust 0 "haha"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap id (CJust 0 &quot;haha&quot;)
+CJust 1 &quot;haha&quot;
+ghci&gt; id (CJust 0 &quot;haha&quot;)
+CJust 0 &quot;haha&quot;</code></pre>
 <p>Ah! Sabemos que a primeira lei dos functores afirma que se mapearmos
 <code>id</code> sobre um functor, deve ser o mesmo que apenas chamar
 <code>id</code> com o mesmo functor, mas como vimos neste exemplo, isso
@@ -480,14 +562,15 @@ leis se sustentam ou tentar encontrar um contra-exemplo.</p>
 <p>Também podemos olhar para functores como coisas que produzem valores
 em um contexto. Por exemplo, <code>Just 3</code> produz o valor
 <code>3</code> no contexto de que pode ou não produzir quaisquer
-valores. <code>[1,2,3]</code> produz três valores---<code>1</code>,
+valores. <code>[1,2,3]</code> produz três valores—<code>1</code>,
 <code>2</code> e <code>3</code>, o contexto é que pode haver múltiplos
 valores ou nenhum valor. A função <code>(+3)</code> produzirá um valor,
 dependendo de qual parâmetro for dada.</p>
-<h2>Applicative Functors {#applicative-functors}</h2>
+<h2 id="applicative-functors">Applicative Functors</h2>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/present.png"
-alt="disregard this analogy" />{.right width=302 height=284}</p>
+class="right" width="302" height="284"
+alt="disregard this analogy" /></p>
 <p>Nesta seção, daremos uma olhada em Applicative Functors, que são
 Functors reforçados, representados em Haskell pela typeclass
 <code>Applicative</code>, encontrada no módulo
@@ -510,13 +593,20 @@ parâmetros, sobre um functor? Vamos dar uma olhada em alguns exemplos
 concretos disso. Se tivermos <code>Just 3</code> e fizermos
 <code>fmap (*) (Just 3)</code>, o que obtemos? Pela implementação da
 instância de <code>Maybe</code> para <code>Functor</code>, sabemos que
-se for um valor &lt;code&gt;Just <em>algo</em>&lt;/code&gt;, ela
-aplicará a função ao &lt;code&gt;<em>algo</em>&lt;/code&gt; dentro do
-<code>Just</code>. Portanto, fazer <code>fmap (*) (Just 3)</code>
-resulta em <code>Just ((*) 3)</code>, que também pode ser escrito como
+se for um valor <code>Just <em>algo</em></code>, ela aplicará a função
+ao <code><em>algo</em></code> dentro do <code>Just</code>. Portanto,
+fazer <code>fmap (*) (Just 3)</code> resulta em
+<code>Just ((*) 3)</code>, que também pode ser escrito como
 <code>Just (* 3)</code> se usarmos seções. Interessante! Obtemos uma
 função embrulhada em um <code>Just</code>!</p>
-<p><code>{.haskell:hs} ghci&gt; :t fmap (++) (Just "hey") fmap (++) (Just "hey") :: Maybe ([Char] -&gt; [Char]) ghci&gt; :t fmap compare (Just 'a') fmap compare (Just 'a') :: Maybe (Char -&gt; Ordering) ghci&gt; :t fmap compare "A LIST OF CHARS" fmap compare "A LIST OF CHARS" :: [Char -&gt; Ordering] ghci&gt; :t fmap (\x y z -&gt; x + y / z) [3,4,5,6] fmap (\x y z -&gt; x + y / z) [3,4,5,6] :: (Fractional a) =&gt; [a -&gt; a -&gt; a]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t fmap (++) (Just &quot;hey&quot;)
+fmap (++) (Just &quot;hey&quot;) :: Maybe ([Char] -&gt; [Char])
+ghci&gt; :t fmap compare (Just &#39;a&#39;)
+fmap compare (Just &#39;a&#39;) :: Maybe (Char -&gt; Ordering)
+ghci&gt; :t fmap compare &quot;A LIST OF CHARS&quot;
+fmap compare &quot;A LIST OF CHARS&quot; :: [Char -&gt; Ordering]
+ghci&gt; :t fmap (\x y z -&gt; x + y / z) [3,4,5,6]
+fmap (\x y z -&gt; x + y / z) [3,4,5,6] :: (Fractional a) =&gt; [a -&gt; a -&gt; a]</code></pre>
 <p>Se mapearmos <code>compare</code>, que tem um tipo de
 <code>(Ord a) =&gt; a -&gt; a -&gt; Ordering</code> sobre uma lista de
 caracteres, obtemos uma lista de funções do tipo
@@ -526,13 +616,17 @@ função <code>(Ord a) =&gt; a -&gt; Ordering</code>, porque o primeiro
 <code>a</code> que foi aplicado era um <code>Char</code> e então o
 segundo <code>a</code> tem que decidir ser do tipo
 <code>Char</code>.</p>
-<p>Vemos como mapeando funções de "vários parâmetros" sobre functores,
+<p>Vemos como mapeando funções de “vários parâmetros” sobre functores,
 obtemos functores que contêm funções dentro deles. Então, o que podemos
 fazer com eles? Bem, para começar, podemos mapear funções que pegam
 essas funções como parâmetros sobre eles, porque o que estiver dentro de
 um functor será dado à função que estamos mapeando sobre ele como um
 parâmetro.</p>
-<p><code>{.haskell:hs} ghci&gt; let a = fmap (*) [1,2,3,4] ghci&gt; :t a a :: [Integer -&gt; Integer] ghci&gt; fmap (\f -&gt; f 9) a [9,18,27,36]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let a = fmap (*) [1,2,3,4]
+ghci&gt; :t a
+a :: [Integer -&gt; Integer]
+ghci&gt; fmap (\f -&gt; f 9) a
+[9,18,27,36]</code></pre>
 <p>Mas o que acontece se tivermos um valor de functor
 <code>Just (3 *)</code> e um valor de functor <code>Just 5</code> e
 quisermos tirar a função de <code>Just (3 *)</code> e mapeá-la sobre
@@ -552,7 +646,9 @@ abstrata de fazer isso, que funcione em functores.</p>
 implementação padrão para nenhum deles, então temos que definir ambos se
 quisermos que algo seja um functor aplicativo. A classe é definida
 assim:</p>
-<p><code>{.haskell:hs} class (Functor f) =&gt; Applicative f where     pure :: a -&gt; f a     (&lt;*&gt;) :: f (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>class (Functor f) =&gt; Applicative f where
+    pure :: a -&gt; f a
+    (&lt;*&gt;) :: f (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>Essa definição de classe simples de três linhas nos diz muito! Vamos
 começar na primeira linha. Ela inicia a definição da classe
 <code>Applicative</code> e também introduz uma restrição de classe. Ela
@@ -590,7 +686,10 @@ então extrair, talvez até <em>sequenciar</em>. Veremos o porquê em
 breve.</p>
 <p>Vamos dar uma olhada na implementação da instância
 <code>Applicative</code> para <code>Maybe</code>.</p>
-<p><code>{.haskell:hs} instance Applicative Maybe where     pure = Just     Nothing &lt;*&gt; _ = Nothing     (Just f) &lt;*&gt; something = fmap f something</code></p>
+<pre class="haskell:hs"><code>instance Applicative Maybe where
+    pure = Just
+    Nothing &lt;*&gt; _ = Nothing
+    (Just f) &lt;*&gt; something = fmap f something</code></pre>
 <p>Novamente, da definição da classe vemos que o <code>f</code> que
 desempenha o papel do Applicative Functor deve pegar um tipo concreto
 como parâmetro, então escrevemos
@@ -620,7 +719,16 @@ função do valor da esquerda se for um <code>Just</code> e a mapeia sobre
 o valor da direita. Se algum dos parâmetros for <code>Nothing</code>,
 <code>Nothing</code> é o resultado.</p>
 <p>OK, legal, ótimo. Vamos dar uma volta com isso.</p>
-<p><code>{.haskell:hs} ghci&gt; Just (+3) &lt;*&gt; Just 9 Just 12 ghci&gt; pure (+3) &lt;*&gt; Just 10 Just 13 ghci&gt; pure (+3) &lt;*&gt; Just 9 Just 12 ghci&gt; Just (++"hahah") &lt;*&gt; Nothing Nothing ghci&gt; Nothing &lt;*&gt; Just "woot" Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just (+3) &lt;*&gt; Just 9
+Just 12
+ghci&gt; pure (+3) &lt;*&gt; Just 10
+Just 13
+ghci&gt; pure (+3) &lt;*&gt; Just 9
+Just 12
+ghci&gt; Just (++&quot;hahah&quot;) &lt;*&gt; Nothing
+Nothing
+ghci&gt; Nothing &lt;*&gt; Just &quot;woot&quot;
+Nothing</code></pre>
 <p>Vemos como fazer <code>pure (+3)</code> e <code>Just (+3)</code> é o
 mesmo neste caso. Use <code>pure</code> se estiver lidando com valores
 <code>Maybe</code> em um contexto aplicativo (ou seja, usando-os com
@@ -636,10 +744,15 @@ Functor e então não pode tirar o resultado de nenhuma maneira geral,
 mesmo que o resultado seja uma função parcialmente aplicada. Applicative
 Functors, por outro lado, permitem operar em vários Functors com uma
 única função. Confira este pedaço de código:</p>
-<p><code>{.haskell:hs} ghci&gt; pure (+) &lt;*&gt; Just 3 &lt;*&gt; Just 5 Just 8 ghci&gt; pure (+) &lt;*&gt; Just 3 &lt;*&gt; Nothing Nothing ghci&gt; pure (+) &lt;*&gt; Nothing &lt;*&gt; Just 5 Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; pure (+) &lt;*&gt; Just 3 &lt;*&gt; Just 5
+Just 8
+ghci&gt; pure (+) &lt;*&gt; Just 3 &lt;*&gt; Nothing
+Nothing
+ghci&gt; pure (+) &lt;*&gt; Nothing &lt;*&gt; Just 5
+Nothing</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/whale.png"
-alt="whaale" />{.right width=214 height=177}</p>
+class="right" width="214" height="177" alt="whaale" /></p>
 <p>O que está acontecendo aqui? Vamos dar uma olhada, passo a passo.
 <code>&lt;*&gt;</code> é associativo à esquerda, o que significa que
 <code>pure (+) &lt;*&gt; Just 3 &lt;*&gt; Just 5</code> é o mesmo que
@@ -675,16 +788,19 @@ escrever <code>fmap f x &lt;*&gt; y &lt;*&gt; ...</code>. É por isso que
 <code>Control.Applicative</code> exporta uma função chamada
 <code>&lt;$&gt;</code>, que é apenas <code>fmap</code> como um operador
 infixo. Aqui está como ela é definida:</p>
-<p><code>{.haskell:hs} (&lt;$&gt;) :: (Functor f) =&gt; (a -&gt; b) -&gt; f a -&gt; f b f &lt;$&gt; x = fmap f x</code></p>
-<p>::: {.hintbox} <strong>Yo!</strong> Lembrete rápido: variáveis de
-tipo são independentes de nomes de parâmetros ou outros nomes de valor.
-O <code>f</code> na declaração de função aqui é uma variável de tipo com
+<pre class="haskell:hs"><code>(&lt;$&gt;) :: (Functor f) =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+f &lt;$&gt; x = fmap f x</code></pre>
+<div class="hintbox">
+<p><strong>Yo!</strong> Lembrete rápido: variáveis de tipo são
+independentes de nomes de parâmetros ou outros nomes de valor. O
+<code>f</code> na declaração de função aqui é uma variável de tipo com
 uma restrição de classe dizendo que qualquer construtor de tipo que
 substitua <code>f</code> deve estar na typeclass <code>Functor</code>. O
 <code>f</code> no corpo da função denota uma função que mapeamos sobre
 <code>x</code>. O fato de termos usado <code>f</code> para representar
-ambos não significa que eles de alguma forma representem a mesma coisa.
-:::</p>
+ambos não significa que eles de alguma forma representem a mesma
+coisa.</p>
+</div>
 <p>Ao usar <code>&lt;$&gt;</code>, o Applicative style realmente brilha,
 porque agora se quisermos aplicar uma função <code>f</code> entre três
 Applicative Functors, podemos escrever
@@ -696,10 +812,12 @@ valor de <code>Just "johntra"</code> e um valor de
 <code>Just "volta"</code> e queremos juntá-los em uma
 <code>String</code> dentro de um functor <code>Maybe</code>. Fazemos
 isso:</p>
-<p><code>{.haskell:hs} ghci&gt; (++) &lt;$&gt; Just "johntra" &lt;*&gt; Just "volta" Just "johntravolta"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (++) &lt;$&gt; Just &quot;johntra&quot; &lt;*&gt; Just &quot;volta&quot;
+Just &quot;johntravolta&quot;</code></pre>
 <p>Antes de vermos como isso acontece, compare a linha acima com
 esta:</p>
-<p><code>{.haskell:hs} ghci&gt; (++) "johntra" "volta" "johntravolta"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (++) &quot;johntra&quot; &quot;volta&quot;
+&quot;johntravolta&quot;</code></pre>
 <p>Demais! Para usar uma função normal em Applicative Functors, apenas
 espalhe alguns <code>&lt;$&gt;</code> e <code>&lt;*&gt;</code> por aí e
 a função operará em Applicatives e retornará um Applicative. Quão legal
@@ -726,7 +844,9 @@ pode estar pensando que functores aplicativos são todos sobre
 <p>Listas (na verdade o construtor de tipo de lista, <code>[]</code>)
 são Applicative Functors. Que surpresa! Aqui está como <code>[]</code> é
 uma instância de <code>Applicative</code>:</p>
-<p><code>{.haskell:hs} instance Applicative [] where     pure x = [x]     fs &lt;*&gt; xs = [f x | f &lt;- fs, x &lt;- xs]</code></p>
+<pre class="haskell:hs"><code>instance Applicative [] where
+    pure x = [x]
+    fs &lt;*&gt; xs = [f x | f &lt;- fs, x &lt;- xs]</code></pre>
 <p>Anteriormente, dissemos que <code>pure</code> pega um valor e o
 coloca em um contexto padrão. Ou em outras palavras, um contexto mínimo
 que ainda produz esse valor. O contexto mínimo para listas seria a lista
@@ -738,7 +858,10 @@ functor aplicativo <code>Maybe</code> seria um <code>Nothing</code>, mas
 ele representa a falta de um valor em vez de um valor, então
 <code>pure</code> é implementado como <code>Just</code> na implementação
 da instância para <code>Maybe</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; pure "Hey" :: [String] ["Hey"] ghci&gt; pure "Hey" :: Maybe String Just "Hey"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; pure &quot;Hey&quot; :: [String]
+[&quot;Hey&quot;]
+ghci&gt; pure &quot;Hey&quot; :: Maybe String
+Just &quot;Hey&quot;</code></pre>
 <p>E quanto a <code>&lt;*&gt;</code>? Se olharmos para qual seria o tipo
 de <code>&lt;*&gt;</code> se fosse limitado apenas a listas, obtemos
 <code>(&lt;*&gt;) :: [a -&gt; b] -&gt; [a] -&gt; [b]</code>. É
@@ -753,13 +876,15 @@ extrair de ambas as listas. Aplicamos todas as funções possíveis da
 lista esquerda a todos os valores possíveis da lista direita. A lista
 resultante tem todas as combinações possíveis de aplicar uma função da
 lista esquerda a um valor na direita.</p>
-<p><code>{.haskell:hs} ghci&gt; [(*0),(+100),(^2)] &lt;*&gt; [1,2,3] [0,0,0,101,102,103,1,4,9]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [(*0),(+100),(^2)] &lt;*&gt; [1,2,3]
+[0,0,0,101,102,103,1,4,9]</code></pre>
 <p>A lista da esquerda tem três funções e a lista da direita tem três
 valores, então a lista resultante terá nove elementos. Cada função na
 lista da esquerda é aplicada a cada valor na da direita. Se tivermos uma
 lista de funções que pegam dois parâmetros, podemos aplicar essas
 funções entre duas listas.</p>
-<p><code>{.haskell:hs} ghci&gt; [(+),(*)] &lt;*&gt; [1,2] &lt;*&gt; [3,4] [4,5,5,6,3,4,6,8]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [(+),(*)] &lt;*&gt; [1,2] &lt;*&gt; [3,4]
+[4,5,5,6,3,4,6,8]</code></pre>
 <p>Como <code>&lt;*&gt;</code> é associativo à esquerda,
 <code>[(+),(*)] &lt;*&gt; [1,2]</code> acontece primeiro, resultando em
 uma lista que é a mesma que <code>[(1+),(2+),(1*),(2*)]</code>, porque
@@ -767,7 +892,8 @@ cada função à esquerda é aplicada a cada valor à direita. Então,
 <code>[(1+),(2+),(1*),(2*)] &lt;*&gt; [3,4]</code> acontece, o que
 produz o resultado final.</p>
 <p>Usar o estilo aplicativo com listas é divertido! Veja:</p>
-<p><code>{.haskell:hs} ghci&gt; (++) &lt;$&gt; ["ha","heh","hmm"] &lt;*&gt; ["?","!","."] ["ha?","ha!","ha.","heh?","heh!","heh.","hmm?","hmm!","hmm."]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (++) &lt;$&gt; [&quot;ha&quot;,&quot;heh&quot;,&quot;hmm&quot;] &lt;*&gt; [&quot;?&quot;,&quot;!&quot;,&quot;.&quot;]
+[&quot;ha?&quot;,&quot;ha!&quot;,&quot;ha.&quot;,&quot;heh?&quot;,&quot;heh!&quot;,&quot;heh.&quot;,&quot;hmm?&quot;,&quot;hmm!&quot;,&quot;hmm.&quot;]</code></pre>
 <p>Novamente, veja como usamos uma função normal que pega duas strings
 entre dois functores aplicativos de strings apenas inserindo os
 operadores aplicativos apropriados.</p>
@@ -785,16 +911,19 @@ menos certa sobre seu resultado.</p>
 para compreensões de lista. No segundo capítulo, queríamos ver todos os
 produtos possíveis de <code>[2,5,10]</code> e <code>[8,10,11]</code>,
 então fizemos isso:</p>
-<p><code>{.haskell:hs} ghci&gt; [ x*y | x &lt;- [2,5,10], y &lt;- [8,10,11]] [16,20,22,40,50,55,80,100,110]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [ x*y | x &lt;- [2,5,10], y &lt;- [8,10,11]]
+[16,20,22,40,50,55,80,100,110]</code></pre>
 <p>Estamos apenas extraindo de duas listas e aplicando uma função entre
 cada combinação de elementos. Isso pode ser feito no Applicative style
 também:</p>
-<p><code>{.haskell:hs} ghci&gt; (*) &lt;$&gt; [2,5,10] &lt;*&gt; [8,10,11] [16,20,22,40,50,55,80,100,110]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (*) &lt;$&gt; [2,5,10] &lt;*&gt; [8,10,11]
+[16,20,22,40,50,55,80,100,110]</code></pre>
 <p>Isso parece mais claro para mim, porque é mais fácil ver que estamos
 apenas chamando <code>*</code> entre duas computações não
 determinísticas. Se quiséssemos todos os produtos possíveis dessas duas
 listas que são maiores que 50, apenas faríamos:</p>
-<p><code>{.haskell:hs} ghci&gt; filter (&gt;50) $ (*) &lt;$&gt; [2,5,10] &lt;*&gt; [8,10,11] [55,80,100,110]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; filter (&gt;50) $ (*) &lt;$&gt; [2,5,10] &lt;*&gt; [8,10,11]
+[55,80,100,110]</code></pre>
 <p>É fácil ver como <code>pure f &lt;*&gt; xs</code> é igual a
 <code>fmap f xs</code> com listas. <code>pure f</code> é apenas
 <code>[f]</code> e <code>[f] &lt;*&gt; xs</code> aplicará cada função na
@@ -802,10 +931,15 @@ lista esquerda a cada valor na direita, mas há apenas uma função na
 lista esquerda, então é como mapear.</p>
 <p>Outra instância de <code>Applicative</code> que já encontramos é
 <code>IO</code>. É assim que a instância é implementada:</p>
-<p><code>{.haskell:hs} instance Applicative IO where     pure = return     a &lt;*&gt; b = do         f &lt;- a         x &lt;- b         return (f x)</code></p>
+<pre class="haskell:hs"><code>instance Applicative IO where
+    pure = return
+    a &lt;*&gt; b = do
+        f &lt;- a
+        x &lt;- b
+        return (f x)</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/knight.png"
-alt="ahahahah!" />{.left width=195 height=458}</p>
+class="left" width="195" height="458" alt="ahahahah!" /></p>
 <p>Já que <code>pure</code> é tudo sobre colocar um valor em um contexto
 mínimo que ainda o mantém como seu resultado, faz sentido que
 <code>pure</code> seja apenas <code>return</code>, porque
@@ -833,14 +967,19 @@ E/S e estamos sequenciando, ou colando-as em uma. Temos que extrair a
 função da primeira ação de E/S, mas para extrair um resultado de uma
 ação de E/S, ela tem que ser executada.</p>
 <p>Considere isto:</p>
-<p><code>{.haskell:hs} myAction :: IO String myAction = do     a &lt;- getLine     b &lt;- getLine     return $ a ++ b</code></p>
+<pre class="haskell:hs"><code>myAction :: IO String
+myAction = do
+    a &lt;- getLine
+    b &lt;- getLine
+    return $ a ++ b</code></pre>
 <p>Esta é uma ação de E/S que solicitará ao usuário duas linhas e
 produzirá como resultado essas duas linhas concatenadas. Conseguimos
 isso colando duas ações de E/S <code>getLine</code> e um
 <code>return</code>, porque queríamos que nossa nova ação de E/S colada
 contivesse o resultado de <code>a ++ b</code>. Outra maneira de escrever
 isso seria usar o Applicative style.</p>
-<p><code>{.haskell:hs} myAction :: IO String myAction = (++) &lt;$&gt; getLine &lt;*&gt; getLine</code></p>
+<pre class="haskell:hs"><code>myAction :: IO String
+myAction = (++) &lt;$&gt; getLine &lt;*&gt; getLine</code></pre>
 <p>O que estávamos fazendo antes era fazer uma ação de E/S que aplicava
 uma função entre os resultados de duas outras ações de E/S, e isso é a
 mesma coisa. Lembre-se, <code>getLine</code> é uma ação de E/S com o
@@ -860,7 +999,9 @@ resultado.</p>
 E/S completamente normal como qualquer outra, que também contém um valor
 resultante dentro dela, assim como outras ações de E/S. É por isso que
 podemos fazer coisas como:</p>
-<p><code>{.haskell:hs} main = do     a &lt;- (++) &lt;$&gt; getLine &lt;*&gt; getLine     putStrLn $ "The two lines concatenated turn out to be: " ++ a</code></p>
+<pre class="haskell:hs"><code>main = do
+    a &lt;- (++) &lt;$&gt; getLine &lt;*&gt; getLine
+    putStrLn $ &quot;The two lines concatenated turn out to be: &quot; ++ a</code></pre>
 <p>Se você se encontrar vinculando algumas ações de E/S a nomes e então
 chamando alguma função nelas e apresentando isso como resultado usando
 <code>return</code>, considere usar o Applicative style porque é
@@ -869,10 +1010,14 @@ indiscutivelmente um pouco mais conciso e terso.</p>
 então funções. Elas são raramente usadas com o Applicative style fora do
 code golf, mas ainda são interessantes como aplicativos, então vamos dar
 uma olhada em como a instância da função é implementada.</p>
-<p>::: {.hintbox} Se você está confuso sobre o que
-<code>(-&gt;) r</code> significa, confira a seção anterior onde
-explicamos como <code>(-&gt;) r</code> é um Functor. :::</p>
-<p><code>{.haskell:hs} instance Applicative ((-&gt;) r) where     pure x = (\_ -&gt; x)     f &lt;*&gt; g = \x -&gt; f x (g x)</code></p>
+<div class="hintbox">
+<p>Se você está confuso sobre o que <code>(-&gt;) r</code> significa,
+confira a seção anterior onde explicamos como <code>(-&gt;) r</code> é
+um Functor.</p>
+</div>
+<pre class="haskell:hs"><code>instance Applicative ((-&gt;) r) where
+    pure x = (\_ -&gt; x)
+    f &lt;*&gt; g = \x -&gt; f x (g x)</code></pre>
 <p>Quando embrulhamos um valor em um Applicative Functor com
 <code>pure</code>, o resultado que ele produz sempre tem que ser esse
 valor. Um contexto padrão mínimo que ainda produz esse valor como
@@ -881,14 +1026,19 @@ resultado. É por isso que na implementação da instância de função,
 parâmetro e sempre retorna esse valor. Se olharmos para o tipo de
 <code>pure</code>, mas especializado para a instância
 <code>(-&gt;) r</code>, é <code>pure :: a -&gt; (r -&gt; a)</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; (pure 3) "blah" 3</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (pure 3) &quot;blah&quot;
+3</code></pre>
 <p>Por causa do currying, a aplicação de função é associativa à
 esquerda, então podemos omitir os parênteses.</p>
-<p><code>{.haskell:hs} ghci&gt; pure 3 "blah" 3</code></p>
+<pre class="haskell:hs"><code>ghci&gt; pure 3 &quot;blah&quot;
+3</code></pre>
 <p>A implementação da instância para <code>&lt;*&gt;</code> é um pouco
 enigmática, então é melhor apenas dar uma olhada em como usar funções
 como Applicative Functors no Applicative style.</p>
-<p><code>{.haskell:hs} ghci&gt; :t (+) &lt;$&gt; (+3) &lt;*&gt; (*100) (+) &lt;$&gt; (+3) &lt;*&gt; (*100) :: (Num a) =&gt; a -&gt; a ghci&gt; (+) &lt;$&gt; (+3) &lt;*&gt; (*100) $ 5 508</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t (+) &lt;$&gt; (+3) &lt;*&gt; (*100)
+(+) &lt;$&gt; (+3) &lt;*&gt; (*100) :: (Num a) =&gt; a -&gt; a
+ghci&gt; (+) &lt;$&gt; (+3) &lt;*&gt; (*100) $ 5
+508</code></pre>
 <p>Chamar <code>&lt;*&gt;</code> com dois Applicative Functors resulta
 em um Applicative Functor, então se o usarmos em duas funções, obtemos
 de volta uma função. Então o que acontece aqui? Quando fazemos
@@ -901,10 +1051,11 @@ primeiro foi aplicado a <code>(+3)</code> e <code>(*100)</code>,
 resultando em <code>8</code> e <code>500</code>. Então, <code>+</code> é
 chamado com <code>8</code> e <code>500</code>, resultando em
 <code>508</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; (\x y z -&gt; [x,y,z]) &lt;$&gt; (+3) &lt;*&gt; (*2) &lt;*&gt; (/2) $ 5 [8.0,10.0,2.5]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (\x y z -&gt; [x,y,z]) &lt;$&gt; (+3) &lt;*&gt; (*2) &lt;*&gt; (/2) $ 5
+[8.0,10.0,2.5]</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/jazzb.png"
-alt="SLAP" />{.right width=400px height=230px}</p>
+class="right" width="400" height="230" alt="SLAP" /></p>
 <p>O mesmo aqui. Criamos uma função que chamará a função
 <code>\x y z -&gt; [x,y,z]</code> com os eventuais resultados de
 <code>(+3)</code>, <code>(*2)</code> e <code>(/2)</code>. O
@@ -950,7 +1101,9 @@ valores, ou seja, <code>[4,4]</code>. Você poderia ver isso como
 tipo <code>ZipList a</code> foi introduzido, que tem um construtor
 <code>ZipList</code> que tem apenas um campo, e esse campo é uma lista.
 Aqui está a instância:</p>
-<p><code>{.haskell:hs} instance Applicative ZipList where         pure x = ZipList (repeat x)         ZipList fs &lt;*&gt; ZipList xs = ZipList (zipWith (\f x -&gt; f x) fs xs)</code></p>
+<pre class="haskell:hs"><code>instance Applicative ZipList where
+        pure x = ZipList (repeat x)
+        ZipList fs &lt;*&gt; ZipList xs = ZipList (zipWith (\f x -&gt; f x) fs xs)</code></pre>
 <p><code>&lt;*&gt;</code> faz exatamente o que dissemos. Aplica a
 primeira função ao primeiro valor, a segunda função ao segundo valor,
 etc. Isso é feito com <code>zipWith (\f x -&gt; f x) fs xs</code>. Por
@@ -974,13 +1127,22 @@ finita com uma lista infinita, o comprimento da lista resultante será
 sempre igual ao comprimento da lista finita.</p>
 <p>Então, como zip lists funcionam em um Applicative style? Vamos ver.
 Ah, o tipo <code>ZipList a</code> não tem uma instância
-<code>Show</code>, então temos que usar a função
-<code>getZipList</code>{.label .function} para extrair uma lista bruta
-de uma zip list.</p>
-<p><code>{.haskell:hs} ghci&gt; getZipList $ (+) &lt;$&gt; ZipList [1,2,3] &lt;*&gt; ZipList [100,100,100] [101,102,103] ghci&gt; getZipList $ (+) &lt;$&gt; ZipList [1,2,3] &lt;*&gt; ZipList [100,100..] [101,102,103] ghci&gt; getZipList $ max &lt;$&gt; ZipList [1,2,3,4,5,3] &lt;*&gt; ZipList [5,3,1,2] [5,3,3,4] ghci&gt; getZipList $ (,,) &lt;$&gt; ZipList "dog" &lt;*&gt; ZipList "cat" &lt;*&gt; ZipList "rat" [('d','c','r'),('o','a','a'),('g','t','t')]</code></p>
-<p>::: {.hintbox} A função <code>(,,)</code> é a mesma que
+<code>Show</code>, então temos que usar a função <code
+class="label function">getZipList</code> para extrair uma lista bruta de
+uma zip list.</p>
+<pre class="haskell:hs"><code>ghci&gt; getZipList $ (+) &lt;$&gt; ZipList [1,2,3] &lt;*&gt; ZipList [100,100,100]
+[101,102,103]
+ghci&gt; getZipList $ (+) &lt;$&gt; ZipList [1,2,3] &lt;*&gt; ZipList [100,100..]
+[101,102,103]
+ghci&gt; getZipList $ max &lt;$&gt; ZipList [1,2,3,4,5,3] &lt;*&gt; ZipList [5,3,1,2]
+[5,3,3,4]
+ghci&gt; getZipList $ (,,) &lt;$&gt; ZipList &quot;dog&quot; &lt;*&gt; ZipList &quot;cat&quot; &lt;*&gt; ZipList &quot;rat&quot;
+[(&#39;d&#39;,&#39;c&#39;,&#39;r&#39;),(&#39;o&#39;,&#39;a&#39;,&#39;a&#39;),(&#39;g&#39;,&#39;t&#39;,&#39;t&#39;)]</code></pre>
+<div class="hintbox">
+<p>A função <code>(,,)</code> é a mesma que
 <code>\x y z -&gt; (x,y,z)</code>. Além disso, a função <code>(,)</code>
-é a mesma que <code>\x y -&gt; (x,y)</code>. :::</p>
+é a mesma que <code>\x y -&gt; (x,y)</code>.</p>
+</div>
 <p>Além de <code>zipWith</code>, a biblioteca padrão tem funções como
 <code>zipWith3</code>, <code>zipWith4</code>, até 7.
 <code>zipWith</code> pega uma função que pega dois parâmetros e zipa
@@ -1003,10 +1165,14 @@ resultados desses dois Applicative Functors em uma lista. Por exemplo,
 temos <code>Just 3</code> e <code>Just 4</code>. Vamos assumir que o
 segundo tem uma lista singleton dentro dele, porque isso é realmente
 fácil de conseguir:</p>
-<p><code>{.haskell:hs} ghci&gt; fmap (\x -&gt; [x]) (Just 4) Just [4]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap (\x -&gt; [x]) (Just 4)
+Just [4]</code></pre>
 <p>OK, então digamos que temos <code>Just 3</code> e
 <code>Just [4]</code>. Como obtemos <code>Just [3,4]</code>? Fácil.</p>
-<p><code>{.haskell:hs} ghci&gt; liftA2 (:) (Just 3) (Just [4]) Just [3,4] ghci&gt; (:) &lt;$&gt; Just 3 &lt;*&gt; Just [4] Just [3,4]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; liftA2 (:) (Just 3) (Just [4])
+Just [3,4]
+ghci&gt; (:) &lt;$&gt; Just 3 &lt;*&gt; Just [4]
+Just [3,4]</code></pre>
 <p>Lembre-se, <code>:</code> é uma função que pega um elemento e uma
 lista e retorna uma nova lista com esse elemento no início. Agora que
 temos <code>Just [3,4]</code>, poderíamos combinar isso com
@@ -1016,7 +1182,9 @@ Applicatives em um Applicative que tem uma lista dos resultados desses
 Applicatives dentro dele. Vamos tentar implementar uma função que pega
 uma lista de Applicatives e retorna um Applicative que tem uma lista
 como seu valor resultante. Vamos chamá-la de <code>sequenceA</code>.</p>
-<p><code>{.haskell:hs} sequenceA :: (Applicative f) =&gt; [f a] -&gt; f [a] sequenceA [] = pure [] sequenceA (x:xs) = (:) &lt;$&gt; x &lt;*&gt; sequenceA xs</code></p>
+<pre class="haskell:hs"><code>sequenceA :: (Applicative f) =&gt; [f a] -&gt; f [a]
+sequenceA [] = pure []
+sequenceA (x:xs) = (:) &lt;$&gt; x &lt;*&gt; sequenceA xs</code></pre>
 <p>Ah, recursão! Primeiro, olhamos para o tipo. Ela transformará uma
 lista de Applicatives em um Applicative com uma lista. A partir disso,
 podemos estabelecer algumas bases para uma condição de borda. Se
@@ -1041,7 +1209,8 @@ que é <code>(:) &lt;$&gt; Just 1 &lt;*&gt; Just [2]</code>, que é
 Lembre-se, praticamente qualquer função onde passamos por uma lista
 elemento por elemento e acumulamos um resultado ao longo do caminho pode
 ser implementada com um fold.</p>
-<p><code>{.haskell:hs} sequenceA :: (Applicative f) =&gt; [f a] -&gt; f [a] sequenceA = foldr (liftA2 (:)) (pure [])</code></p>
+<pre class="haskell:hs"><code>sequenceA :: (Applicative f) =&gt; [f a] -&gt; f [a]
+sequenceA = foldr (liftA2 (:)) (pure [])</code></pre>
 <p>Abordamos a lista pela direita e começamos com um valor acumulador de
 <code>pure []</code>. Fazemos <code>liftA2 (:)</code> entre o acumulador
 e o último elemento da lista, o que resulta em um aplicativo que tem um
@@ -1050,7 +1219,16 @@ elemento e o acumulador atual e assim por diante, até ficarmos apenas
 com o acumulador, que contém uma lista dos resultados de todos os
 aplicativos.</p>
 <p>Vamos dar uma volta com nossa função em alguns Applicatives.</p>
-<p><code>{.haskell:hs} ghci&gt; sequenceA [Just 3, Just 2, Just 1] Just [3,2,1] ghci&gt; sequenceA [Just 3, Nothing, Just 1] Nothing ghci&gt; sequenceA [(+3),(+2),(+1)] 3 [6,5,4] ghci&gt; sequenceA [[1,2,3],[4,5,6]] [[1,4],[1,5],[1,6],[2,4],[2,5],[2,6],[3,4],[3,5],[3,6]] ghci&gt; sequenceA [[1,2,3],[4,5,6],[3,4,4],[]] []</code></p>
+<pre class="haskell:hs"><code>ghci&gt; sequenceA [Just 3, Just 2, Just 1]
+Just [3,2,1]
+ghci&gt; sequenceA [Just 3, Nothing, Just 1]
+Nothing
+ghci&gt; sequenceA [(+3),(+2),(+1)] 3
+[6,5,4]
+ghci&gt; sequenceA [[1,2,3],[4,5,6]]
+[[1,4],[1,5],[1,6],[2,4],[2,5],[2,6],[3,4],[3,5],[3,6]]
+ghci&gt; sequenceA [[1,2,3],[4,5,6],[3,4,4],[]]
+[]</code></pre>
 <p>Ah! Muito legal. Quando usado em valores <code>Maybe</code>,
 <code>sequenceA</code> cria um valor <code>Maybe</code> com todos os
 resultados dentro dele como uma lista. Se um dos valores fosse
@@ -1080,11 +1258,17 @@ e queremos alimentar a mesma entrada para todas elas e então ver a lista
 de resultados. Por exemplo, temos um número e estamos nos perguntando se
 ele satisfaz todos os predicados em uma lista. Uma maneira de fazer isso
 seria assim:</p>
-<p><code>{.haskell:hs} ghci&gt; map (\f -&gt; f 7) [(&gt;4),(&lt;10),odd] [True,True,True] ghci&gt; and $ map (\f -&gt; f 7) [(&gt;4),(&lt;10),odd] True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; map (\f -&gt; f 7) [(&gt;4),(&lt;10),odd]
+[True,True,True]
+ghci&gt; and $ map (\f -&gt; f 7) [(&gt;4),(&lt;10),odd]
+True</code></pre>
 <p>Lembre-se, <code>and</code> pega uma lista de booleanos e retorna
 <code>True</code> se todos forem <code>True</code>. Outra maneira de
 alcançar a mesma coisa seria com <code>sequenceA</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; sequenceA [(&gt;4),(&lt;10),odd] 7 [True,True,True] ghci&gt; and $ sequenceA [(&gt;4),(&lt;10),odd] 7 True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; sequenceA [(&gt;4),(&lt;10),odd] 7
+[True,True,True]
+ghci&gt; and $ sequenceA [(&gt;4),(&lt;10),odd] 7
+True</code></pre>
 <p><code>sequenceA [(&gt;4),(&lt;10),odd]</code> cria uma função que
 pegará um número e o alimentará para todos os predicados em
 <code>[(&gt;4),(&lt;10),odd]</code> e retornará uma lista de booleanos.
@@ -1101,7 +1285,18 @@ lista de listas e retorna uma lista de listas. Hmm, interessante. Ela na
 verdade cria listas que têm todas as combinações possíveis de seus
 elementos. Para ilustração, aqui está o acima feito com
 <code>sequenceA</code> e depois feito com uma compreensão de lista:</p>
-<p><code>{.haskell:hs} ghci&gt; sequenceA [[1,2,3],[4,5,6]] [[1,4],[1,5],[1,6],[2,4],[2,5],[2,6],[3,4],[3,5],[3,6]] ghci&gt; [[x,y] | x &lt;- [1,2,3], y &lt;- [4,5,6]] [[1,4],[1,5],[1,6],[2,4],[2,5],[2,6],[3,4],[3,5],[3,6]] ghci&gt; sequenceA [[1,2],[3,4]] [[1,3],[1,4],[2,3],[2,4]] ghci&gt; [[x,y] | x &lt;- [1,2], y &lt;- [3,4]] [[1,3],[1,4],[2,3],[2,4]] ghci&gt; sequenceA [[1,2],[3,4],[5,6]] [[1,3,5],[1,3,6],[1,4,5],[1,4,6],[2,3,5],[2,3,6],[2,4,5],[2,4,6]] ghci&gt; [[x,y,z] | x &lt;- [1,2], y &lt;- [3,4], z &lt;- [5,6]] [[1,3,5],[1,3,6],[1,4,5],[1,4,6],[2,3,5],[2,3,6],[2,4,5],[2,4,6]]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; sequenceA [[1,2,3],[4,5,6]]
+[[1,4],[1,5],[1,6],[2,4],[2,5],[2,6],[3,4],[3,5],[3,6]]
+ghci&gt; [[x,y] | x &lt;- [1,2,3], y &lt;- [4,5,6]]
+[[1,4],[1,5],[1,6],[2,4],[2,5],[2,6],[3,4],[3,5],[3,6]]
+ghci&gt; sequenceA [[1,2],[3,4]]
+[[1,3],[1,4],[2,3],[2,4]]
+ghci&gt; [[x,y] | x &lt;- [1,2], y &lt;- [3,4]]
+[[1,3],[1,4],[2,3],[2,4]]
+ghci&gt; sequenceA [[1,2],[3,4],[5,6]]
+[[1,3,5],[1,3,6],[1,4,5],[1,4,6],[2,3,5],[2,3,6],[2,4,5],[2,4,6]]
+ghci&gt; [[x,y,z] | x &lt;- [1,2], y &lt;- [3,4], z &lt;- [5,6]]
+[[1,3,5],[1,3,6],[1,4,5],[1,4,6],[2,3,5],[2,3,6],[2,4,5],[2,4,6]]</code></pre>
 <p>Isso pode ser um pouco difícil de entender, mas se você brincar com
 isso por um tempo, verá como funciona. Digamos que estamos fazendo
 <code>sequenceA [[1,2],[3,4]]</code>. Para ver como isso acontece, vamos
@@ -1156,20 +1351,25 @@ resultados quando executada, todas essas ações de E/S têm que ser
 sequenciadas para que sejam executadas uma após a outra quando a
 avaliação for forçada. Você não pode obter o resultado de uma ação de
 E/S sem executá-la.</p>
-<p><code>{.haskell:hs} ghci&gt; sequenceA [getLine, getLine, getLine] heyh ho woo ["heyh","ho","woo"]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; sequenceA [getLine, getLine, getLine]
+heyh
+ho
+woo
+[&quot;heyh&quot;,&quot;ho&quot;,&quot;woo&quot;]</code></pre>
 <p>Como Functors normais, Applicative Functors vêm com algumas leis. A
-mais importante é a que já mencionamos, ou seja, que
-<code>pure f &lt;*&gt; x = fmap f x</code>{.label .law} se mantém. Como
+mais importante é a que já mencionamos, ou seja, que <code
+class="label law">pure f &lt;*&gt; x = fmap f x</code> se mantém. Como
 exercício, você pode provar esta lei para alguns dos Applicative
 Functors que encontramos neste capítulo. As outras leis dos Applicative
 Functors são:</p>
 <ul>
-<li><code>pure id &lt;*&gt; v = v</code>{.label .law}</li>
-<li><code>pure (.) &lt;*&gt; u &lt;*&gt; v &lt;*&gt; w = u &lt;*&gt; (v &lt;*&gt; w)</code>{.label
-.law}</li>
-<li><code>pure f &lt;*&gt; pure x = pure (f x)</code>{.label .law}</li>
-<li><code>u &lt;*&gt; pure y = pure ($ y) &lt;*&gt; u</code>{.label
-.law}</li>
+<li><code class="label law">pure id &lt;*&gt; v = v</code></li>
+<li><code
+class="label law">pure (.) &lt;*&gt; u &lt;*&gt; v &lt;*&gt; w = u &lt;*&gt; (v &lt;*&gt; w)</code></li>
+<li><code
+class="label law">pure f &lt;*&gt; pure x = pure (f x)</code></li>
+<li><code
+class="label law">u &lt;*&gt; pure y = pure ($ y) &lt;*&gt; u</code></li>
 </ul>
 <p>Não vamos repasá-las em detalhes agora porque isso ocuparia muitas
 páginas e provavelmente seria meio chato, mas se você estiver pronto
@@ -1182,10 +1382,10 @@ que podem ter falhado, etc. usando o Applicative style. Apenas usando
 <code>&lt;$&gt;</code> e <code>&lt;*&gt;</code> podemos usar funções
 normais para operar uniformemente em qualquer número de Applicative
 Functors e tirar proveito da semântica de cada um.</p>
-<h2>A palavra-chave newtype {#the-newtype-keyword}</h2>
+<h2 id="the-newtype-keyword">A palavra-chave newtype</h2>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/maoi.png"
-alt="why so serious?" />{.left width=107 height=202}</p>
+class="left" width="107" height="202" alt="why so serious?" /></p>
 <p>Até agora, aprendemos como fazer nossos próprios tipos de dados
 algébricos usando a palavra-chave <strong>data</strong>. Também
 aprendemos como dar sinônimos a tipos existentes com a palavra-chave
@@ -1199,7 +1399,8 @@ de lista ser um Applicative Functor. Uma maneira é ter
 esquerdo e aplicando-a a cada valor na lista que está à direita,
 resultando em todas as combinações possíveis de aplicar uma função da
 lista esquerda a um valor na lista direita.</p>
-<p><code>{.haskell:hs} ghci&gt; [(+1),(*100),(*5)] &lt;*&gt; [1,2,3] [2,3,4,100,200,300,5,10,15]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [(+1),(*100),(*5)] &lt;*&gt; [1,2,3]
+[2,3,4,100,200,300,5,10,15]</code></pre>
 <p>A segunda maneira é pegar a primeira função no lado esquerdo de
 <code>&lt;*&gt;</code> e aplicá-la ao primeiro valor à direita, depois
 pegar a segunda função da lista no lado esquerdo e aplicá-la ao segundo
@@ -1215,16 +1416,17 @@ campo. Então, <code>ZipList</code> foi feita uma instância de
 Applicatives na maneira de zipar, apenas as embrulhamos com o construtor
 <code>ZipList</code> e então, depois que terminamos, as desembrolhamos
 com <code>getZipList</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; getZipList $ ZipList [(+1),(*100),(*5)] &lt;*&gt; ZipList [1,2,3] [2,200,15]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getZipList $ ZipList [(+1),(*100),(*5)] &lt;*&gt; ZipList [1,2,3]
+[2,200,15]</code></pre>
 <p>Então, o que isso tem a ver com essa palavra-chave <em>newtype</em>?
 Bem, pense em como poderíamos escrever a declaração de dados para nosso
 tipo <code>ZipList a</code>. Uma maneira seria fazer assim:</p>
-<p><code>{.haskell:hs} data ZipList a = ZipList [a]</code></p>
+<pre class="haskell:hs"><code>data ZipList a = ZipList [a]</code></pre>
 <p>Um tipo que tem apenas um construtor de valor e esse construtor de
 valor tem apenas um campo que é uma lista de coisas. Também poderíamos
 querer usar a sintaxe de registro para obter automaticamente uma função
 que extrai uma lista de uma <code>ZipList</code>:</p>
-<p><code>{.haskell:hs} data ZipList a = ZipList { getZipList :: [a] }</code></p>
+<pre class="haskell:hs"><code>data ZipList a = ZipList { getZipList :: [a] }</code></pre>
 <p>Isso parece bom e na verdade funcionaria muito bem. Tínhamos duas
 maneiras de tornar um tipo existente uma instância de uma typeclass,
 então usamos a palavra-chave <em>data</em> para apenas embrulhar esse
@@ -1234,7 +1436,7 @@ maneira.</p>
 esses casos quando queremos apenas pegar um tipo e embrulhá-lo em algo
 para apresentá-lo como outro tipo. Nas bibliotecas reais,
 <code>ZipList a</code> é definido assim:</p>
-<p><code>{.haskell:hs} newtype ZipList a = ZipList { getZipList :: [a] }</code></p>
+<pre class="haskell:hs"><code>newtype ZipList a = ZipList { getZipList :: [a] }</code></pre>
 <p>Em vez da palavra-chave <em>data</em>, a palavra-chave
 <em>newtype</em> é usada. Agora por que isso? Bem, para começar,
 <em>newtype</em> é mais rápido. Se você usar a palavra-chave
@@ -1252,9 +1454,11 @@ apenas um construtor de valor e esse construtor de valor pode ter apenas
 um campo. Mas com <em>data</em>, você pode criar tipos de dados que têm
 vários construtores de valor e cada construtor pode ter zero ou mais
 campos:</p>
-<p>```{.haskell:hs} data Profession = Fighter | Archer | Accountant</p>
-<p>data Race = Human | Elf | Orc | Goblin</p>
-<p>data PlayerCharacter = PlayerCharacter Race Profession ```</p>
+<pre class="haskell:hs"><code>data Profession = Fighter | Archer | Accountant
+
+data Race = Human | Elf | Orc | Goblin
+
+data PlayerCharacter = PlayerCharacter Race Profession</code></pre>
 <p>Ao usar <em>newtype</em>, você está restrito a apenas um construtor
 com um campo.</p>
 <p>Também podemos usar a palavra-chave <em>deriving</em> com
@@ -1266,41 +1470,48 @@ embrulhando deve estar nessa typeclass para começar. Faz sentido, porque
 <em>newtype</em> apenas embrulha um tipo existente. Então agora se
 fizermos o seguinte, podemos imprimir e igualar valores de nosso novo
 tipo:</p>
-<p><code>{.haskell:hs} newtype CharList = CharList { getCharList :: [Char] } deriving (Eq, Show)</code></p>
+<pre class="haskell:hs"><code>newtype CharList = CharList { getCharList :: [Char] } deriving (Eq, Show)</code></pre>
 <p>Vamos dar uma chance a isso:</p>
-<p><code>{.haskell:hs} ghci&gt; CharList "this will be shown!" CharList {getCharList = "this will be shown!"} ghci&gt; CharList "benny" == CharList "benny" True ghci&gt; CharList "benny" == CharList "oysters" False</code></p>
+<pre class="haskell:hs"><code>ghci&gt; CharList &quot;this will be shown!&quot;
+CharList {getCharList = &quot;this will be shown!&quot;}
+ghci&gt; CharList &quot;benny&quot; == CharList &quot;benny&quot;
+True
+ghci&gt; CharList &quot;benny&quot; == CharList &quot;oysters&quot;
+False</code></pre>
 <p>Neste <em>newtype</em> em particular, o construtor de valor tem o
 seguinte tipo:</p>
-<p><code>{.haskell:hs} CharList :: [Char] -&gt; CharList</code></p>
+<pre class="haskell:hs"><code>CharList :: [Char] -&gt; CharList</code></pre>
 <p>Ele pega um valor <code>[Char]</code>, como <code>"my sharona"</code>
 e retorna um valor <code>CharList</code>. A partir dos exemplos acima,
 onde usamos o construtor de valor <code>CharList</code>, vemos que
 realmente é o caso. Por outro lado, a função <code>getCharList</code>,
 que foi gerada para nós porque usamos sintaxe de registro em nosso
 <em>newtype</em>, tem esse tipo:</p>
-<p><code>{.haskell:hs} getCharList :: CharList -&gt; [Char]</code></p>
+<pre class="haskell:hs"><code>getCharList :: CharList -&gt; [Char]</code></pre>
 <p>Ela pega um valor <code>CharList</code> e o converte para um valor
 <code>[Char]</code>. Você pode pensar nisso como embrulhar e
 desembrulhar, mas também pode pensar nisso como converter valores de um
 tipo para o outro.</p>
-<h3>Usando newtype para fazer instâncias de typeclass</h3>
+<h3 id="usando-newtype-para-fazer-instâncias-de-typeclass">Usando
+newtype para fazer instâncias de typeclass</h3>
 <p>Muitas vezes, queremos tornar nossos tipos instâncias de certas
 typeclasses, mas os parâmetros de tipo simplesmente não coincidem para o
 que queremos fazer. É fácil fazer de <code>Maybe</code> uma instância de
 <code>Functor</code>, porque a typeclass <code>Functor</code> é definida
 assim:</p>
-<p><code>{.haskell:hs} class Functor f where     fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>class Functor f where
+    fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>Então apenas começamos com:</p>
-<p><code>{.haskell:hs} instance Functor Maybe where</code></p>
+<pre class="haskell:hs"><code>instance Functor Maybe where</code></pre>
 <p>E então implementamos <code>fmap</code>. Todos os parâmetros de tipo
 batem porque o <code>Maybe</code> toma o lugar de <code>f</code> na
 definição da typeclass <code>Functor</code> e assim se olharmos para
 <code>fmap</code> como se ele funcionasse apenas em <code>Maybe</code>,
 ele acaba se comportando como:</p>
-<p><code>{.haskell:hs} fmap :: (a -&gt; b) -&gt; Maybe a -&gt; Maybe b</code></p>
+<pre class="haskell:hs"><code>fmap :: (a -&gt; b) -&gt; Maybe a -&gt; Maybe b</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/krakatoa.png"
-alt="wow, very evil" />{.right width=322px height=280px}</p>
+class="right" width="322" height="280" alt="wow, very evil" /></p>
 <p>Não é uma beleza? Agora, e se quiséssemos tornar a tupla uma
 instância de <code>Functor</code> de tal maneira que quando fazemos
 <code>fmap</code> de uma função sobre uma tupla, ela é aplicada ao
@@ -1315,10 +1526,11 @@ com <code>(a,b)</code> para que o parâmetro de tipo <code>a</code> acabe
 sendo o que muda quando usamos <code>fmap</code>. Para contornar isso,
 podemos dar <em>newtype</em> em nossa tupla de tal maneira que o segundo
 parâmetro de tipo represente o tipo do primeiro componente na tupla:</p>
-<p><code>{.haskell:hs} newtype Pair b a = Pair { getPair :: (a,b) }</code></p>
+<pre class="haskell:hs"><code>newtype Pair b a = Pair { getPair :: (a,b) }</code></pre>
 <p>E agora, podemos torná-lo uma instância de <code>Functor</code> para
 que a função seja mapeada sobre o primeiro componente:</p>
-<p><code>{.haskell:hs} instance Functor (Pair c) where     fmap f (Pair (x,y)) = Pair (f x, y)</code></p>
+<pre class="haskell:hs"><code>instance Functor (Pair c) where
+    fmap f (Pair (x,y)) = Pair (f x, y)</code></pre>
 <p>Como você pode ver, podemos fazer pattern matching em tipos definidos
 com <em>newtype</em>. Fazemos pattern matching para obter a tupla
 subjacente, então aplicamos a função <code>f</code> ao primeiro
@@ -1327,16 +1539,20 @@ componente na tupla e então usamos o construtor de valor
 <code>Pair b a</code>. Se imaginarmos qual seria o tipo de
 <code>fmap</code> se ele funcionasse apenas em nossos novos pares,
 seria:</p>
-<p><code>{.haskell:hs} fmap :: (a -&gt; b) -&gt; Pair c a -&gt; Pair c b</code></p>
+<pre class="haskell:hs"><code>fmap :: (a -&gt; b) -&gt; Pair c a -&gt; Pair c b</code></pre>
 <p>Novamente, dissemos <code>instance Functor (Pair c) where</code> e
 então <code>Pair c</code> tomou o lugar do <code>f</code> na definição
 da typeclass para <code>Functor</code>:</p>
-<p><code>{.haskell:hs} class Functor f where     fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>class Functor f where
+    fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>Então agora, se convertermos uma tupla em um <code>Pair b a</code>,
 podemos usar <code>fmap</code> sobre ela e a função será mapeada sobre o
 primeiro componente:</p>
-<p><code>{.haskell:hs} ghci&gt; getPair $ fmap (*100) (Pair (2,3)) (200,3) ghci&gt; getPair $ fmap reverse (Pair ("london calling", 3)) ("gnillac nodnol",3)</code></p>
-<h3>Sobre a preguiça do newtype</h3>
+<pre class="haskell:hs"><code>ghci&gt; getPair $ fmap (*100) (Pair (2,3))
+(200,3)
+ghci&gt; getPair $ fmap reverse (Pair (&quot;london calling&quot;, 3))
+(&quot;gnillac nodnol&quot;,3)</code></pre>
+<h3 id="sobre-a-preguiça-do-newtype">Sobre a preguiça do newtype</h3>
 <p>Mencionamos que <em>newtype</em> geralmente é mais rápido que
 <em>data</em>. A única coisa que pode ser feita com <em>newtype</em> é
 transformar um tipo existente em um novo tipo, então, internamente, o
@@ -1353,25 +1569,29 @@ valor <code>undefined</code> (indefinido) em Haskell representa um
 cálculo errôneo. Se tentarmos avaliá-lo (ou seja, forçar o Haskell a
 realmente calculá-lo) imprimindo-o no terminal, o Haskell terá um ataque
 de pelanca (tecnicamente referido como uma exceção):</p>
-<p><code>{.haskell:hs} ghci&gt; undefined *** Exception: Prelude.undefined</code></p>
+<pre class="haskell:hs"><code>ghci&gt; undefined
+*** Exception: Prelude.undefined</code></pre>
 <p>No entanto, se fizermos uma lista que contém alguns valores
 <code>undefined</code>, mas solicitarmos apenas a cabeça da lista, que
 não é <code>undefined</code>, tudo correrá bem porque o Haskell
 realmente não precisa avaliar nenhum outro elemento em uma lista se
 quisermos ver apenas qual é o primeiro elemento:</p>
-<p><code>{.haskell:hs} ghci&gt; head [3,4,5,undefined,2,undefined] 3</code></p>
+<pre class="haskell:hs"><code>ghci&gt; head [3,4,5,undefined,2,undefined]
+3</code></pre>
 <p>Agora considere o seguinte tipo:</p>
-<p><code>{.haskell:hs} data CoolBool = CoolBool { getCoolBool :: Bool }</code></p>
+<pre class="haskell:hs"><code>data CoolBool = CoolBool { getCoolBool :: Bool }</code></pre>
 <p>É o seu tipo de dados algébrico comum que foi definido com a
 palavra-chave <em>data</em>. Ele tem um construtor de valor, que tem um
 campo cujo tipo é <code>Bool</code>. Vamos fazer uma função que faça
 pattern matching em um <code>CoolBool</code> e retorne o valor
 <code>"hello"</code>, independentemente de o <code>Bool</code> dentro do
 <code>CoolBool</code> ser <code>True</code> ou <code>False</code>:</p>
-<p><code>{.haskell:hs} helloMe :: CoolBool -&gt; String helloMe (CoolBool _) = "hello"</code></p>
+<pre class="haskell:hs"><code>helloMe :: CoolBool -&gt; String
+helloMe (CoolBool _) = &quot;hello&quot;</code></pre>
 <p>Em vez de aplicar essa função a um <code>CoolBool</code> normal,
 vamos jogar uma bola curva e aplicá-la a <code>undefined</code>!</p>
-<p><code>{.haskell:hs} ghci&gt; helloMe undefined "*** Exception: Prelude.undefined</code></p>
+<pre class="haskell:hs"><code>ghci&gt; helloMe undefined
+&quot;*** Exception: Prelude.undefined</code></pre>
 <p>Nossa! Uma exceção! Agora, por que essa exceção aconteceu? Tipos
 definidos com a palavra-chave <em>data</em> podem ter vários
 construtores de valor (embora <code>CoolBool</code> tenha apenas um).
@@ -1382,15 +1602,17 @@ foi usado quando fizemos o valor. E quando tentamos avaliar um valor
 <code>undefined</code>, mesmo que um pouco, uma exceção é lançada.</p>
 <p>Em vez de usar a palavra-chave <em>data</em> para
 <code>CoolBool</code>, vamos tentar usar <em>newtype</em>:</p>
-<p><code>{.haskell:hs} newtype CoolBool = CoolBool { getCoolBool :: Bool }</code></p>
+<pre class="haskell:hs"><code>newtype CoolBool = CoolBool { getCoolBool :: Bool }</code></pre>
 <p>Não precisamos alterar nossa função <code>helloMe</code>, porque a
 sintaxe de pattern matching é a mesma se você usa <em>newtype</em> ou
 <em>data</em> para definir seu tipo. Vamos fazer a mesma coisa aqui e
 aplicar <code>helloMe</code> a um valor <code>undefined</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; helloMe undefined "hello"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; helloMe undefined
+&quot;hello&quot;</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/shamrock.png"
-alt="top of the mornin to ya!!!" />{.right width=184 height=230}</p>
+class="right" width="184" height="230"
+alt="top of the mornin to ya!!!" /></p>
 <p>Funcionou! Hmmm, por que isso? Bem, como dissemos, quando usamos
 <em>newtype</em>, o Haskell pode representar internamente os valores do
 novo tipo da mesma maneira que os valores originais. Ele não precisa
@@ -1411,8 +1633,8 @@ valor e campos, eles são na verdade dois mecanismos diferentes. Enquanto
 tipo existente. O pattern matching em valores <em>newtype</em> não é
 como tirar algo de uma caixa (como é com <em>data</em>), é mais sobre
 fazer uma conversão direta de um tipo para outro.</p>
-<h3><code>type</code> vs. <code>newtype</code> vs.
-<code>data</code></h3>
+<h3 id="type-vs.-newtype-vs.-data"><code>type</code>
+vs. <code>newtype</code> vs. <code>data</code></h3>
 <p>Nesse ponto, você pode estar um pouco confuso sobre qual exatamente é
 a diferença entre <em>type</em>, <em>data</em> e <em>newtype</em>, então
 vamos refrescar nossa memória um pouco.</p>
@@ -1420,14 +1642,15 @@ vamos refrescar nossa memória um pouco.</p>
 O que isso significa é que apenas damos outro nome a um tipo já
 existente para que seja mais fácil se referir a ele. Digamos que fizemos
 o seguinte:</p>
-<p><code>{.haskell:hs} type IntList = [Int]</code></p>
+<pre class="haskell:hs"><code>type IntList = [Int]</code></pre>
 <p>Tudo o que isso faz é nos permitir referir ao tipo <code>[Int]</code>
 como <code>IntList</code>. Eles podem ser usados ​​de forma
 intercambiável. Não obtemos um construtor de valor <code>IntList</code>
 ou algo assim. Como <code>[Int]</code> e <code>IntList</code> são apenas
 duas maneiras de se referir ao mesmo tipo, não importa qual nome usamos
 em nossas anotações de tipo:</p>
-<p><code>{.haskell:hs} ghci&gt; ([1,2,3] :: IntList) ++ ([1,2,3] :: [Int]) [1,2,3,1,2,3]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; ([1,2,3] :: IntList) ++ ([1,2,3] :: [Int])
+[1,2,3,1,2,3]</code></pre>
 <p>Usamos sinônimos de tipo quando queremos tornar nossas assinaturas de
 tipo mais descritivas, dando aos tipos nomes que nos dizem algo sobre
 seu objetivo no contexto das funções em que estão sendo usados. Por
@@ -1440,7 +1663,7 @@ existentes e embrulhá-los em novos tipos, principalmente para que seja
 mais fácil torná-los instâncias de certas typeclasses. Quando usamos
 <em>newtype</em> para embrulhar um tipo existente, o tipo que obtemos é
 separado do tipo original. Se fizermos o seguinte <em>newtype</em>:</p>
-<p><code>{.haskell:hs} newtype CharList = CharList { getCharList :: [Char] }</code></p>
+<pre class="haskell:hs"><code>newtype CharList = CharList { getCharList :: [Char] }</code></pre>
 <p>Não podemos usar <code>++</code> para juntar uma
 <code>CharList</code> e uma lista do tipo <code>[Char]</code>. Não
 podemos nem usar <code>++</code> para juntar duas
@@ -1472,11 +1695,11 @@ torná-lo uma instância de uma typeclass, é provável que você esteja
 procurando por um <em>newtype</em>. E se você quer fazer algo
 completamente novo, as chances são boas de que você esteja procurando
 pela palavra-chave <em>data</em>.</p>
-<h2>Monoids {#monoids}</h2>
+<h2 id="monoids">Monoids</h2>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/pirateship.png"
-alt="wow this is pretty much the gayest pirate ship ever" />{.right
-width=460 height=417}</p>
+class="right" width="460" height="417"
+alt="wow this is pretty much the gayest pirate ship ever" /></p>
 <p>Começamos com typeclasses simples como <code>Eq</code>, que é para
 tipos cujos valores podem ser igualados, e <code>Ord</code>, que é para
 coisas que podem ser colocadas em uma ordem e depois passamos para
@@ -1498,7 +1721,14 @@ números, ela pega duas listas e as concatena. E muito parecido com
 <code>*</code>, ela também tem um certo valor que não muda o outro
 quando usado com <code>++</code>. Esse valor é a lista vazia:
 <code>[]</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; 4 * 1 4 ghci&gt; 1 * 9 9 ghci&gt; [1,2,3] ++ [] [1,2,3] ghci&gt; [] ++ [0.5, 2.5] [0.5,2.5]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; 4 * 1
+4
+ghci&gt; 1 * 9
+9
+ghci&gt; [1,2,3] ++ []
+[1,2,3]
+ghci&gt; [] ++ [0.5, 2.5]
+[0.5,2.5]</code></pre>
 <p>Parece que ambos <code>*</code> junto com <code>1</code> e
 <code>++</code> junto com <code>[]</code> compartilham algumas
 propriedades comuns:</p>
@@ -1515,7 +1745,14 @@ resultado, a ordem em que aplicamos a função binária aos valores não
 importa. Não importa se fazemos <code>(3 * 4) * 5</code> ou
 <code>3 * (4 * 5)</code>. De qualquer maneira, o resultado é
 <code>60</code>. O mesmo vale para <code>++</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; (3 * 2) * (8 * 5) 240 ghci&gt; 3 * (2 * (8 * 5)) 240 ghci&gt; "la" ++ ("di" ++ "da") "ladida" ghci&gt; ("la" ++ "di") ++ "da" "ladida"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (3 * 2) * (8 * 5)
+240
+ghci&gt; 3 * (2 * (8 * 5))
+240
+ghci&gt; &quot;la&quot; ++ (&quot;di&quot; ++ &quot;da&quot;)
+&quot;ladida&quot;
+ghci&gt; (&quot;la&quot; ++ &quot;di&quot;) ++ &quot;da&quot;
+&quot;ladida&quot;</code></pre>
 <p>Chamamos essa propriedade de <em>associatividade</em>. <code>*</code>
 é associativo, e <code>++</code> também, mas <code>-</code>, por
 exemplo, não é. As expressões <code>(5 - 3) - 4</code> e
@@ -1530,10 +1767,14 @@ valor. <code>1</code> é a identidade em relação a <code>*</code> e
 muitos outros Monoids para serem encontrados no mundo de Haskell, e é
 por isso que a typeclass <code>Monoid</code> existe. É para tipos que
 podem agir como Monoids. Vamos ver como a typeclass é definida:</p>
-<p><code>{.haskell:hs} class Monoid m where     mempty :: m     mappend :: m -&gt; m -&gt; m     mconcat :: [m] -&gt; m     mconcat = foldr mappend mempty</code></p>
+<pre class="haskell:hs"><code>class Monoid m where
+    mempty :: m
+    mappend :: m -&gt; m -&gt; m
+    mconcat :: [m] -&gt; m
+    mconcat = foldr mappend mempty</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/balloondog.png"
-alt="woof dee do!!!" />{.right width=260 height=326}</p>
+class="right" width="260" height="326" alt="woof dee do!!!" /></p>
 <p>A typeclass <code>Monoid</code> é definida em
 <code>import Data.Monoid</code>. Vamos levar algum tempo e nos
 familiarizar adequadamente com ela.</p>
@@ -1581,10 +1822,10 @@ confiamos em suas instâncias agindo como Monoids. Caso contrário, qual é
 o ponto? É por isso que ao fazer instâncias, temos que ter certeza de
 que elas seguem essas leis:</p>
 <ul>
-<li><code>mempty `mappend` x = x</code>{.label .law}</li>
-<li><code>x `mappend` mempty = x</code>{.label .law}</li>
-<li><code>(x `mappend` y) `mappend` z = x `mappend` (y `mappend` z)</code>{.label
-.law}</li>
+<li><code class="label law">mempty `mappend` x = x</code></li>
+<li><code class="label law">x `mappend` mempty = x</code></li>
+<li><code
+class="label law">(x `mappend` y) `mappend` z = x `mappend` (y `mappend` z)</code></li>
 </ul>
 <p>As duas primeiras afirmam que <code>mempty</code> tem que agir como a
 identidade em relação a <code>mappend</code> e a terceira diz que
@@ -1593,21 +1834,36 @@ que usamos <code>mappend</code> para reduzir vários valores de Monoid em
 um não importa. O Haskell não impõe essas leis, então nós, como
 programadores, temos que ter cuidado para que nossas instâncias de fato
 as obedeçam.</p>
-<h3>Listas são Monoids</h3>
+<h3 id="listas-são-monoids">Listas são Monoids</h3>
 <p>Sim, listas são Monoids! Como vimos, a função <code>++</code> e a
 lista vazia <code>[]</code> formam um Monoid. A instância é muito
 simples:</p>
-<p><code>{.haskell:hs} instance Monoid [a] where     mempty = []     mappend = (++)</code></p>
+<pre class="haskell:hs"><code>instance Monoid [a] where
+    mempty = []
+    mappend = (++)</code></pre>
 <p>Listas são uma instância da typeclass <code>Monoid</code>
 independentemente do tipo dos elementos que elas contêm. Observe que
 escrevemos <code>instance Monoid [a]</code> e não
 <code>instance Monoid []</code>, porque <code>Monoid</code> requer um
 tipo concreto para uma instância.</p>
 <p>Dando a isso um teste, não encontramos surpresas:</p>
-<p><code>{.haskell:hs} ghci&gt; [1,2,3] `mappend` [4,5,6] [1,2,3,4,5,6] ghci&gt; ("one" `mappend` "two") `mappend` "tree" "onetwotree" ghci&gt; "one" `mappend` ("two" `mappend` "tree") "onetwotree" ghci&gt; "one" `mappend` "two" `mappend` "tree" "onetwotree" ghci&gt; "pang" `mappend` mempty "pang" ghci&gt; mconcat [[1,2],[3,6],[9]] [1,2,3,6,9] ghci&gt; mempty :: [a] []</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [1,2,3] `mappend` [4,5,6]
+[1,2,3,4,5,6]
+ghci&gt; (&quot;one&quot; `mappend` &quot;two&quot;) `mappend` &quot;tree&quot;
+&quot;onetwotree&quot;
+ghci&gt; &quot;one&quot; `mappend` (&quot;two&quot; `mappend` &quot;tree&quot;)
+&quot;onetwotree&quot;
+ghci&gt; &quot;one&quot; `mappend` &quot;two&quot; `mappend` &quot;tree&quot;
+&quot;onetwotree&quot;
+ghci&gt; &quot;pang&quot; `mappend` mempty
+&quot;pang&quot;
+ghci&gt; mconcat [[1,2],[3,6],[9]]
+[1,2,3,6,9]
+ghci&gt; mempty :: [a]
+[]</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/smug.png"
-alt="smug as hell" />{.left width=157 height=144}</p>
+class="left" width="157" height="144" alt="smug as hell" /></p>
 <p>Observe que na última linha, tivemos que escrever uma anotação de
 tipo explícita, porque se apenas fizéssemos <code>mempty</code>, o GHCi
 não saberia qual instância usar, então tivemos que dizer que queríamos a
@@ -1629,18 +1885,28 @@ lista vazia age como a identidade, então tudo está bem. Observe que os
 Monoids não exigem que <code>a `mappend` b</code> seja igual a
 <code>b `mappend` a</code>. No caso da lista, eles claramente não
 são:</p>
-<p><code>{.haskell:hs} ghci&gt; "one" `mappend` "two" "onetwo" ghci&gt; "two" `mappend` "one" "twoone"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; &quot;one&quot; `mappend` &quot;two&quot;
+&quot;onetwo&quot;
+ghci&gt; &quot;two&quot; `mappend` &quot;one&quot;
+&quot;twoone&quot;</code></pre>
 <p>E tudo bem. O fato de que para multiplicação <code>3 * 5</code> e
 <code>5 * 3</code> são os mesmos é apenas uma propriedade da
 multiplicação, mas não se mantém para todos (e de fato, a maioria) os
 Monoids.</p>
-<h3><code>Product</code> e <code>Sum</code></h3>
+<h3 id="product-e-sum"><code>Product</code> e <code>Sum</code></h3>
 <p>Já examinamos uma maneira de os números serem considerados Monoids.
 Basta ter a função binária sendo <code>*</code> e o valor de identidade
 <code>1</code>. Acontece que essa não é a única maneira de os números
 serem Monoids. Outra maneira é ter a função binária sendo <code>+</code>
 e o valor de identidade <code>0</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; 0 + 4 4 ghci&gt; 5 + 0 5 ghci&gt; (1 + 3) + 5 9 ghci&gt; 1 + (3 + 5) 9</code></p>
+<pre class="haskell:hs"><code>ghci&gt; 0 + 4
+4
+ghci&gt; 5 + 0
+5
+ghci&gt; (1 + 3) + 5
+9
+ghci&gt; 1 + (3 + 5)
+9</code></pre>
 <p>As leis dos Monoids se mantêm, porque se você adicionar 0 a qualquer
 número, o resultado é esse número. E a adição também é associativa,
 então não temos problemas lá. Então, agora que existem duas maneiras
@@ -1653,11 +1919,14 @@ também.</p>
 <p>O módulo <code>Data.Monoid</code> exporta dois tipos para isso, a
 saber <code>Product</code> e <code>Sum</code>. <code>Product</code> é
 definido assim:</p>
-<p><code>{.haskell:hs} newtype Product a =  Product { getProduct :: a }     deriving (Eq, Ord, Read, Show, Bounded)</code></p>
+<pre class="haskell:hs"><code>newtype Product a =  Product { getProduct :: a }
+    deriving (Eq, Ord, Read, Show, Bounded)</code></pre>
 <p>Simples, apenas um embrulho <em>newtype</em> com um parâmetro de tipo
 juntamente com algumas instâncias derivadas. Sua instância para
 <code>Monoid</code> vai mais ou menos assim:</p>
-<p><code>{.haskell:hs} instance Num a =&gt; Monoid (Product a) where     mempty = Product 1     Product x `mappend` Product y = Product (x * y)</code></p>
+<pre class="haskell:hs"><code>instance Num a =&gt; Monoid (Product a) where
+    mempty = Product 1
+    Product x `mappend` Product y = Product (x * y)</code></pre>
 <p><code>mempty</code> é apenas <code>1</code> embrulhado em um
 construtor <code>Product</code>. <code>mappend</code> faz pattern
 matching no construtor <code>Product</code>, multiplica os dois números
@@ -1667,7 +1936,14 @@ uma restrição de classe <code>Num a</code>. Então isso significa que
 os <code>a</code>s que já são uma instância de <code>Num</code>. Para
 usar <code>Product a</code> como um monóide, temos que fazer algum
 embrulho e desembrulho de <em>newtype</em>:</p>
-<p><code>{.haskell:hs} ghci&gt; getProduct $ Product 3 `mappend` Product 9 27 ghci&gt; getProduct $ Product 3 `mappend` mempty 3 ghci&gt; getProduct $ Product 3 `mappend` Product 4 `mappend` Product 2 24 ghci&gt; getProduct . mconcat . map Product $ [3,4,2] 24</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getProduct $ Product 3 `mappend` Product 9
+27
+ghci&gt; getProduct $ Product 3 `mappend` mempty
+3
+ghci&gt; getProduct $ Product 3 `mappend` Product 4 `mappend` Product 2
+24
+ghci&gt; getProduct . mconcat . map Product $ [3,4,2]
+24</code></pre>
 <p>Isso é legal como uma vitrine da typeclass <code>Monoid</code>, mas
 ninguém em sã consciência usaria essa maneira de multiplicar números em
 vez de apenas escrever <code>3 * 9</code> e <code>3 * 1</code>. Mas um
@@ -1675,8 +1951,13 @@ pouco mais tarde, veremos como essas instâncias de <code>Monoid</code>
 que podem parecer triviais agora podem ser úteis.</p>
 <p><code>Sum</code> é definido como <code>Product</code> e a instância é
 semelhante também. Nós o usamos da mesma maneira:</p>
-<p><code>{.haskell:hs} ghci&gt; getSum $ Sum 2 `mappend` Sum 9 11 ghci&gt; getSum $ mempty `mappend` Sum 3 3 ghci&gt; getSum . mconcat . map Sum $ [1,2,3] 6</code></p>
-<h3><code>Any</code> e <code>All</code></h3>
+<pre class="haskell:hs"><code>ghci&gt; getSum $ Sum 2 `mappend` Sum 9
+11
+ghci&gt; getSum $ mempty `mappend` Sum 3
+3
+ghci&gt; getSum . mconcat . map Sum $ [1,2,3]
+6</code></pre>
+<h3 id="any-e-all"><code>Any</code> e <code>All</code></h3>
 <p>Outro tipo que pode agir como um Monoid de duas maneiras distintas,
 mas igualmente válidas, é <code>Bool</code>. A primeira maneira é fazer
 a função <em>ou</em> <code>||</code> agir como a função binária
@@ -1689,16 +1970,26 @@ contrário, retorna <code>False</code>. Então, se usarmos
 <code>True</code> quando fizermos <em>ou</em> com <code>True</code>. O
 construtor <em>newtype</em> <code>Any</code> é uma instância de
 <code>Monoid</code> dessa maneira. É definido assim:</p>
-<p><code>{.haskell:hs} newtype Any = Any { getAny :: Bool }     deriving (Eq, Ord, Read, Show, Bounded)</code></p>
+<pre class="haskell:hs"><code>newtype Any = Any { getAny :: Bool }
+    deriving (Eq, Ord, Read, Show, Bounded)</code></pre>
 <p>Sua instância parece ser assim:</p>
-<p><code>{.haskell:hs} instance Monoid Any where         mempty = Any False         Any x `mappend` Any y = Any (x || y)</code></p>
+<pre class="haskell:hs"><code>instance Monoid Any where
+        mempty = Any False
+        Any x `mappend` Any y = Any (x || y)</code></pre>
 <p>A razão pela qual é chamado <code>Any</code> é porque
 <code>x `mappend` y</code> será <code>True</code> se <em>qualquer</em>
 um desses dois for <code>True</code>. Mesmo que três ou mais
 <code>Bool</code>s embrulhados em <code>Any</code> sejam
 <code>mappend</code> juntos, o resultado será <code>True</code> se
 qualquer um deles for <code>True</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; getAny $ Any True `mappend` Any False True ghci&gt; getAny $ mempty `mappend` Any True True ghci&gt; getAny . mconcat . map Any $ [False, False, False, True] True ghci&gt; getAny $ mempty `mappend` mempty False</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getAny $ Any True `mappend` Any False
+True
+ghci&gt; getAny $ mempty `mappend` Any True
+True
+ghci&gt; getAny . mconcat . map Any $ [False, False, False, True]
+True
+ghci&gt; getAny $ mempty `mappend` mempty
+False</code></pre>
 <p>A outra maneira de <code>Bool</code> ser uma instância de
 <code>Monoid</code> é fazer meio que o oposto: ter
 <code>&amp;&amp;</code> sendo a função binária e então fazer
@@ -1706,14 +1997,24 @@ qualquer um deles for <code>True</code>:</p>
 <code>True</code> apenas se ambos os seus parâmetros forem
 <code>True</code>. Esta é a declaração <em>newtype</em>, nada
 chique:</p>
-<p><code>{.haskell:hs} newtype All = All { getAll :: Bool }         deriving (Eq, Ord, Read, Show, Bounded)</code></p>
+<pre class="haskell:hs"><code>newtype All = All { getAll :: Bool }
+        deriving (Eq, Ord, Read, Show, Bounded)</code></pre>
 <p>E esta é a instância:</p>
-<p><code>{.haskell:hs} instance Monoid All where         mempty = All True         All x `mappend` All y = All (x &amp;&amp; y)</code></p>
+<pre class="haskell:hs"><code>instance Monoid All where
+        mempty = All True
+        All x `mappend` All y = All (x &amp;&amp; y)</code></pre>
 <p>Quando fazemos <code>mappend</code> em valores do tipo
 <code>All</code>, o resultado será <code>True</code> apenas se
 <em>todos</em> os valores usados nas operações <code>mappend</code>
 forem <code>True</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; getAll $ mempty `mappend` All True True ghci&gt; getAll $ mempty `mappend` All False False ghci&gt; getAll . mconcat . map All $ [True, True, True] True ghci&gt; getAll . mconcat . map All $ [True, True, False] False</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getAll $ mempty `mappend` All True
+True
+ghci&gt; getAll $ mempty `mappend` All False
+False
+ghci&gt; getAll . mconcat . map All $ [True, True, True]
+True
+ghci&gt; getAll . mconcat . map All $ [True, True, False]
+False</code></pre>
 <p>Assim como com multiplicação e adição, geralmente indicamos
 explicitamente as funções binárias em vez de embrulhá-las em
 <em>newtype</em>s e depois usar <code>mappend</code> e
@@ -1723,13 +2024,18 @@ funções <code>or</code> e <code>and</code>, que pegam listas de
 <code>Bool</code>s e retornam <code>True</code> se qualquer um deles for
 <code>True</code> ou se todos eles forem <code>True</code>,
 respectivamente.</p>
-<h3>The Ordering Monoid</h3>
+<h3 id="the-ordering-monoid">The Ordering Monoid</h3>
 <p>Ei, lembra do tipo <code>Ordering</code>? Ele é usado como o
 resultado ao comparar coisas e pode ter três valores: <code>LT</code>,
 <code>EQ</code> e <code>GT</code>, que significam <em>less than</em>
 (menor que), <em>equal</em> (igual) e <em>greater than</em> (maior que),
 respectivamente:</p>
-<p><code>{.haskell:hs} ghci&gt; 1 `compare` 2 LT ghci&gt; 2 `compare` 2 EQ ghci&gt; 3 `compare` 2 GT</code></p>
+<pre class="haskell:hs"><code>ghci&gt; 1 `compare` 2
+LT
+ghci&gt; 2 `compare` 2
+EQ
+ghci&gt; 3 `compare` 2
+GT</code></pre>
 <p>Com listas, números e valores booleanos, encontrar Monoids foi apenas
 uma questão de olhar para funções comumente usadas já existentes e ver
 se elas exibem algum tipo de comportamento de Monoid. Com
@@ -1737,11 +2043,15 @@ se elas exibem algum tipo de comportamento de Monoid. Com
 Monoid, mas acontece que sua instância <code>Monoid</code> é tão
 intuitiva quanto as que encontramos até agora e também bastante
 útil:</p>
-<p><code>{.haskell:hs} instance Monoid Ordering where     mempty = EQ     LT `mappend` _ = LT     EQ `mappend` y = y     GT `mappend` _ = GT</code></p>
+<pre class="haskell:hs"><code>instance Monoid Ordering where
+    mempty = EQ
+    LT `mappend` _ = LT
+    EQ `mappend` y = y
+    GT `mappend` _ = GT</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/bear.png"
-alt="did anyone ORDER pizza?!?! I can&#39;t BEAR these puns!" />{.right
-width=330 height=339}</p>
+class="right" width="330" height="339"
+alt="did anyone ORDER pizza?!?! I can’t BEAR these puns!" /></p>
 <p>A instância é configurada assim: quando fazemos <code>mappend</code>
 em dois valores <code>Ordering</code>, o da esquerda é mantido, a menos
 que o valor da esquerda seja <code>EQ</code>, caso em que o da direita é
@@ -1767,14 +2077,24 @@ que <code>"oin"</code>.</p>
 que seja <code>EQ</code>, <code>LT `mappend` GT</code> resultará em
 <code>LT</code>, enquanto <code>GT `mappend` LT</code> resultará em
 <code>GT</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; LT `mappend` GT LT ghci&gt; GT `mappend` LT GT ghci&gt; mempty `mappend` LT LT ghci&gt; mempty `mappend` GT GT</code></p>
+<pre class="haskell:hs"><code>ghci&gt; LT `mappend` GT
+LT
+ghci&gt; GT `mappend` LT
+GT
+ghci&gt; mempty `mappend` LT
+LT
+ghci&gt; mempty `mappend` GT
+GT</code></pre>
 <p>OK, então como esse monóide é útil? Digamos que você estivesse
 escrevendo uma função que pega duas strings, compara seus comprimentos e
 retorna um <code>Ordering</code>. Mas se as strings forem do mesmo
 comprimento, então em vez de retornar <code>EQ</code> imediatamente,
 queremos compará-las alfabeticamente. Uma maneira de escrever isso seria
 assim:</p>
-<p><code>{.haskell:hs} lengthCompare :: String -&gt; String -&gt; Ordering lengthCompare x y = let a = length x `compare` length y                         b = x `compare` y                     in  if a == EQ then b else a</code></p>
+<pre class="haskell:hs"><code>lengthCompare :: String -&gt; String -&gt; Ordering
+lengthCompare x y = let a = length x `compare` length y
+                        b = x `compare` y
+                    in  if a == EQ then b else a</code></pre>
 <p>Nomeamos o resultado da comparação dos comprimentos de <code>a</code>
 e o resultado da comparação alfabética de <code>b</code> e então se
 acontecer de os comprimentos serem iguais, retornamos sua ordem
@@ -1782,12 +2102,16 @@ alfabética.</p>
 <p>Mas ao empregar nosso entendimento de como <code>Ordering</code> é um
 Monoid, podemos reescrever essa função de uma maneira muito mais
 simples:</p>
-<p>```{.haskell:hs} import Data.Monoid</p>
-<p>lengthCompare :: String -&gt; String -&gt; Ordering lengthCompare x y
-= (length x <code>compare</code> length y) <code>mappend</code> (x
-<code>compare</code> y) ```</p>
+<pre class="haskell:hs"><code>import Data.Monoid
+
+lengthCompare :: String -&gt; String -&gt; Ordering
+lengthCompare x y = (length x `compare` length y) `mappend`
+                    (x `compare` y)</code></pre>
 <p>Podemos experimentar isso:</p>
-<p><code>{.haskell:hs} ghci&gt; lengthCompare "zen" "ants" LT ghci&gt; lengthCompare "zen" "ant" GT</code></p>
+<pre class="haskell:hs"><code>ghci&gt; lengthCompare &quot;zen&quot; &quot;ants&quot;
+LT
+ghci&gt; lengthCompare &quot;zen&quot; &quot;ant&quot;
+GT</code></pre>
 <p>Lembre-se, quando usamos <code>mappend</code>, seu parâmetro esquerdo
 é sempre mantido a menos que seja <code>EQ</code>, caso em que o direito
 é mantido. É por isso que colocamos a comparação que consideramos ser o
@@ -1795,17 +2119,23 @@ primeiro, mais importante critério como o primeiro parâmetro. Se
 quiséssemos expandir essa função para também comparar pelo número de
 vogais e definir isso como o segundo critério mais importante para
 comparação, apenas a modificaríamos assim:</p>
-<p>```{.haskell:hs} import Data.Monoid</p>
-<p>lengthCompare :: String -&gt; String -&gt; Ordering lengthCompare x y
-= (length x <code>compare</code> length y) <code>mappend</code> (vowels
-x <code>compare</code> vowels y) <code>mappend</code> (x
-<code>compare</code> y) where vowels = length . filter
-(<code>elem</code> "aeiou") ```</p>
+<pre class="haskell:hs"><code>import Data.Monoid
+
+lengthCompare :: String -&gt; String -&gt; Ordering
+lengthCompare x y = (length x `compare` length y) `mappend`
+                    (vowels x `compare` vowels y) `mappend`
+                    (x `compare` y)
+    where vowels = length . filter (`elem` &quot;aeiou&quot;)</code></pre>
 <p>Fizemos uma função auxiliar, que pega uma string e nos diz quantas
 vogais ela tem, primeiro filtrando-a apenas para letras que estão na
 string <code>"aeiou"</code> e depois aplicando <code>length</code> a
 isso.</p>
-<p><code>{.haskell:hs} ghci&gt; lengthCompare "zen" "anna" LT ghci&gt; lengthCompare "zen" "ana" LT ghci&gt; lengthCompare "zen" "ann" GT</code></p>
+<pre class="haskell:hs"><code>ghci&gt; lengthCompare &quot;zen&quot; &quot;anna&quot;
+LT
+ghci&gt; lengthCompare &quot;zen&quot; &quot;ana&quot;
+LT
+ghci&gt; lengthCompare &quot;zen&quot; &quot;ann&quot;
+GT</code></pre>
 <p>Muito legal. Aqui, vemos como no primeiro exemplo os comprimentos são
 considerados diferentes e então <code>LT</code> é retornado, porque o
 comprimento de <code>"zen"</code> é menor que o comprimento de
@@ -1814,7 +2144,7 @@ mas a segunda string tem mais vogais, então <code>LT</code> é retornado
 novamente. No terceiro exemplo, ambas têm o mesmo comprimento e o mesmo
 número de vogais, então são comparadas alfabeticamente e
 <code>"zen"</code> ganha.</p>
-<h3>The Maybe Monoid</h3>
+<h3 id="the-maybe-monoid">The Maybe Monoid</h3>
 <p>Vamos dar uma olhada nas várias maneiras que <code>Maybe a</code>
 pode ser feito uma instância de <code>Monoid</code> e para que essas
 instâncias são úteis.</p>
@@ -1826,7 +2156,11 @@ implementar <code>mappend</code> de tal maneira que use a operação
 então se um dos dois valores que estamos fazendo <code>mappend</code>
 for <code>Nothing</code>, mantemos o outro valor. Aqui está a declaração
 da instância:</p>
-<p><code>{.haskell:hs} instance Monoid a =&gt; Monoid (Maybe a) where     mempty = Nothing     Nothing `mappend` m = m     m `mappend` Nothing = m     Just m1 `mappend` Just m2 = Just (m1 `mappend` m2)</code></p>
+<pre class="haskell:hs"><code>instance Monoid a =&gt; Monoid (Maybe a) where
+    mempty = Nothing
+    Nothing `mappend` m = m
+    m `mappend` Nothing = m
+    Just m1 `mappend` Just m2 = Just (m1 `mappend` m2)</code></pre>
 <p>Observe a restrição de classe. Ela diz que <code>Maybe a</code> é uma
 instância de <code>Monoid</code> apenas se <code>a</code> for uma
 instância de <code>Monoid</code>. Se fizermos <code>mappend</code> de
@@ -1836,7 +2170,12 @@ algo com um <code>Nothing</code>, o resultado é esse algo. Se fizermos
 em um <code>Just</code>. Podemos fazer isso porque a restrição de classe
 garante que o tipo do que está dentro do <code>Just</code> é uma
 instância de <code>Monoid</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; Nothing `mappend` Just "andy" Just "andy" ghci&gt; Just LT `mappend` Nothing Just LT ghci&gt; Just (Sum 3) `mappend` Just (Sum 4) Just (Sum {getSum = 7})</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Nothing `mappend` Just &quot;andy&quot;
+Just &quot;andy&quot;
+ghci&gt; Just LT `mappend` Nothing
+Just LT
+ghci&gt; Just (Sum 3) `mappend` Just (Sum 4)
+Just (Sum {getSum = 7})</code></pre>
 <p>Isso é útil quando você está lidando com Monoids como resultados de
 cálculos que podem ter falhado. Por causa dessa instância, não temos que
 verificar se os cálculos falharam vendo se são um valor
@@ -1851,10 +2190,14 @@ podemos usar <code>mappend</code> entre eles, então o que devemos fazer?
 Bem, uma coisa que podemos fazer é apenas descartar o segundo valor e
 manter o primeiro. Para isso, o tipo <code>First a</code> existe e esta
 é a sua definição:</p>
-<p><code>{.haskell:hs} newtype First a = First { getFirst :: Maybe a }     deriving (Eq, Ord, Read, Show)</code></p>
+<pre class="haskell:hs"><code>newtype First a = First { getFirst :: Maybe a }
+    deriving (Eq, Ord, Read, Show)</code></pre>
 <p>Pegamos um <code>Maybe a</code> e o embrulhamos com um
 <em>newtype</em>. A instância <code>Monoid</code> é a seguinte:</p>
-<p><code>{.haskell:hs} instance Monoid (First a) where     mempty = First Nothing     First (Just x) `mappend` _ = First (Just x)     First Nothing `mappend` x = x</code></p>
+<pre class="haskell:hs"><code>instance Monoid (First a) where
+    mempty = First Nothing
+    First (Just x) `mappend` _ = First (Just x)
+    First Nothing `mappend` x = x</code></pre>
 <p>Assim como dissemos. <code>mempty</code> é apenas um
 <code>Nothing</code> embrulhado com o construtor <em>newtype</em>
 <code>First</code>. Se o primeiro parâmetro de <code>mappend</code> for
@@ -1862,11 +2205,17 @@ um valor <code>Just</code>, ignoramos o segundo. Se o primeiro for um
 <code>Nothing</code>, então apresentamos o segundo parâmetro como
 resultado, independentemente de ser um <code>Just</code> ou um
 <code>Nothing</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; getFirst $ First (Just 'a') `mappend` First (Just 'b') Just 'a' ghci&gt; getFirst $ First Nothing `mappend` First (Just 'b') Just 'b' ghci&gt; getFirst $ First (Just 'a') `mappend` First Nothing Just 'a'</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getFirst $ First (Just &#39;a&#39;) `mappend` First (Just &#39;b&#39;)
+Just &#39;a&#39;
+ghci&gt; getFirst $ First Nothing `mappend` First (Just &#39;b&#39;)
+Just &#39;b&#39;
+ghci&gt; getFirst $ First (Just &#39;a&#39;) `mappend` First Nothing
+Just &#39;a&#39;</code></pre>
 <p><code>First</code> é útil quando temos um monte de valores
 <code>Maybe</code> e queremos apenas saber se algum deles é um
 <code>Just</code>. A função <code>mconcat</code> vem a calhar:</p>
-<p><code>{.haskell:hs} ghci&gt; getFirst . mconcat . map First $ [Nothing, Just 9, Just 10] Just 9</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getFirst . mconcat . map First $ [Nothing, Just 9, Just 10]
+Just 9</code></pre>
 <p>Se quisermos um Monoid sobre <code>Maybe a</code> de tal forma que o
 segundo parâmetro seja mantido se ambos os parâmetros de
 <code>mappend</code> forem valores <code>Just</code>,
@@ -1874,8 +2223,12 @@ segundo parâmetro seja mantido se ambos os parâmetros de
 funciona como <code>First a</code>, só que o último valor
 não-<code>Nothing</code> é mantido ao fazer <code>mappend</code> e usar
 <code>mconcat</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; getLast . mconcat . map Last $ [Nothing, Just 9, Just 10] Just 10 ghci&gt; getLast $ Last (Just "one") `mappend` Last (Just "two") Just "two"</code></p>
-<h3>Usando Monoids para dobrar estruturas de dados</h3>
+<pre class="haskell:hs"><code>ghci&gt; getLast . mconcat . map Last $ [Nothing, Just 9, Just 10]
+Just 10
+ghci&gt; getLast $ Last (Just &quot;one&quot;) `mappend` Last (Just &quot;two&quot;)
+Just &quot;two&quot;</code></pre>
+<h3 id="usando-monoids-para-dobrar-estruturas-de-dados">Usando Monoids
+para dobrar estruturas de dados</h3>
 <p>Uma das maneiras mais interessantes de colocar Monoids para trabalhar
 é fazê-los nos ajudar a definir dobras (folds) sobre várias estruturas
 de dados. Até agora, fizemos apenas dobras sobre listas, mas listas não
@@ -1883,13 +2236,13 @@ são a única estrutura de dados que pode ser dobrada. Podemos definir
 dobras sobre quase qualquer estrutura de dados. Árvores especialmente se
 prestam bem a dobras.</p>
 <p>Como existem tantas estruturas de dados que funcionam bem com dobras,
-a typeclass <code>Foldable</code>{.label .class} foi introduzida. Muito
-parecido com <code>Functor</code> é para coisas que podem ser mapeadas,
-<code>Foldable</code> é para coisas que podem ser dobradas! Ela pode ser
-encontrada em <code>Data.Foldable</code> e porque exporta funções cujos
-nomes entram em conflito com os do <code>Prelude</code>, é melhor
-importada qualificada (e servida com manjericão):</p>
-<p><code>{.haskell:hs} import qualified Foldable as F</code></p>
+a typeclass <code class="label class">Foldable</code> foi introduzida.
+Muito parecido com <code>Functor</code> é para coisas que podem ser
+mapeadas, <code>Foldable</code> é para coisas que podem ser dobradas!
+Ela pode ser encontrada em <code>Data.Foldable</code> e porque exporta
+funções cujos nomes entram em conflito com os do <code>Prelude</code>, é
+melhor importada qualificada (e servida com manjericão):</p>
+<pre class="haskell:hs"><code>import qualified Foldable as F</code></pre>
 <p>Para economizar preciosos toques de tecla, escolhemos importá-la
 qualificada como <code>F</code>. Certo, então quais são algumas das
 funções que essa typeclass define? Bem, entre elas estão
@@ -1898,15 +2251,24 @@ funções que essa typeclass define? Bem, entre elas estão
 tão novo nisso? Vamos comparar os tipos de <code>foldr</code> de
 <code>Foldable</code> e o <code>foldr</code> do <code>Prelude</code>
 para ver como eles diferem:</p>
-<p><code>{.haskell:hs} ghci&gt; :t foldr foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; [a] -&gt; b ghci&gt; :t F.foldr F.foldr :: (F.Foldable t) =&gt; (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t foldr
+foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; [a] -&gt; b
+ghci&gt; :t F.foldr
+F.foldr :: (F.Foldable t) =&gt; (a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b</code></pre>
 <p>Ah! Então, enquanto <code>foldr</code> pega uma lista e a dobra, o
 <code>foldr</code> de <code>Data.Foldable</code> aceita qualquer tipo
 que possa ser dobrado, não apenas listas! Como esperado, ambas as
 funções <code>foldr</code> fazem o mesmo para listas:</p>
-<p><code>{.haskell:hs} ghci&gt; foldr (*) 1 [1,2,3] 6 ghci&gt; F.foldr (*) 1 [1,2,3] 6</code></p>
+<pre class="haskell:hs"><code>ghci&gt; foldr (*) 1 [1,2,3]
+6
+ghci&gt; F.foldr (*) 1 [1,2,3]
+6</code></pre>
 <p>Ok então, quais são algumas outras estruturas de dados que suportam
 dobras? Bem, tem o <code>Maybe</code> que todos conhecemos e amamos!</p>
-<p><code>{.haskell:hs} ghci&gt; F.foldl (+) 2 (Just 9) 11 ghci&gt; F.foldr (||) False (Just True) True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; F.foldl (+) 2 (Just 9)
+11
+ghci&gt; F.foldr (||) False (Just True)
+True</code></pre>
 <p>Mas dobrar sobre um valor <code>Maybe</code> não é terrivelmente
 interessante, porque quando se trata de dobrar, ele apenas age como uma
 lista com um elemento se for um valor <code>Just</code> e como uma lista
@@ -1915,7 +2277,7 @@ de dados um pouco mais complexa então.</p>
 <p>Lembre-se da estrutura de dados de árvore do capítulo <a
 href="making-our-own-types-and-typeclasses.html#recursive-data-structures">Making
 Our Own Types and Typeclasses</a>? Nós a definimos assim:</p>
-<p><code>{.haskell:hs} data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)</code></p>
+<pre class="haskell:hs"><code>data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)</code></pre>
 <p>Dissemos que uma árvore é ou uma árvore vazia que não contém nenhum
 valor ou é um nó que contém um valor e também duas outras árvores.
 Depois de defini-la, nós a tornamos uma instância de
@@ -1928,7 +2290,7 @@ maneira de tornar um construtor de tipo uma instância de
 fácil, é implementar a função <code>foldMap</code>, que também faz parte
 da typeclass <code>Foldable</code>. A função <code>foldMap</code> tem o
 seguinte tipo:</p>
-<p><code>{.haskell:hs} foldMap :: (Monoid m, Foldable t) =&gt; (a -&gt; m) -&gt; t a -&gt; m</code></p>
+<pre class="haskell:hs"><code>foldMap :: (Monoid m, Foldable t) =&gt; (a -&gt; m) -&gt; t a -&gt; m</code></pre>
 <p>Seu primeiro parâmetro é uma função que pega um valor do tipo que
 nossa estrutura dobrável contém (denotado aqui com <code>a</code>) e
 retorna um valor de Monoid. Seu segundo parâmetro é uma estrutura
@@ -1944,11 +2306,15 @@ implementarmos <code>foldMap</code> para algum tipo, obtemos
 <code>foldr</code> e <code>foldl</code> nesse tipo de graça!</p>
 <p>É assim que fazemos <code>Tree</code> uma instância de
 <code>Foldable</code>:</p>
-<p><code>{.haskell:hs} instance F.Foldable Tree where     foldMap f Empty = mempty     foldMap f (Node x l r) = F.foldMap f l `mappend`                              f x           `mappend`                              F.foldMap f r</code></p>
+<pre class="haskell:hs"><code>instance F.Foldable Tree where
+    foldMap f Empty = mempty
+    foldMap f (Node x l r) = F.foldMap f l `mappend`
+                             f x           `mappend`
+                             F.foldMap f r</code></pre>
 <p><img
 src="assets/images/functors-applicative-functors-and-monoids/accordion.png"
-alt="find the visual pun or whatever" />{.right width=366
-height=280}</p>
+class="right" width="366" height="280"
+alt="find the visual pun or whatever" /></p>
 <p>Pensamos assim: se nos for fornecida uma função que pega um elemento
 de nossa árvore e retorna um valor de Monoid, como reduzimos nossa
 árvore inteira a um único valor de Monoid? Quando estávamos fazendo
@@ -1957,10 +2323,10 @@ mapeando a um nó e então mapeávamos recursivamente a função sobre a
 subárvore esquerda, bem como a direita. Aqui, somos encarregados de não
 apenas mapear uma função, mas também de unir os resultados em um único
 valor de Monoid usando <code>mappend</code>. Primeiro consideramos o
-caso da árvore vazia --- uma árvore triste e solitária que não tem
-valores ou subárvores. Ela não contém nenhum valor que possamos dar à
-nossa função criadora de Monoids, então apenas dizemos que se nossa
-árvore estiver vazia, o valor de Monoid em que ela se torna é
+caso da árvore vazia — uma árvore triste e solitária que não tem valores
+ou subárvores. Ela não contém nenhum valor que possamos dar à nossa
+função criadora de Monoids, então apenas dizemos que se nossa árvore
+estiver vazia, o valor de Monoid em que ela se torna é
 <code>mempty</code>.</p>
 <p>O caso de um nó não vazio é um pouco mais interessante. Ele contém
 duas subárvores, bem como um valor. Neste caso, recursivamente
@@ -1979,26 +2345,39 @@ função e como unir os Monoids resultantes dela.</p>
 <p>Agora que temos uma instância <code>Foldable</code> para nosso tipo
 de árvore, obtemos <code>foldr</code> e <code>foldl</code> de graça!
 Considere esta árvore:</p>
-<p><code>{.haskell:hs} testTree = Node 5             (Node 3                 (Node 1 Empty Empty)                 (Node 6 Empty Empty)             )             (Node 9                 (Node 8 Empty Empty)                 (Node 10 Empty Empty)             )</code></p>
+<pre class="haskell:hs"><code>testTree = Node 5
+            (Node 3
+                (Node 1 Empty Empty)
+                (Node 6 Empty Empty)
+            )
+            (Node 9
+                (Node 8 Empty Empty)
+                (Node 10 Empty Empty)
+            )</code></pre>
 <p>Ela tem <code>5</code> em sua raiz e então seu nó esquerdo tem
 <code>3</code> com <code>1</code> à esquerda e <code>6</code> à direita.
 O nó direito da raiz tem um <code>9</code> e então um <code>8</code> à
 sua esquerda e um <code>10</code> no lado direito distante. Com uma
 instância <code>Foldable</code>, podemos fazer todas as dobras que
 podemos fazer em listas:</p>
-<p><code>{.haskell:hs} ghci&gt; F.foldl (+) 0 testTree 42 ghci&gt; F.foldl (*) 1 testTree 64800</code></p>
+<pre class="haskell:hs"><code>ghci&gt; F.foldl (+) 0 testTree
+42
+ghci&gt; F.foldl (*) 1 testTree
+64800</code></pre>
 <p>E também, <code>foldMap</code> não é útil apenas para fazer novas
 instâncias de <code>Foldable</code>; ele vem a calhar para reduzir nossa
 estrutura a um único valor de Monoid. Por exemplo, se quisermos saber se
 algum número em nossa árvore é igual a <code>3</code>, podemos fazer
 isso:</p>
-<p><code>{.haskell:hs} ghci&gt; getAny $ F.foldMap (\x -&gt; Any $ x == 3) testTree True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getAny $ F.foldMap (\x -&gt; Any $ x == 3) testTree
+True</code></pre>
 <p>Aqui, <code>\x -&gt; Any $ x == 3</code> é uma função que pega um
 número e retorna um valor de Monoid, ou seja, um <code>Bool</code>
 embrulhado em <code>Any</code>. <code>foldMap</code> aplica essa função
 a cada elemento em nossa árvore e então reduz os Monoids resultantes em
 um único Monoid com <code>mappend</code>. Se fizermos isso:</p>
-<p><code>{.haskell:hs} ghci&gt; getAny $ F.foldMap (\x -&gt; Any $ x &gt; 15) testTree False</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getAny $ F.foldMap (\x -&gt; Any $ x &gt; 15) testTree
+False</code></pre>
 <p>Todos os nós em nossa árvore conteriam o valor <code>Any False</code>
 depois de ter a função lambda aplicada a eles. Mas para acabar
 <code>True</code>, <code>mappend</code> para <code>Any</code> tem que
@@ -2011,15 +2390,22 @@ Ao primeiro projetar essa função em nossa árvore, cada elemento se torna
 uma lista singleton. A ação <code>mappend</code> que ocorre entre todos
 esses resultados de lista singleton resulta em uma única lista que
 contém todos os elementos que estão em nossa árvore:</p>
-<p><code>{.haskell:hs} ghci&gt; F.foldMap (\x -&gt; [x]) testTree [1,3,6,5,8,9,10]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; F.foldMap (\x -&gt; [x]) testTree
+[1,3,6,5,8,9,10]</code></pre>
 <p>O que é legal é que todos esses truques não se limitam a árvores,
 eles funcionam em qualquer instância de <code>Foldable</code>.</p>
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="functionally-solving-problems.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="a-fistful-of-monads.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="functionally-solving-problems.html">Anterior (Resolvendo Problemas Funcionalmente)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="a-fistful-of-monads.html" class="nxtlink">Próximo (Por um Punhado de Monads)</a>
+        </li>
     </ul>
 </div>
 

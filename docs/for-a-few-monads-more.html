@@ -9,22 +9,28 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="a-fistful-of-monads.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="zippers.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="a-fistful-of-monads.html">Anterior (Por um Punhado de Monads)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="zippers.html" class="nxtlink">Próximo (Zippers)</a>
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Por Mais Algumas Monads</h1>
+<h1 id="por-mais-algumas-monads">Por Mais Algumas Monads</h1>
 <p><img src="assets/images/for-a-few-monads-more/clint.png"
-alt="existem dois tipos de pessoas no mundo, meu amigo. aquelas que aprendem haskell e aquelas que têm o trabalho de programar em java" />{.right
-width=189 height=400}</p>
+class="right" width="189" height="400"
+alt="existem dois tipos de pessoas no mundo, meu amigo. aquelas que aprendem haskell e aquelas que têm o trabalho de programar em java" /></p>
 <p>Vimos como as Monads podem ser usadas para pegar valores com
 contextos e aplicá-los a funções, e como o uso de <code>&gt;&gt;=</code>
 ou da <code>do notation</code> nos permite focar nos próprios valores
@@ -44,7 +50,7 @@ com a Haskell Platform, então você provavelmente já o tem. Para
 verificar se você o tem, digite <code>ghc-pkg list</code> na linha de
 comando. Isso mostrará quais pacotes Haskell você tem instalados e um
 deles deve ser <code>mtl</code>, seguido por um número de versão.</p>
-<h2>Writer? Quase nem a conheço! {#writer}</h2>
+<h2 id="writer">Writer? Quase nem a conheço!</h2>
 <p>Carregamos nossa arma com a Maybe Monad, a List Monad e a IO Monad.
 Agora vamos colocar a Writer Monad na câmara e ver o que acontece quando
 disparamos!</p>
@@ -60,20 +66,25 @@ expliquem o que está acontecendo, provavelmente para fins de depuração.
 Considere uma função que recebe um número de bandidos em uma gangue e
 nos diz se essa é uma gangue grande ou não. Essa é uma função muito
 simples:</p>
-<p><code>{.haskell:hs} isBigGang :: Int -&gt; Bool isBigGang x = x &gt; 9</code></p>
+<pre class="haskell:hs"><code>isBigGang :: Int -&gt; Bool
+isBigGang x = x &gt; 9</code></pre>
 <p>Agora, e se em vez de apenas nos dar um valor <code>True</code> ou
 <code>False</code>, quisermos que ela também retorne uma string de log
 dizendo o que fez? Bem, nós apenas criamos essa string e a retornamos
 junto com o nosso <code>Bool</code>:</p>
-<p><code>{.haskell:hs} isBigGang :: Int -&gt; (Bool, String) isBigGang x = (x &gt; 9, "Comparei o tamanho da gangue com 9.")</code></p>
+<pre class="haskell:hs"><code>isBigGang :: Int -&gt; (Bool, String)
+isBigGang x = (x &gt; 9, &quot;Comparei o tamanho da gangue com 9.&quot;)</code></pre>
 <p>Então agora, em vez de apenas retornar um <code>Bool</code>,
 retornamos uma tupla onde o primeiro componente da tupla é o valor real
 e o segundo componente é a string que acompanha esse valor. Há algum
 contexto adicionado ao nosso valor agora. Vamos testar isso:</p>
-<p><code>{.haskell:hs} ghci&gt; isBigGang 3 (False,"Comparei o tamanho da gangue com 9.") ghci&gt; isBigGang 30 (True,"Comparei o tamanho da gangue com 9.")</code></p>
-<p><img src="assets/images/for-a-few-monads-more/tuco.png"
-alt="quando tiver que fazer cocô, faça, não fale" />{.left width=196
-height=280}</p>
+<pre class="haskell:hs"><code>ghci&gt; isBigGang 3
+(False,&quot;Comparei o tamanho da gangue com 9.&quot;)
+ghci&gt; isBigGang 30
+(True,&quot;Comparei o tamanho da gangue com 9.&quot;)</code></pre>
+<p><img src="assets/images/for-a-few-monads-more/tuco.png" class="left"
+width="196" height="280"
+alt="quando tiver que fazer cocô, faça, não fale" /></p>
 <p>Até aqui tudo bem. <code>isBigGang</code> recebe um valor normal e
 retorna um valor com um contexto. Como acabamos de ver, alimentá-la com
 um valor normal não é um problema. Agora, e se já tivermos um valor que
@@ -103,7 +114,8 @@ possível, mas sim um contexto de um valor de log adicional,
 <code>applyLog</code> vai garantir que o log do valor original não seja
 perdido, mas sim unido ao log do valor que resulta da função. Aqui está
 a implementação de <code>applyLog</code>:</p>
-<p><code>{.haskell:hs} applyLog :: (a,String) -&gt; (a -&gt; (b,String)) -&gt; (b,String) applyLog (x,log) f = let (y,newLog) = f x in (y,log ++ newLog)</code></p>
+<pre class="haskell:hs"><code>applyLog :: (a,String) -&gt; (a -&gt; (b,String)) -&gt; (b,String)
+applyLog (x,log) f = let (y,newLog) = f x in (y,log ++ newLog)</code></pre>
 <p>Quando temos um valor com um contexto e queremos alimentá-lo para uma
 função, geralmente tentamos separar o valor real do contexto e então
 tentamos aplicar a função ao valor para depois ver se o contexto é
@@ -119,26 +131,34 @@ resultado, o valor do log antigo não seria incluído no resultado, então
 retornamos um par de <code>(y, log ++ newLog)</code>. Usamos
 <code>++</code> para anexar o novo log ao antigo.</p>
 <p>Aqui está o <code>applyLog</code> em ação:</p>
-<p><code>{.haskell:hs} ghci&gt; (3, "Gangue pequena.") `applyLog` isBigGang (False,"Gangue pequena.Comparei o tamanho da gangue com 9.") ghci&gt; (30, "Um pelotão assustador.") `applyLog` isBigGang (True,"Um pelotão assustador.Comparei o tamanho da gangue com 9.")</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (3, &quot;Gangue pequena.&quot;) `applyLog` isBigGang
+(False,&quot;Gangue pequena.Comparei o tamanho da gangue com 9.&quot;)
+ghci&gt; (30, &quot;Um pelotão assustador.&quot;) `applyLog` isBigGang
+(True,&quot;Um pelotão assustador.Comparei o tamanho da gangue com 9.&quot;)</code></pre>
 <p>Os resultados são semelhantes aos de antes, só que agora o número de
 pessoas na gangue tinha seu log acompanhante e ele foi incluído no log
 de resultado. Aqui estão mais alguns exemplos de uso do
 <code>applyLog</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; ("Tobin","Recebeu nome de fora da lei.") `applyLog` (\x -&gt; (length x, "Aplicou length.")) (5,"Recebeu nome de fora da lei.Aplicou length.") ghci&gt; ("Bathcat","Recebeu nome de fora da lei.") `applyLog` (\x -&gt; (length x, "Aplicou length")) (7,"Recebeu nome de fora da lei.Aplicou length")</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (&quot;Tobin&quot;,&quot;Recebeu nome de fora da lei.&quot;) `applyLog` (\x -&gt; (length x, &quot;Aplicou length.&quot;))
+(5,&quot;Recebeu nome de fora da lei.Aplicou length.&quot;)
+ghci&gt; (&quot;Bathcat&quot;,&quot;Recebeu nome de fora da lei.&quot;) `applyLog` (\x -&gt; (length x, &quot;Aplicou length&quot;))
+(7,&quot;Recebeu nome de fora da lei.Aplicou length&quot;)</code></pre>
 <p>Veja como dentro do lambda, <code>x</code> é apenas uma string normal
 e não uma tupla, e como o <code>applyLog</code> cuida de anexar os
 logs.</p>
-<h3>Monoids ao resgate</h3>
-<p>::: {.hintbox} Certifique-se de saber o que são <a
+<h3 id="monoids-ao-resgate">Monoids ao resgate</h3>
+<div class="hintbox">
+<p>Certifique-se de saber o que são <a
 href="functors-applicative-functors-and-monoids.html#monoids">Monoids</a>
-a esta altura! Saudações. :::</p>
+a esta altura! Saudações.</p>
+</div>
 <p>Até agora, <code>applyLog</code> recebe valores do tipo
 <code>(a, String)</code>, mas existe alguma razão para o log ter que ser
 uma <code>String</code>? Ele usa <code>++</code> para anexar os logs,
 então isso não funcionaria para qualquer tipo de lista, e não apenas uma
 lista de caracteres? Com certeza funcionaria. Podemos mudar o seu tipo
 para isto:</p>
-<p><code>{.haskell:hs} applyLog :: (a,[c]) -&gt; (a -&gt; (b,[c])) -&gt; (b,[c])</code></p>
+<pre class="haskell:hs"><code>applyLog :: (a,[c]) -&gt; (a -&gt; (b,[c])) -&gt; (b,[c])</code></pre>
 <p>Agora, o log é uma lista. O tipo de valores contidos na lista tem que
 ser o mesmo para a lista original, bem como para a lista que a função
 retorna, caso contrário não seríamos capazes de usar <code>++</code>
@@ -151,12 +171,16 @@ Como tal, ambos são instâncias da typeclass <code>Monoid</code>, o que
 significa que implementam a função <code>mappend</code>. E tanto para
 listas quanto para bytestrings, <code>mappend</code> serve para
 concatenar. Veja:</p>
-<p><code>{.haskell:hs} ghci&gt; [1,2,3] `mappend` [4,5,6] [1,2,3,4,5,6] ghci&gt; B.pack [99,104,105] `mappend` B.pack [104,117,97,104,117,97] Chunk "chi" (Chunk "huahua" Empty)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [1,2,3] `mappend` [4,5,6]
+[1,2,3,4,5,6]
+ghci&gt; B.pack [99,104,105] `mappend` B.pack [104,117,97,104,117,97]
+Chunk &quot;chi&quot; (Chunk &quot;huahua&quot; Empty)</code></pre>
 <p>Legal! Agora nosso <code>applyLog</code> pode funcionar para qualquer
 monóide. Temos que mudar o tipo para refletir isso, assim como a
 implementação, porque temos que mudar <code>++</code> para
 <code>mappend</code>:</p>
-<p><code>{.haskell:hs} applyLog :: (Monoid m) =&gt; (a,m) -&gt; (a -&gt; (b,m)) -&gt; (b,m) applyLog (x,log) f = let (y,newLog) = f x in (y,log `mappend` newLog)</code></p>
+<pre class="haskell:hs"><code>applyLog :: (Monoid m) =&gt; (a,m) -&gt; (a -&gt; (b,m)) -&gt; (b,m)
+applyLog (x,log) f = let (y,newLog) = f x in (y,log `mappend` newLog)</code></pre>
 <p>Como o valor acompanhante pode agora ser qualquer valor Monoid, não
 precisamos mais pensar na tupla como um valor e um log, mas agora
 podemos pensar nela como um valor com um valor Monoid acompanhante. Por
@@ -165,16 +189,21 @@ item como o valor Monoid. Apenas usamos o <code>newtype</code>
 <code>Sum</code> para garantir que os preços sejam somados à medida que
 operamos com os itens. Aqui está uma função que adiciona bebida a alguma
 comida de cowboy:</p>
-<p>```{.haskell:hs} import Data.Monoid</p>
-<p>type Comida = String type Preco = Sum Int</p>
-<p>addDrink :: Comida -&gt; (Comida,Preco) addDrink "feijao" = ("leite",
-Sum 25) addDrink "carne-seca" = ("uisque", Sum 99) addDrink _ =
-("cerveja", Sum 30) ```</p>
+<pre class="haskell:hs"><code>import Data.Monoid
+
+type Comida = String
+type Preco = Sum Int
+
+addDrink :: Comida -&gt; (Comida,Preco)
+addDrink &quot;feijao&quot; = (&quot;leite&quot;, Sum 25)
+addDrink &quot;carne-seca&quot; = (&quot;uisque&quot;, Sum 99)
+addDrink _ = (&quot;cerveja&quot;, Sum 30)</code></pre>
 <p>Usamos strings para representar as comidas e um <code>Int</code> em
 um wrapper <code>newtype</code> <code>Sum</code> para acompanhar quantos
 centavos algo custa. Apenas um lembrete, fazer <code>mappend</code> com
 <code>Sum</code> resulta na soma dos valores envolvidos:</p>
-<p><code>{.haskell:hs} ghci&gt; Sum 3 `mappend` Sum 9 Sum {getSum = 12}</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Sum 3 `mappend` Sum 9
+Sum {getSum = 12}</code></pre>
 <p>A função <code>addDrink</code> é bem simples. Se estivermos comendo
 feijão, ela retorna <code>"leite"</code> junto com <code>Sum 25</code>,
 ou seja, 25 centavos envolvidos em <code>Sum</code>. Se estivermos
@@ -183,7 +212,12 @@ outra coisa, bebemos cerveja. Simplesmente aplicar esta função a uma
 comida não seria terrivelmente interessante agora, mas usar
 <code>applyLog</code> para alimentar uma comida que vem com um preço
 próprio nesta função é interessante:</p>
-<p><code>{.haskell:hs} ghci&gt; ("feijao", Sum 10) `applyLog` addDrink ("leite",Sum {getSum = 35}) ghci&gt; ("carne-seca", Sum 25) `applyLog` addDrink ("uisque",Sum {getSum = 124}) ghci&gt; ("carne-de-cachorro", Sum 5) `applyLog` addDrink ("cerveja",Sum {getSum = 35})</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (&quot;feijao&quot;, Sum 10) `applyLog` addDrink
+(&quot;leite&quot;,Sum {getSum = 35})
+ghci&gt; (&quot;carne-seca&quot;, Sum 25) `applyLog` addDrink
+(&quot;uisque&quot;,Sum {getSum = 124})
+ghci&gt; (&quot;carne-de-cachorro&quot;, Sum 5) `applyLog` addDrink
+(&quot;cerveja&quot;,Sum {getSum = 35})</code></pre>
 <p>O leite custa 25 centavos, mas se o tomarmos com feijão que custa 10
 centavos, acabaremos pagando 35 centavos. Agora está claro como o valor
 anexado nem sempre tem que ser um log, pode ser qualquer valor Monoid e
@@ -195,13 +229,14 @@ estão sendo somados.</p>
 <code>addDrink</code> novamente, para que ele nos diga o que devemos
 beber junto com nossa bebida e quanto isso nos custará. Vamos
 tentar:</p>
-<p><code>{.haskell:hs} ghci&gt; ("carne-de-cachorro", Sum 5) `applyLog` addDrink `applyLog` addDrink ("cerveja",Sum {getSum = 65})</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (&quot;carne-de-cachorro&quot;, Sum 5) `applyLog` addDrink `applyLog` addDrink
+(&quot;cerveja&quot;,Sum {getSum = 65})</code></pre>
 <p>Adicionar uma bebida a alguma carne de cachorro resulta em uma
 cerveja e 30 centavos adicionais, então
 <code>("cerveja", Sum 35)</code>. E se usarmos <code>applyLog</code>
 para alimentar isso para <code>addDrink</code>, pegamos outra cerveja e
 o resultado é <code>("cerveja", Sum 65)</code>.</p>
-<h3>O tipo Writer</h3>
+<h3 id="o-tipo-writer">O tipo Writer</h3>
 <p>Agora que vimos que um valor com um Monoid anexado age como um
 monadic value, vamos examinar a Monad instance para tipos de tais
 valores. O módulo <code>Control.Monad.Writer</code> exporta o tipo
@@ -211,17 +246,19 @@ valores. O módulo <code>Control.Monad.Writer</code> exporta o tipo
 valor, basta colocá-los juntos em uma tupla. O tipo
 <code>Writer w a</code> é apenas um wrapper <code>newtype</code> para
 isso. Sua definição é muito simples:</p>
-<p><code>{.haskell:hs} newtype Writer w a = Writer { runWriter :: (a, w) }</code></p>
+<pre class="haskell:hs"><code>newtype Writer w a = Writer { runWriter :: (a, w) }</code></pre>
 <p>Ele é envolvido em um <code>newtype</code> para que possa ser feito
 uma instância de <code>Monad</code> e para que seu tipo seja separado de
 uma tupla normal. O parâmetro de tipo <code>a</code> representa o tipo
 do valor e o parâmetro de tipo <code>w</code> o tipo do valor Monoid
 anexado.</p>
 <p>Sua Monad instance é definida desta forma:</p>
-<p><code>{.haskell:hs} instance (Monoid w) =&gt; Monad (Writer w) where     return x = Writer (x, mempty)     (Writer (x,v)) &gt;&gt;= f = let (Writer (y, v')) = f x in Writer (y, v `mappend` v')</code></p>
+<pre class="haskell:hs"><code>instance (Monoid w) =&gt; Monad (Writer w) where
+    return x = Writer (x, mempty)
+    (Writer (x,v)) &gt;&gt;= f = let (Writer (y, v&#39;)) = f x in Writer (y, v `mappend` v&#39;)</code></pre>
 <p><img src="assets/images/for-a-few-monads-more/angeleyes.png"
-alt="quando tiver que fazer cocô, faça, não fale" />{.right width=383
-height=248}</p>
+class="right" width="383" height="248"
+alt="quando tiver que fazer cocô, faça, não fale" /></p>
 <p>Primeiro de tudo, vamos examinar o <code>&gt;&gt;=</code>. Sua
 implementação é essencialmente a mesma que a do <code>applyLog</code>,
 só que agora que nossa tupla está envolvida no <code>newtype</code>
@@ -249,7 +286,12 @@ alimentar esse valor em uma função, o valor Monoid resultante será
 apenas o que a função retornar. Vamos usar <code>return</code> no número
 <code>3</code> algumas vezes, só que o associaremos a um Monoid
 diferente a cada vez:</p>
-<p><code>{.haskell:hs} ghci&gt; runWriter (return 3 :: Writer String Int) (3,"") ghci&gt; runWriter (return 3 :: Writer (Sum Int) Int) (3,Sum {getSum = 0}) ghci&gt; runWriter (return 3 :: Writer (Product Int) Int) (3,Product {getProduct = 1})</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runWriter (return 3 :: Writer String Int)
+(3,&quot;&quot;)
+ghci&gt; runWriter (return 3 :: Writer (Sum Int) Int)
+(3,Sum {getSum = 0})
+ghci&gt; runWriter (return 3 :: Writer (Product Int) Int)
+(3,Product {getProduct = 1})</code></pre>
 <p>Como o <code>Writer</code> não possui uma instância
 <code>Show</code>, tivemos que usar <code>runWriter</code> para
 converter nossos valores <code>Writer</code> em tuplas normais que podem
@@ -260,7 +302,8 @@ esse algo permanece o mesmo. Para <code>Product</code>, a identidade é
 <p>A Writer instance não apresenta uma implementação para
 <code>fail</code>, por isso, se um pattern match falhar na
 <code>do notation</code>, o <code>error</code> é chamado.</p>
-<h3>Usando a do notation com o Writer</h3>
+<h3 id="usando-a-do-notation-com-o-writer">Usando a do notation com o
+Writer</h3>
 <p>Agora que temos uma Monad instance, estamos livres para usar a
 <code>do notation</code> para valores <code>Writer</code>. É útil para
 quando temos vários valores <code>Writer</code> e queremos fazer coisas
@@ -270,11 +313,16 @@ Monoids que vêm anexados são combinados com <code>mappend</code> e,
 portanto, são refletidos no resultado final. Aqui está um exemplo
 simples de uso da <code>do notation</code> com <code>Writer</code> para
 multiplicar dois números:</p>
-<p>```{.haskell:hs} import Control.Monad.Writer</p>
-<p>logNumber :: Int -&gt; Writer [String] Int logNumber x = Writer (x,
-["Peguei o numero: " ++ show x])</p>
-<p>multWithLog :: Writer [String] Int multWithLog = do a &lt;- logNumber
-3 b &lt;- logNumber 5 return (a*b) ```</p>
+<pre class="haskell:hs"><code>import Control.Monad.Writer
+
+logNumber :: Int -&gt; Writer [String] Int
+logNumber x = Writer (x, [&quot;Peguei o numero: &quot; ++ show x])
+
+multWithLog :: Writer [String] Int
+multWithLog = do
+    a &lt;- logNumber 3
+    b &lt;- logNumber 5
+    return (a*b)</code></pre>
 <p><code>logNumber</code> recebe um número e cria um valor
 <code>Writer</code> a partir dele. Para o Monoid, usamos uma lista de
 strings e equipamos o número com uma lista unitária que apenas diz que
@@ -285,7 +333,8 @@ garante que seus logs anexados sejam incluídos no log final. Usamos
 Como o <code>return</code> apenas recebe algo e o coloca em um contexto
 mínimo, podemos ter certeza de que ele não adicionará nada ao log. Aqui
 está o que vemos se executarmos isso:</p>
-<p><code>{.haskell:hs} ghci&gt; runWriter multWithLog (15,["Peguei o numero: 3","Peguei o numero: 5"])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runWriter multWithLog
+(15,[&quot;Peguei o numero: 3&quot;,&quot;Peguei o numero: 5&quot;])</code></pre>
 <p>Às vezes, queremos apenas que algum valor Monoid seja incluído em
 algum ponto específico. Para isso, a função <code>tell</code> é útil.
 Ela faz parte da typeclass <code>MonadWriter</code> e, no caso do
@@ -296,7 +345,12 @@ seu resultado, mas tem o valor Monoid desejado anexado. Quando temos um
 valor monádico que tem <code>()</code> como resultado, não o vinculamos
 a uma variável. Aqui está o <code>multWithLog</code> mas com algum
 relatório extra incluído:</p>
-<p><code>{.haskell:hs} multWithLog :: Writer [String] Int multWithLog = do     a &lt;- logNumber 3     b &lt;- logNumber 5     tell ["Vou multiplicar esses dois"]     return (a*b)</code></p>
+<pre class="haskell:hs"><code>multWithLog :: Writer [String] Int
+multWithLog = do
+    a &lt;- logNumber 3
+    b &lt;- logNumber 5
+    tell [&quot;Vou multiplicar esses dois&quot;]
+    return (a*b)</code></pre>
 <p>É importante que <code>return (a*b)</code> seja a última linha,
 porque o resultado da última linha de uma expressão <code>do</code> é o
 resultado de toda a expressão <code>do</code>. Se tivéssemos colocado o
@@ -304,16 +358,18 @@ resultado de toda a expressão <code>do</code>. Se tivéssemos colocado o
 resultado desta expressão <code>do</code>. Perderíamos o resultado da
 multiplicação. No entanto, o log seria o mesmo. Aqui está isso em
 ação:</p>
-<p>```{.haskell:hs} ghci&gt; runWriter multWithLog (15,["Peguei o
-numero: 3","Peguei o numero: 5","Vou multiplicar esses dois"])</p>
-<h3>Adicionando registros aos programas</h3>
-<p>O algoritmo de Euclides é um algoritmo que recebe dois números e
-calcula o seu máximo divisor comum. Ou seja, o maior número que ainda
-divide ambos de forma inteira. O Haskell já possui a função
-<code>gcd</code>, que faz exatamente isso, mas vamos implementar a nossa
-própria e então equipá-la com capacidades de log. Aqui está o algoritmo
-normal:</p>
-<p><code>{.haskell:hs} gcd' :: Int -&gt; Int -&gt; Int gcd' a b     | b == 0    = a     | otherwise = gcd' b (a `mod` b)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runWriter multWithLog
+(15,[&quot;Peguei o numero: 3&quot;,&quot;Peguei o numero: 5&quot;,&quot;Vou multiplicar esses dois&quot;])
+
+### Adicionando registros aos programas
+
+O algoritmo de Euclides é um algoritmo que recebe dois números e calcula o seu máximo divisor comum. Ou seja, o maior número que ainda divide ambos de forma inteira. O Haskell já possui a função `gcd`, que faz exatamente isso, mas vamos implementar a nossa própria e então equipá-la com capacidades de log. Aqui está o algoritmo normal:
+
+```{.haskell:hs}
+gcd&#39; :: Int -&gt; Int -&gt; Int
+gcd&#39; a b
+    | b == 0    = a
+    | otherwise = gcd&#39; b (a `mod` b)</code></pre>
 <p>O algoritmo é muito simples. Primeiro, ele verifica se o segundo
 número é 0. Se for, o resultado é o primeiro número. Se não for, o
 resultado é o máximo divisor comum do segundo número e do resto da
@@ -326,19 +382,25 @@ O segundo número não é 0, então executamos o algoritmo novamente para 1
 e 0, já que a divisão de 2 por 1 nos dá um resto de 0. E finalmente,
 como o segundo número é agora 0, o resultado final é 1. Vamos ver se o
 nosso código concorda:</p>
-<p><code>{.haskell:hs} ghci&gt; gcd' 8 3 1</code></p>
+<pre class="haskell:hs"><code>ghci&gt; gcd&#39; 8 3
+1</code></pre>
 <p>Ele concorda. Muito bom! Agora, queremos equipar nosso resultado com
 um contexto, e o contexto será um valor Monoid que atua como um log.
 Como antes, usaremos uma lista de strings como nosso Monoid. Portanto, o
 tipo da nossa nova função <code>gcd'</code> deve ser:</p>
-<p><code>{.haskell:hs} gcd' :: Int -&gt; Int -&gt; Writer [String] Int</code></p>
+<pre class="haskell:hs"><code>gcd&#39; :: Int -&gt; Int -&gt; Writer [String] Int</code></pre>
 <p>Tudo o que resta agora é equipar nossa função com valores de log.
 Aqui está o código:</p>
-<p>```{.haskell:hs} import Control.Monad.Writer</p>
-<p>gcd' :: Int -&gt; Int -&gt; Writer [String] Int gcd' a b | b == 0 =
-do tell ["Terminei com " ++ show a] return a | otherwise = do tell [show
-a ++ " mod " ++ show b ++ " = " ++ show (a <code>mod</code> b)] gcd' b
-(a <code>mod</code> b) ```</p>
+<pre class="haskell:hs"><code>import Control.Monad.Writer
+
+gcd&#39; :: Int -&gt; Int -&gt; Writer [String] Int
+gcd&#39; a b
+    | b == 0 = do
+        tell [&quot;Terminei com &quot; ++ show a]
+        return a
+    | otherwise = do
+        tell [show a ++ &quot; mod &quot; ++ show b ++ &quot; = &quot; ++ show (a `mod` b)]
+        gcd&#39; b (a `mod` b)</code></pre>
 <p>Esta função recebe dois valores <code>Int</code> normais e retorna um
 <code>Writer [String] Int</code>, ou seja, um <code>Int</code> que tem
 um contexto de log. No caso em que <code>b</code> é <code>0</code>, em
@@ -348,7 +410,7 @@ resultado. Primeiro usamos o <code>tell</code> para relatar que
 terminamos e depois usamos o <code>return</code> para apresentar
 <code>a</code> como o resultado da <code>do notation</code>. Em vez
 dessa <code>do notation</code>, poderíamos também ter escrito isto:</p>
-<p><code>{.haskell:hs} Writer (a, ["Terminei com " ++ show a])</code></p>
+<pre class="haskell:hs"><code>Writer (a, [&quot;Terminei com &quot; ++ show a])</code></pre>
 <p>No entanto, acho que a <code>do notation</code> é mais fácil de ler.
 Em seguida, temos o caso em que <code>b</code> não é <code>0</code>.
 Neste caso, registramos que estamos usando o <code>mod</code> para
@@ -367,10 +429,15 @@ será o resultado final.</p>
 valor <code>Writer [String] Int</code> e, se o desempacotarmos do seu
 <code>newtype</code>, obteremos uma tupla. A primeira parte da tupla é o
 resultado. Vamos ver se está tudo bem:</p>
-<p><code>{.haskell:hs} ghci&gt; fst $ runWriter (gcd' 8 3) 1</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fst $ runWriter (gcd&#39; 8 3)
+1</code></pre>
 <p>Bom! E quanto ao log? Como o log é uma lista de strings, vamos usar
 <code>mapM_ putStrLn</code> para imprimir essas strings na tela:</p>
-<p><code>{.haskell:hs} ghci&gt; mapM_ putStrLn $ snd $ runWriter (gcd' 8 3) 8 mod 3 = 2 3 mod 2 = 1 2 mod 1 = 0 Terminei com 1</code></p>
+<pre class="haskell:hs"><code>ghci&gt; mapM_ putStrLn $ snd $ runWriter (gcd&#39; 8 3)
+8 mod 3 = 2
+3 mod 2 = 1
+2 mod 1 = 0
+Terminei com 1</code></pre>
 <p>Acho incrível como conseguimos mudar nosso algoritmo comum para um
 que relata o que faz à medida que avança, apenas mudando valores normais
 para monadic values e deixando que a implementação do
@@ -380,7 +447,8 @@ Basta substituir os valores normais por valores <code>Writer</code> onde
 quisermos e mudar a aplicação normal de funções para
 <code>&gt;&gt;=</code> (ou <code>do notation</code> se isso aumentar a
 legibilidade).</p>
-<h3>Construção de lista ineficiente</h3>
+<h3 id="construção-de-lista-ineficiente">Construção de lista
+ineficiente</h3>
 <p>Ao usar a Writer Monad, você deve ter cuidado com qual Monoid usar,
 porque usar listas pode às vezes tornar-se muito lento. Isso ocorre
 porque as listas usam o <code>++</code> para o <code>mappend</code>, e
@@ -388,35 +456,45 @@ usar o <code>++</code> para adicionar algo ao final de uma lista é lento
 se essa lista for muito longa.</p>
 <p>Em nossa função <code>gcd'</code>, o registro é rápido porque a
 anexação da lista acaba parecendo com isto:</p>
-<p><code>{.haskell:hs} a ++ (b ++ (c ++ (d ++ (e ++ f))))</code></p>
+<pre class="haskell:hs"><code>a ++ (b ++ (c ++ (d ++ (e ++ f))))</code></pre>
 <p>As listas são uma estrutura de dados que é construída da esquerda
 para a direita, e isso é eficiente porque primeiro construímos
 totalmente a parte esquerda de uma lista e só então adicionamos uma
 lista mais longa à direita. Mas se não formos cuidadosos, usar a Writer
 Monad pode produzir uma anexação de lista que se parece com isto:</p>
-<p><code>{.haskell:hs} ((((a ++ b) ++ c) ++ d) ++ e) ++ f</code></p>
+<pre class="haskell:hs"><code>((((a ++ b) ++ c) ++ d) ++ e) ++ f</code></pre>
 <p>Isso se associa à esquerda em vez de à direita. Isso é ineficiente
 porque cada vez que queremos adicionar a parte direita à esquerda, temos
 que reconstruir a parte esquerda desde o início!</p>
 <p>A função a seguir funciona como o <code>gcd'</code>, apenas registra
 as coisas de forma inversa. Primeiro ela produz o log para o resto do
 procedimento e depois adiciona o passo atual ao final do log.</p>
-<p>```{.haskell:hs} import Control.Monad.Writer</p>
-<p>gcdReverse :: Int -&gt; Int -&gt; Writer [String] Int gcdReverse a b
-| b == 0 = do tell ["Terminei com " ++ show a] return a | otherwise = do
-result &lt;- gcdReverse b (a <code>mod</code> b) tell [show a ++ " mod "
-++ show b ++ " = " ++ show (a <code>mod</code> b)] return result ```</p>
+<pre class="haskell:hs"><code>import Control.Monad.Writer
+
+gcdReverse :: Int -&gt; Int -&gt; Writer [String] Int
+gcdReverse a b
+    | b == 0 = do
+        tell [&quot;Terminei com &quot; ++ show a]
+        return a
+    | otherwise = do
+        result &lt;- gcdReverse b (a `mod` b)
+        tell [show a ++ &quot; mod &quot; ++ show b ++ &quot; = &quot; ++ show (a `mod` b)]
+        return result</code></pre>
 <p>Ela faz a recursão primeiro e vinculá seu valor de resultado a
 <code>result</code>. Em seguida, adiciona o passo atual ao log, mas o
 passo atual vai para o final do log que foi produzido pela recursão.
 Finalmente, apresenta o resultado da recursão como o resultado final.
 Aqui está ela em ação:</p>
-<p><code>{.haskell:hs} ghci&gt; mapM_ putStrLn $ snd $ runWriter (gcdReverse 8 3) Terminei com 1 2 mod 1 = 0 3 mod 2 = 1 8 mod 3 = 2</code></p>
+<pre class="haskell:hs"><code>ghci&gt; mapM_ putStrLn $ snd $ runWriter (gcdReverse 8 3)
+Terminei com 1
+2 mod 1 = 0
+3 mod 2 = 1
+8 mod 3 = 2</code></pre>
 <p>É ineficiente porque acaba associando o uso de <code>++</code> à
 esquerda em vez de à direita.</p>
-<h3>Listas de diferença</h3>
+<h3 id="listas-de-diferença">Listas de diferença</h3>
 <p><img src="assets/images/for-a-few-monads-more/cactus.png"
-alt="cactos" />{.left width=147 height=300}</p>
+class="left" width="147" height="300" alt="cactos" /></p>
 <p>Como as listas podem ser ineficientes às vezes quando anexadas
 repetidamente dessa maneira, é melhor usar uma estrutura de dados que
 suporte sempre uma anexação eficiente. Uma dessas estruturas de dados é
@@ -434,65 +512,83 @@ temos que percorrer todo o caminho até o final da lista à esquerda de
 abordagem de lista de diferença e representarmos nossas listas como
 funções? Bem, então, anexar duas listas de diferença pode ser feito
 desta forma:</p>
-<p><code>{.haskell:hs} f `append` g = \xs -&gt; f (g xs)</code></p>
+<pre class="haskell:hs"><code>f `append` g = \xs -&gt; f (g xs)</code></pre>
 <p>Lembre-se, <code>f</code> e <code>g</code> são funções que recebem
 listas e anexam algo a elas. Então, por exemplo, se <code>f</code> for a
 função <code>("cao"++)</code> (outra forma de escrever
 <code>\xs -&gt; "cao" ++ xs</code>) e <code>g</code> for a função
 <code>("carne"++)</code>, então <code>f `append` g</code> cria uma nova
 função que é equivalente à seguinte:</p>
-<p><code>{.haskell:hs} \xs -&gt; "cao" ++ ("carne" ++ xs)</code></p>
+<pre class="haskell:hs"><code>\xs -&gt; &quot;cao&quot; ++ (&quot;carne&quot; ++ xs)</code></pre>
 <p>Anexamos duas listas de diferença apenas criando uma nova função que
 primeiro aplica uma lista de diferença a alguma lista e depois a
 outra.</p>
 <p>Vamos criar um wrapper <code>newtype</code> para listas de diferença
 para que possamos facilmente dar a elas Monoid instances:</p>
-<p><code>{.haskell:hs} newtype DiffList a = DiffList { getDiffList :: [a] -&gt; [a] }</code></p>
+<pre class="haskell:hs"><code>newtype DiffList a = DiffList { getDiffList :: [a] -&gt; [a] }</code></pre>
 <p>O tipo que envolvemos é <code>[a] -&gt; [a]</code> porque uma lista
 de diferença é apenas uma função que recebe uma lista e retorna outra.
 Converter listas normais em listas de diferença e vice-versa é
 fácil:</p>
-<p>```{.haskell:hs} toDiffList :: [a] -&gt; DiffList a toDiffList xs =
-DiffList (xs++)</p>
-<p>fromDiffList :: DiffList a -&gt; [a] fromDiffList (DiffList f) = f []
-```</p>
+<pre class="haskell:hs"><code>toDiffList :: [a] -&gt; DiffList a
+toDiffList xs = DiffList (xs++)
+
+fromDiffList :: DiffList a -&gt; [a]
+fromDiffList (DiffList f) = f []</code></pre>
 <p>Para transformar uma lista normal em uma lista de diferença, basta
 fazermos o que fizemos antes e transformá-la em uma função que a anexa a
 outra lista. Como uma lista de diferença é uma função que anexa algo a
-outra lista, se quisermos apenas esse "algo", aplicamos a função a uma
+outra lista, se quisermos apenas esse “algo”, aplicamos a função a uma
 lista vazia!</p>
 <p>Aqui está a Monoid instance:</p>
-<p><code>{.haskell:hs} instance Monoid (DiffList a) where     mempty = DiffList (\xs -&gt; [] ++ xs)     (DiffList f) `mappend` (DiffList g) = DiffList (\xs -&gt; f (g xs))</code></p>
+<pre class="haskell:hs"><code>instance Monoid (DiffList a) where
+    mempty = DiffList (\xs -&gt; [] ++ xs)
+    (DiffList f) `mappend` (DiffList g) = DiffList (\xs -&gt; f (g xs))</code></pre>
 <p>Observe como para listas, o <code>mempty</code> é apenas a função
 <code>id</code> e o <code>mappend</code> é na verdade apenas a
 composição de funções. Vamos ver se isto funciona:</p>
-<p><code>{.haskell:hs} ghci&gt; fromDiffList (toDiffList [1,2,3,4] `mappend` toDiffList [1,2,3]) [1,2,3,4,1,2,3]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fromDiffList (toDiffList [1,2,3,4] `mappend` toDiffList [1,2,3])
+[1,2,3,4,1,2,3]</code></pre>
 <p>Ponta de linha! Agora podemos aumentar a eficiência da nossa função
 <code>gcdReverse</code> fazendo-a usar listas de diferença em vez de
 listas normais:</p>
-<p>```{.haskell:hs} import Control.Monad.Writer</p>
-<p>gcd' :: Int -&gt; Int -&gt; Writer (DiffList String) Int gcd' a b | b
-== 0 = do tell (toDiffList ["Terminei com " ++ show a]) return a |
-otherwise = do result &lt;- gcd' b (a <code>mod</code> b) tell
-(toDiffList [show a ++ " mod " ++ show b ++ " = " ++ show (a
-<code>mod</code> b)]) return result ```</p>
+<pre class="haskell:hs"><code>import Control.Monad.Writer
+
+gcd&#39; :: Int -&gt; Int -&gt; Writer (DiffList String) Int
+gcd&#39; a b
+    | b == 0 = do
+        tell (toDiffList [&quot;Terminei com &quot; ++ show a])
+        return a
+    | otherwise = do
+        result &lt;- gcd&#39; b (a `mod` b)
+        tell (toDiffList [show a ++ &quot; mod &quot; ++ show b ++ &quot; = &quot; ++ show (a `mod` b)])
+        return result</code></pre>
 <p>Tivemos apenas que mudar o tipo do monóide de <code>[String]</code>
 para <code>DiffList String</code> e depois, ao usar o <code>tell</code>,
 converter nossas listas normais em listas de diferença com o
 <code>toDiffList</code>. Vamos ver se o log é montado corretamente:</p>
-<p><code>{.haskell:hs} ghci&gt; mapM_ putStrLn . fromDiffList . snd . runWriter $ gcdReverse 110 34 Terminei com 2 8 mod 2 = 0 34 mod 8 = 2 110 mod 34 = 8</code></p>
+<pre class="haskell:hs"><code>ghci&gt; mapM_ putStrLn . fromDiffList . snd . runWriter $ gcdReverse 110 34
+Terminei com 2
+8 mod 2 = 0
+34 mod 8 = 2
+110 mod 34 = 8</code></pre>
 <p>Fazemos <code>gcdReverse 110 34</code>, depois usamos o
 <code>runWriter</code> para desempacotá-lo do seu <code>newtype</code>,
 depois aplicamos o <code>snd</code> a isso para obter apenas o log,
 depois aplicamos o <code>fromDiffList</code> para convertê-lo em uma
 lista normal e, finalmente, imprimimos suas entradas na tela.</p>
-<h3>Comparando o desempenho</h3>
+<h3 id="comparando-o-desempenho">Comparando o desempenho</h3>
 <p>Para ter uma ideia de quanto as listas de diferença podem melhorar o
 desempenho, considere esta função que apenas faz uma contagem regressiva
 de algum número até zero, mas produz seu log de forma reversa, como
 <code>gcdReverse</code>, de modo que os números no log serão contados de
 forma progressiva:</p>
-<p><code>{.haskell:hs} finalCountDown :: Int -&gt; Writer (DiffList String) () finalCountDown 0 = do     tell (toDiffList ["0"]) finalCountDown x = do     finalCountDown (x-1)     tell (toDiffList [show x])</code></p>
+<pre class="haskell:hs"><code>finalCountDown :: Int -&gt; Writer (DiffList String) ()
+finalCountDown 0 = do
+    tell (toDiffList [&quot;0&quot;])
+finalCountDown x = do
+    finalCountDown (x-1)
+    tell (toDiffList [show x])</code></pre>
 <p>Se dermos <code>0</code>, ela apenas registra. Para qualquer outro
 número, ela primeiro faz a contagem regressiva do seu antecessor até
 <code>0</code> e depois anexa esse número ao log. Portanto, se
@@ -501,12 +597,21 @@ aplicarmos <code>finalCountDown</code> a <code>100</code>, a string
 <p>De qualquer modo, se você carregar esta função no GHCi e aplicá-la a
 um número grande, como <code>500000</code>, verá que ela começa a contar
 rapidamente de <code>0</code> em diante:</p>
-<p><code>{.haskell:hs} ghci&gt; mapM_ putStrLn . fromDiffList . snd . runWriter $ finalCountDown 500000 0 1 2 ...</code></p>
+<pre class="haskell:hs"><code>ghci&gt; mapM_ putStrLn . fromDiffList . snd . runWriter $ finalCountDown 500000
+0
+1
+2
+...</code></pre>
 <p>No entanto, se mudarmos para usar listas normais em vez de listas de
 diferença, desta forma:</p>
-<p><code>{.haskell:hs} finalCountDown :: Int -&gt; Writer [String] () finalCountDown 0 = do     tell ["0"] finalCountDown x = do     finalCountDown (x-1)     tell [show x]</code></p>
+<pre class="haskell:hs"><code>finalCountDown :: Int -&gt; Writer [String] ()
+finalCountDown 0 = do
+    tell [&quot;0&quot;]
+finalCountDown x = do
+    finalCountDown (x-1)
+    tell [show x]</code></pre>
 <p>E então pedirmos para o GHCi começar a contar:</p>
-<p><code>{.haskell:hs} ghci&gt; mapM_ putStrLn . snd . runWriter $ finalCountDown 500000</code></p>
+<pre class="haskell:hs"><code>ghci&gt; mapM_ putStrLn . snd . runWriter $ finalCountDown 500000</code></pre>
 <p>Veremos que a contagem é muito lenta.</p>
 <p>Claro, esta não é a maneira correta e científica de testar a rapidez
 dos nossos programas, mas fomos capazes de ver que, neste caso, usar
@@ -514,9 +619,9 @@ listas de diferença começa a produzir resultados imediatamente, enquanto
 as listas normais levam uma eternidade.</p>
 <p>Ah, a propósito, a música Final Countdown do Europe agora está
 grudada na sua cabeça. Divirta-se!</p>
-<h2>Reader? Ugh, essa piada de novo não. {#reader}</h2>
+<h2 id="reader">Reader? Ugh, essa piada de novo não.</h2>
 <p><img src="assets/images/for-a-few-monads-more/revolver.png"
-alt="bang voce esta morto" />{.left width=280 height=106}</p>
+class="left" width="280" height="106" alt="bang voce esta morto" /></p>
 <p>No <a href="functors-applicative-functors-and-monoids.html">capítulo
 sobre aplicativos</a>, vimos que o tipo de função,
 <code>(-&gt;) r</code> é uma instância de <code>Functor</code>. Mapear
@@ -526,11 +631,16 @@ função que recebe a mesma coisa que <code>g</code>, aplica
 Basicamente, estamos criando uma nova função que é como <code>g</code>,
 só que antes de retornar seu resultado, <code>f</code> também é aplicado
 a esse resultado. Por exemplo:</p>
-<p><code>{.haskell:hs} ghci&gt; let f = (*5) ghci&gt; let g = (+3) ghci&gt; (fmap f g) 8 55</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let f = (*5)
+ghci&gt; let g = (+3)
+ghci&gt; (fmap f g) 8
+55</code></pre>
 <p>Também vimos que as funções são Applicative Functors. Elas nos
 permitem operar nos resultados eventuais das funções como se já
 tivéssemos seus resultados. Aqui está um exemplo:</p>
-<p><code>{.haskell:hs} ghci&gt; let f = (+) &lt;$&gt; (*2) &lt;*&gt; (+10) ghci&gt; f 3 19</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let f = (+) &lt;$&gt; (*2) &lt;*&gt; (+10)
+ghci&gt; f 3
+19</code></pre>
 <p>A expressão <code>(+) &lt;$&gt; (*2) &lt;*&gt; (+10)</code> cria uma
 função que recebe um número, dá esse número para <code>(*2)</code> e
 <code>(+10)</code> e depois soma os resultados. Por exemplo, se
@@ -548,7 +658,9 @@ seu valor de resultado.</p>
 Functors e Applicative Functors, vamos mergulhar de cabeça e ver como é
 a sua Monad instance. Ela está localizada em
 <code>Control.Monad.Instances</code> e funciona mais ou menos assim:</p>
-<p><code>{.haskell:hs} instance Monad ((-&gt;) r) where     return x = \_ -&gt; x     h &gt;&gt;= f = \w -&gt; f (h w) w</code></p>
+<pre class="haskell:hs"><code>instance Monad ((-&gt;) r) where
+    return x = \_ -&gt; x
+    h &gt;&gt;= f = \w -&gt; f (h w) w</code></pre>
 <p>Já vimos como o <code>pure</code> é implementado para funções, e o
 <code>return</code> é basicamente a mesma coisa que o <code>pure</code>.
 Ele recebe um valor e o coloca em um contexto mínimo que sempre tem esse
@@ -573,9 +685,13 @@ value, que é uma função no nosso caso, por isso também o aplicamos a
 momento, não se preocupe, porque com exemplos veremos que esta é uma
 Monad muito simples. Aqui está uma <code>do notation</code> que utiliza
 esta Monad:</p>
-<p>```{.haskell:hs} import Control.Monad.Instances</p>
-<p>addStuff :: Int -&gt; Int addStuff = do a &lt;- (*2) b &lt;- (+10)
-return (a+b) ```</p>
+<pre class="haskell:hs"><code>import Control.Monad.Instances
+
+addStuff :: Int -&gt; Int
+addStuff = do
+    a &lt;- (*2)
+    b &lt;- (+10)
+    return (a+b)</code></pre>
 <p>Isso é a mesma coisa que a Applicative expression que escrevemos
 anteriormente, só que agora ela depende das funções serem Monads. Uma
 <code>do notation</code> sempre resulta em um monadic value e esta não é
@@ -588,14 +704,19 @@ Monads, não tem nenhum outro efeito a não ser criar um monadic value que
 apresente algum resultado. Isso apresenta <code>a+b</code> como o
 resultado desta função. Se testarmos, obteremos o mesmo resultado de
 antes:</p>
-<p><code>{.haskell:hs} ghci&gt; addStuff 3 19</code></p>
+<pre class="haskell:hs"><code>ghci&gt; addStuff 3
+19</code></pre>
 <p>Tanto o <code>(*2)</code> quanto o <code>(+10)</code> são aplicados
 ao número <code>3</code> neste caso. <code>return (a+b)</code> também,
 mas ele o ignora e sempre apresenta <code>a+b</code> como o resultado.
 Por esta razão, a função Monad também é chamada de Reader Monad. Todas
 as funções lêem de uma fonte comum. Para ilustrar isto ainda melhor,
 podemos reescrever o <code>addStuff</code> desta forma:</p>
-<p><code>{.haskell:hs} addStuff :: Int -&gt; Int addStuff x = let     a = (*2) x     b = (+10) x     in a+b</code></p>
+<pre class="haskell:hs"><code>addStuff :: Int -&gt; Int
+addStuff x = let
+    a = (*2) x
+    b = (+10) x
+    in a+b</code></pre>
 <p>Vemos que a Reader Monad nos permite tratar funções como valores com
 um contexto. Podemos agir como se já soubéssemos o que as funções
 retornarão. Ela faz isso colando as funções em uma única função e dando
@@ -605,9 +726,9 @@ falta de apenas um parâmetro e que eventualmente seriam aplicadas à
 mesma coisa, podemos usar a Reader Monad para extrair os seus resultados
 futuros e a implementação do <code>&gt;&gt;=</code> garantirá que tudo
 corra bem.</p>
-<h2>Computações com estado de bom gosto {#state}</h2>
-<p><img src="assets/images/for-a-few-monads-more/texas.png"
-alt="não brinque com o texas" />{.left width=244 height=230}</p>
+<h2 id="state">Computações com estado de bom gosto</h2>
+<p><img src="assets/images/for-a-few-monads-more/texas.png" class="left"
+width="244" height="230" alt="não brinque com o texas" /></p>
 <p>Haskell é uma linguagem pura e, por causa disso, nossos programas são
 feitos de funções que não podem alterar nenhum estado global ou
 variáveis; elas podem apenas fazer algumas computações e retornar seus
@@ -628,7 +749,12 @@ tínhamos que usar o gerador aleatório que uma função anterior retornou
 junto com seu resultado. Ao fazer uma função que recebe um
 <code>StdGen</code> e joga uma moeda três vezes com base nesse gerador,
 tínhamos que fazer isto:</p>
-<p><code>{.haskell:hs} threeCoins :: StdGen -&gt; (Bool, Bool, Bool) threeCoins gen =     let (firstCoin, newGen) = random gen         (secondCoin, newGen') = random newGen         (thirdCoin, newGen'') = random newGen'     in  (firstCoin, secondCoin, thirdCoin)</code></p>
+<pre class="haskell:hs"><code>threeCoins :: StdGen -&gt; (Bool, Bool, Bool)
+threeCoins gen =
+    let (firstCoin, newGen) = random gen
+        (secondCoin, newGen&#39;) = random newGen
+        (thirdCoin, newGen&#39;&#39;) = random newGen&#39;
+    in  (firstCoin, secondCoin, thirdCoin)</code></pre>
 <p>Ela recebia um gerador <code>gen</code> e então
 <code>random gen</code> retornava um valor <code>Bool</code> junto com
 um novo gerador. Para jogar a segunda moeda, usamos o novo gerador, e
@@ -649,11 +775,12 @@ estatais, vamos em frente e dar a elas um tipo. Diremos que uma
 computação estatal é uma função que recebe algum estado e retorna um
 valor junto com algum novo estado. Essa função teria o seguinte
 tipo:</p>
-<p><code>{.haskell:hs} s -&gt; (a,s)</code></p>
+<pre class="haskell:hs"><code>s -&gt; (a,s)</code></pre>
 <p><code>s</code> é o tipo do estado e <code>a</code> o resultado das
 computações estatais.</p>
-<p>::: {.hintbox} A atribuição na maioria das outras linguagens poderia
-ser pensada como uma computação estatal. Por exemplo, quando fazemos
+<div class="hintbox">
+<p>A atribuição na maioria das outras linguagens poderia ser pensada
+como uma computação estatal. Por exemplo, quando fazemos
 <code>x = 5</code> em uma linguagem imperativa, ela geralmente atribui o
 valor <code>5</code> à variável <code>x</code> e também terá o valor
 <code>5</code> como uma expressão. Se você olhar para isso
@@ -661,14 +788,15 @@ funcionalmente, poderia vê-lo como uma função que recebe um estado (ou
 seja, todas as variáveis que foram atribuídas anteriormente) e retorna
 um resultado (neste caso <code>5</code>) e um novo estado, que seria
 todos os mapeamentos de variáveis anteriores mais a variável
-recém-atribuída. :::</p>
+recém-atribuída.</p>
+</div>
 <p>Esta computação estatal, uma função que recebe um estado e retorna um
 resultado e um novo estado, pode ser pensada como um valor com um
 contexto também. O valor real é o resultado, enquanto o contexto é que
 temos que fornecer algum estado inicial para realmente obter esse
 resultado e que, além de obter um resultado, também obtemos um novo
 estado.</p>
-<h3>Pilhas e pedras</h3>
+<h3 id="pilhas-e-pedras">Pilhas e pedras</h3>
 <p>Digamos que queiramos modelar a operação de uma pilha (stack). Você
 tem uma pilha de coisas uma em cima da outra e pode colocar coisas em
 cima dessa pilha ou pode tirar coisas do topo da pilha. Quando você está
@@ -685,10 +813,13 @@ também retornará uma nova pilha, sem esse item. <code>push</code>
 receberá um item e uma pilha e então empilhará esse item na pilha. Ela
 retornará <code>()</code> como seu resultado, junto com uma nova pilha.
 Aqui vai:</p>
-<p>```{.haskell:hs} type Stack = [Int]</p>
-<p>pop :: Stack -&gt; (Int,Stack) pop (x:xs) = (x,xs)</p>
-<p>push :: Int -&gt; Stack -&gt; ((),Stack) push a xs = ((),a:xs)
-```</p>
+<pre class="haskell:hs"><code>type Stack = [Int]
+
+pop :: Stack -&gt; (Int,Stack)
+pop (x:xs) = (x,xs)
+
+push :: Int -&gt; Stack -&gt; ((),Stack)
+push a xs = ((),a:xs)</code></pre>
 <p>Usamos <code>()</code> como o resultado ao empurrar para a pilha
 porque empurrar um item na pilha não tem nenhum valor de resultado
 importante, seu trabalho principal é mudar a pilha. Observe como, apenas
@@ -699,7 +830,11 @@ causa do seu tipo.</p>
 usando estas funções. Pegaremos uma pilha, empilharemos <code>3</code>
 nela e depois desempilharemos dois itens, apenas por diversão. Aqui está
 ele:</p>
-<p><code>{.haskell:hs} stackManip :: Stack -&gt; (Int, Stack) stackManip stack = let     ((),newStack1) = push 3 stack     (a ,newStack2) = pop newStack1     in pop newStack2</code></p>
+<pre class="haskell:hs"><code>stackManip :: Stack -&gt; (Int, Stack)
+stackManip stack = let
+    ((),newStack1) = push 3 stack
+    (a ,newStack2) = pop newStack1
+    in pop newStack2</code></pre>
 <p>Pegamos uma <code>stack</code> e então fazemos
 <code>push 3 stack</code>, o que resulta em uma tupla. A primeira parte
 da tupla é um <code>()</code> e a segunda é uma nova pilha e a chamamos
@@ -710,7 +845,8 @@ o <code>3</code> que empilhamos) e uma nova pilha que chamamos de
 <code>newStack2</code> e obtemos um número que é <code>b</code> e uma
 <code>newStack3</code>. Retornamos uma tupla com esse número e essa
 pilha. Vamos testar:</p>
-<p><code>{.haskell:hs} ghci&gt; stackManip [5,8,2,1] (5,[8,2,1])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; stackManip [5,8,2,1]
+(5,[8,2,1])</code></pre>
 <p>Legal, o resultado é <code>5</code> e a nova pilha é
 <code>[8,2,1]</code>. Observe como <code>stackManip</code> é por si só
 uma computação estatal. Pegamos um punhado de computações estatais e as
@@ -720,22 +856,29 @@ estamos dando manualmente o estado para cada computação estatal e
 armazenandoo para depois passá-lo para a próxima. Não seria mais legal
 se, em vez de dar a pilha manualmente para cada função, pudéssemos
 escrever algo como isto:</p>
-<p><code>{.haskell:hs} stackManip = do     push 3     a &lt;- pop     pop</code></p>
+<pre class="haskell:hs"><code>stackManip = do
+    push 3
+    a &lt;- pop
+    pop</code></pre>
 <p>Bem, usar a State Monad nos permitirá fazer exatamente isso. Com ela,
 poderemos pegar computações estatais como estas e usá-las sem ter que
 gerenciar o estado manualmente.</p>
-<h3>A State Monad</h3>
+<h3 id="a-state-monad">A State Monad</h3>
 <p>O módulo <code>Control.Monad.State</code> fornece um
 <code>newtype</code> que envolve computações estatais. Aqui está sua
 definição:</p>
-<p><code>{.haskell:hs} newtype State s a = State { runState :: s -&gt; (a,s) }</code></p>
+<pre class="haskell:hs"><code>newtype State s a = State { runState :: s -&gt; (a,s) }</code></pre>
 <p>Um <code>State s a</code> é uma computação estatal que manipula um
 estado do tipo <code>s</code> e tem um resultado do tipo
 <code>a</code>.</p>
 <p>Agora que vimos do que se trata as computações estatais e como elas
 podem até ser pensadas como valores com contextos, vamos conferir a sua
 Monad instance:</p>
-<p><code>{.haskell:hs} instance Monad (State s) where     return x = State $ \s -&gt; (x,s)     (State h) &gt;&gt;= f = State $ \s -&gt; let (a, newState) = h s                                         (State g) = f a                                     in  g newState</code></p>
+<pre class="haskell:hs"><code>instance Monad (State s) where
+    return x = State $ \s -&gt; (x,s)
+    (State h) &gt;&gt;= f = State $ \s -&gt; let (a, newState) = h s
+                                        (State g) = f a
+                                    in  g newState</code></pre>
 <p>Vamos dar uma olhada no <code>return</code> primeiro. Nosso objetivo
 com o <code>return</code> é pegar um valor e criar uma computação
 estatal que sempre tenha esse valor como resultado. É por isso que
@@ -746,7 +889,7 @@ colocar um valor em um contexto mínimo. Então, o <code>return</code>
 criará uma computação estatal que apresenta um determinado valor como
 resultado e mantém o estado inalterado.</p>
 <p><img src="assets/images/for-a-few-monads-more/badge.png"
-alt="eu sou um guarda" />{.right width=182 height=160}</p>
+class="right" width="182" height="160" alt="eu sou um guarda" /></p>
 <p>E o <code>&gt;&gt;=</code>? Bem, o resultado de alimentar uma
 computação estatal a uma função com <code>&gt;&gt;=</code> tem que ser
 uma computação estatal, certo? Então começamos com o wrapper
@@ -773,38 +916,63 @@ estatais juntas, porém a segunda está escondida dentro de uma função que
 recebe o resultado da anterior. Como <code>pop</code> e
 <code>push</code> já são computações estatais, é fácil envolvê-las em um
 wrapper <code>State</code>. Observe:</p>
-<p>```{.haskell:hs} import Control.Monad.State</p>
-<p>pop :: State Stack Int pop = State $ (x:xs) -&gt; (x,xs)</p>
-<p>push :: Int -&gt; State Stack () push a = State $ \xs -&gt; ((),a:xs)
-```</p>
+<pre class="haskell:hs"><code>import Control.Monad.State
+
+pop :: State Stack Int
+pop = State $ \(x:xs) -&gt; (x,xs)
+
+push :: Int -&gt; State Stack ()
+push a = State $ \xs -&gt; ((),a:xs)</code></pre>
 <p><code>pop</code> já é uma computação estatal e <code>push</code>
 recebe um <code>Int</code> e retorna uma computação estatal. Agora
 podemos reescrever nosso exemplo anterior de empilhar <code>3</code> na
 pilha e depois desempilhar dois números desta forma:</p>
-<p>```{.haskell:hs} import Control.Monad.State</p>
-<p>stackManip :: State Stack Int stackManip = do push 3 a &lt;- pop pop
-```</p>
+<pre class="haskell:hs"><code>import Control.Monad.State
+
+stackManip :: State Stack Int
+stackManip = do
+    push 3
+    a &lt;- pop
+    pop</code></pre>
 <p>Viu como colamos um push e dois pops em uma única computação estatal?
 Quando a desempacotamos de seu wrapper <code>newtype</code>, obtemos uma
 função para a qual podemos fornecer algum estado inicial:</p>
-<p><code>{.haskell:hs} ghci&gt; runState stackManip [5,8,2,1] (5,[8,2,1])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runState stackManip [5,8,2,1]
+(5,[8,2,1])</code></pre>
 <p>Não tivemos que vincular o segundo <code>pop</code> a <code>a</code>
 porque não usamos esse <code>a</code> para nada. Então poderíamos ter
 escrito desta forma:</p>
-<p><code>{.haskell:hs} stackManip :: State Stack Int stackManip = do     push 3     pop     pop</code></p>
+<pre class="haskell:hs"><code>stackManip :: State Stack Int
+stackManip = do
+    push 3
+    pop
+    pop</code></pre>
 <p>Bem legal. Mas e se quisermos fazer isto: desempilhar um número da
 pilha e, se esse número for <code>5</code>, apenas colocá-lo de volta na
 pilha e parar, mas se não for <code>5</code>, empilhar <code>3</code> e
 <code>8</code> de volta? Bem, aqui está o código:</p>
-<p><code>{.haskell:hs} stackStuff :: State Stack () stackStuff = do     a &lt;- pop     if a == 5         then push 5         else do             push 3             push 8</code></p>
+<pre class="haskell:hs"><code>stackStuff :: State Stack ()
+stackStuff = do
+    a &lt;- pop
+    if a == 5
+        then push 5
+        else do
+            push 3
+            push 8</code></pre>
 <p>Isto é bem direto. Vamos executá-lo com uma pilha inicial.</p>
-<p><code>{.haskell:hs} ghci&gt; runState stackStuff [9,0,2,1,0] ((),[8,3,0,2,1,0])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runState stackStuff [9,0,2,1,0]
+((),[8,3,0,2,1,0])</code></pre>
 <p>Lembre-se, as <code>do notation</code> resultam em monadic values e,
 com a State Monad, uma única <code>do notation</code> também é uma
 função estatal. Como <code>stackManip</code> e <code>stackStuff</code>
 são computações estatais comuns, podemos colá-las para produzir novas
 computações estatais.</p>
-<p><code>{.haskell:hs} moreStack :: State Stack () moreStack = do     a &lt;- stackManip     if a == 100         then stackStuff         else return ()</code></p>
+<pre class="haskell:hs"><code>moreStack :: State Stack ()
+moreStack = do
+    a &lt;- stackManip
+    if a == 100
+        then stackStuff
+        else return ()</code></pre>
 <p>Se o resultado de <code>stackManip</code> na pilha atual for
 <code>100</code>, executamos <code>stackStuff</code>, caso contrário não
 fazemos nada. <code>return ()</code> apenas mantém o estado como está e
@@ -813,30 +981,36 @@ não faz nada.</p>
 chamada <code>MonadState</code> que apresenta duas funções bem úteis,
 chamadas <code>get</code> e <code>put</code>. Para o <code>State</code>,
 a função <code>get</code> é implementada desta forma:</p>
-<p><code>{.haskell:hs} get = State $ \s -&gt; (s,s)</code></p>
+<pre class="haskell:hs"><code>get = State $ \s -&gt; (s,s)</code></pre>
 <p>Então ela apenas pega o estado atual e o apresenta como o resultado.
 A função <code>put</code> recebe algum estado e cria uma função estatal
 que substitui o estado atual por ele:</p>
-<p><code>{.haskell:hs} put newState = State $ \s -&gt; ((),newState)</code></p>
+<pre class="haskell:hs"><code>put newState = State $ \s -&gt; ((),newState)</code></pre>
 <p>Com estas funções, podemos ver qual é a pilha atual ou podemos
 substituí-la por uma pilha completamente diferente. Assim:</p>
-<p><code>{.haskell:hs} stackyStack :: State Stack () stackyStack = do     stackNow &lt;- get     if stackNow == [1,2,3]         then put [8,3,1]         else put [9,2,1]</code></p>
+<pre class="haskell:hs"><code>stackyStack :: State Stack ()
+stackyStack = do
+    stackNow &lt;- get
+    if stackNow == [1,2,3]
+        then put [8,3,1]
+        else put [9,2,1]</code></pre>
 <p>Vale a pena examinar qual seria o tipo de <code>&gt;&gt;=</code> se
 ele funcionasse apenas para valores <code>State</code>:</p>
-<p><code>{.haskell:hs} (&gt;&gt;=) :: State s a -&gt; (a -&gt; State s b) -&gt; State s b</code></p>
+<pre class="haskell:hs"><code>(&gt;&gt;=) :: State s a -&gt; (a -&gt; State s b) -&gt; State s b</code></pre>
 <p>Viu como o tipo do estado <code>s</code> permanece o mesmo, mas o
 tipo do resultado pode mudar de <code>a</code> para <code>b</code>? Isso
 significa que podemos colar várias computações estatais cujos resultados
 são de tipos diferentes, mas o tipo do estado tem que permanecer o
 mesmo. E por que isso? Bem, por exemplo, para o <code>Maybe</code>, o
 <code>&gt;&gt;=</code> tem este tipo:</p>
-<p><code>{.haskell:hs} (&gt;&gt;=) :: Maybe a -&gt; (a -&gt; Maybe b) -&gt; Maybe b</code></p>
+<pre class="haskell:hs"><code>(&gt;&gt;=) :: Maybe a -&gt; (a -&gt; Maybe b) -&gt; Maybe b</code></pre>
 <p>Faz sentido que a própria mônada, <code>Maybe</code>, não mude. Não
 faria sentido usar <code>&gt;&gt;=</code> entre duas mônadas diferentes.
 Bem, para a mônada state, a mônada é na verdade <code>State s</code>,
 então se esse <code>s</code> fosse diferente, estaríamos usando
 <code>&gt;&gt;=</code> entre duas mônadas diferentes.</p>
-<h3>Aleatoriedade e a mônada state</h3>
+<h3 id="aleatoriedade-e-a-mônada-state">Aleatoriedade e a mônada
+state</h3>
 <p>No início desta seção, vimos como gerar números pode às vezes ser
 incômodo porque cada função aleatória recebe um gerador e retorna um
 número aleatório junto com um novo gerador, que deve ser usado no lugar
@@ -844,30 +1018,39 @@ do antigo se quisermos gerar outro número aleatório. A mônada state
 torna a lida com isso muito mais fácil.</p>
 <p>A função <code>random</code> de <code>System.Random</code> tem o
 seguinte tipo:</p>
-<p><code>{.haskell:hs} random :: (RandomGen g, Random a) =&gt; g -&gt; (a, g)</code></p>
+<pre class="haskell:hs"><code>random :: (RandomGen g, Random a) =&gt; g -&gt; (a, g)</code></pre>
 <p>Ou seja, ela recebe um gerador aleatório e produz um número aleatório
 junto com um novo gerador. Podemos ver que se trata de uma computação
 estatal, então podemos envolvê-la no construtor <code>newtype</code>
 <code>State</code> e então usá-la como um valor monádico para que a
 passagem do estado seja tratada para nós:</p>
-<p>```{.haskell:hs} import System.Random import Control.Monad.State</p>
-<p>randomSt :: (RandomGen g, Random a) =&gt; State g a randomSt = State
-random ```</p>
+<pre class="haskell:hs"><code>import System.Random
+import Control.Monad.State
+
+randomSt :: (RandomGen g, Random a) =&gt; State g a
+randomSt = State random</code></pre>
 <p>Então, agora, se quisermos jogar três moedas (<code>True</code> é
 coroa, <code>False</code> é cara) basta fazer o seguinte:</p>
-<p>```{.haskell:hs} import System.Random import Control.Monad.State</p>
-<p>threeCoins :: State StdGen (Bool,Bool,Bool) threeCoins = do a &lt;-
-randomSt b &lt;- randomSt c &lt;- randomSt return (a,b,c) ```</p>
+<pre class="haskell:hs"><code>import System.Random
+import Control.Monad.State
+
+threeCoins :: State StdGen (Bool,Bool,Bool)
+threeCoins = do
+    a &lt;- randomSt
+    b &lt;- randomSt
+    c &lt;- randomSt
+    return (a,b,c)</code></pre>
 <p><code>threeCoins</code> é agora uma computação estatal e, após
 receber um gerador aleatório inicial, ela o passa para o primeiro
 <code>randomSt</code>, que produz um número e um novo gerador, o qual é
 passado para o próximo e assim por diante. Usamos
 <code>return (a,b,c)</code> para apresentar <code>(a,b,c)</code> como o
 resultado sem alterar o gerador mais recente. Vamos testar:</p>
-<p><code>{.haskell:hs} ghci&gt; runState threeCoins (mkStdGen 33) ((True,False,True),680029187 2103410263)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runState threeCoins (mkStdGen 33)
+((True,False,True),680029187 2103410263)</code></pre>
 <p>Legas. Fazer essas coisas que exigem que algum estado seja mantido
 entre as etapas tornou-se muito menos trabalhoso!</p>
-<h2>Erro, erro meu... {#error}</h2>
+<h2 id="error">Erro, erro meu…</h2>
 <p>Já sabemos que o <code>Maybe</code> é usado para adicionar um
 contexto de possível falha aos valores. Um valor pode ser um
 <code>Just algo</code> ou um <code>Nothing</code>. No entanto, por mais
@@ -881,14 +1064,21 @@ ou fornecer outras informações úteis sobre a falha. Um valor
 <code>Either e a</code> pode ser um valor <code>Right</code>,
 significando a resposta correta e o sucesso, ou pode ser um valor
 <code>Left</code>, significando falha. Por exemplo:</p>
-<p><code>{.haskell:hs} ghci&gt; :t Right 4 Right 4 :: (Num t) =&gt; Either a t ghci&gt; :t Left "erro de falta de queijo" Left "erro de falta de queijo" :: Either [Char] b</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t Right 4
+Right 4 :: (Num t) =&gt; Either a t
+ghci&gt; :t Left &quot;erro de falta de queijo&quot;
+Left &quot;erro de falta de queijo&quot; :: Either [Char] b</code></pre>
 <p>Isso é praticamente um <code>Maybe</code> aprimorado, então faz
 sentido que seja uma Monad, porque também pode ser visto como um valor
 com um contexto adicional de falha possível, só que agora também há um
 valor anexado quando há um erro.</p>
 <p>Sua Monad instance é semelhante à do <code>Maybe</code> e pode ser
 encontrada em <code>Control.Monad.Error</code>:</p>
-<p><code>{.haskell:hs} instance (Error e) =&gt; Monad (Either e) where     return x = Right x     Right x &gt;&gt;= f = f x     Left err &gt;&gt;= f = Left err     fail msg = Left (strMsg msg)</code></p>
+<pre class="haskell:hs"><code>instance (Error e) =&gt; Monad (Either e) where
+    return x = Right x
+    Right x &gt;&gt;= f = f x
+    Left err &gt;&gt;= f = Left err
+    fail msg = Left (strMsg msg)</code></pre>
 <p>O <code>return</code>, como sempre, recebe um valor e o coloca em um
 contexto mínimo padrão. Ele envolve o nosso valor no construtor
 <code>Right</code> porque estamos usando o <code>Right</code> para
@@ -912,13 +1102,19 @@ forma de uma string e retorna um valor desse tipo. Um bom exemplo de uma
 instância <code>Error</code> é, bem, o tipo <code>String</code>! No caso
 da <code>String</code>, a função <code>strMsg</code> apenas retorna a
 string que recebeu:</p>
-<p><code>{.haskell:hs} ghci&gt; :t strMsg strMsg :: (Error a) =&gt; String -&gt; a ghci&gt; strMsg "boom!" :: String "boom!"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t strMsg
+strMsg :: (Error a) =&gt; String -&gt; a
+ghci&gt; strMsg &quot;boom!&quot; :: String
+&quot;boom!&quot;</code></pre>
 <p>Mas, como geralmente usamos <code>String</code> para descrever o erro
 ao usar <code>Either</code>, não precisamos nos preocupar muito com
 isso. Quando um pattern match falha na <code>do notation</code>, um
 valor <code>Left</code> é usado para significar essa falha.</p>
 <p>De qualquer forma, aqui estão alguns exemplos de uso:</p>
-<p><code>{.haskell:hs} ghci&gt; Left "boom" &gt;&gt;= \x -&gt; return (x+1) Left "boom" ghci&gt; Right 100 &gt;&gt;= \x -&gt; Left "de jeito nenhum!" Left "de jeito nenhum!"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Left &quot;boom&quot; &gt;&gt;= \x -&gt; return (x+1)
+Left &quot;boom&quot;
+ghci&gt; Right 100 &gt;&gt;= \x -&gt; Left &quot;de jeito nenhum!&quot;
+Left &quot;de jeito nenhum!&quot;</code></pre>
 <p>Quando usamos o <code>&gt;&gt;=</code> para alimentar um valor
 <code>Left</code> para uma função, a função é ignorada e um valor
 <code>Left</code> idêntico é retornado. Quando alimentamos um valor
@@ -928,20 +1124,21 @@ dentro, mas no nosso caso essa função produziu um valor
 <p>Quando tentamos alimentar um valor <code>Right</code> para uma função
 que também tem sucesso, somos surpreendidos por um erro de tipo
 peculiar! Hmmm.</p>
-<p>```{.haskell:hs} ghci&gt; Right 3 &gt;&gt;= \x -&gt; return (x +
-100)</p>
-<p>&lt;interactive&gt;:1:0: Ambiguous type variable
-<code>a' in the constraints:</code>Error a' arising from a use of
-<code>it' at &lt;interactive&gt;:1:0-33</code>Show a' arising from a use
-of `print' at &lt;interactive&gt;:1:0-33 Probable fix: add a type
-signature that fixes these type variable(s) ```</p>
+<pre class="haskell:hs"><code>ghci&gt; Right 3 &gt;&gt;= \x -&gt; return (x + 100)
+
+&lt;interactive&gt;:1:0:
+    Ambiguous type variable `a&#39; in the constraints:
+      `Error a&#39; arising from a use of `it&#39; at &lt;interactive&gt;:1:0-33
+      `Show a&#39; arising from a use of `print&#39; at &lt;interactive&gt;:1:0-33
+    Probable fix: add a type signature that fixes these type variable(s)</code></pre>
 <p>O Haskell diz que não sabe qual tipo escolher para a parte
 <code>e</code> do nosso valor de tipo <code>Either e a</code>, embora
 estejamos apenas imprimindo a parte <code>Right</code>. Isso se deve à
 restrição <code>Error e</code> na Monad instance. Portanto, se você
 receber erros de tipo como este ao usar o <code>Either</code> como uma
 Monad, basta adicionar uma assinatura de tipo explícita:</p>
-<p><code>{.haskell:hs} ghci&gt; Right 3 &gt;&gt;= \x -&gt; return (x + 100) :: Either String Int Right 103</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Right 3 &gt;&gt;= \x -&gt; return (x + 100) :: Either String Int
+Right 103</code></pre>
 <p>Tudo bem, agora funciona!</p>
 <p>Além desse pequeno contratempo, usar esta Monad é muito semelhante a
 usar o <code>Maybe</code> como uma Monad. No capítulo anterior, usamos
@@ -950,16 +1147,16 @@ pousando na vara de equilíbrio de um equilibrista. Como exercício, você
 pode reescrever isso com a Error Monad para que, quando o equilibrista
 escorregue e caia, lembremos de quantos pássaros estavam em cada lado da
 vara quando ele caiu.</p>
-<h2>Algumas monadic functions úteis {#useful-monadic-functions}</h2>
+<h2 id="useful-monadic-functions">Algumas monadic functions úteis</h2>
 <p>Nesta seção, exploraremos algumas funções que operam em monadic
 values ou retornam monadic values como resultados (ou ambos!). Tais
 funções são geralmente chamadas de monadic functions. Embora algumas
 delas sejam completamente novas, outras serão contrapartes monádicas de
 funções que já conhecemos, como <code>filter</code> e
 <code>foldl</code>. Vamos ver quais são!</p>
-<h3>liftM e amigos</h3>
-<p><img src="assets/images/for-a-few-monads-more/wolf.png"
-alt="eu também sou um guarda" />{.right width=394 height=222}</p>
+<h3 id="liftm-e-amigos">liftM e amigos</h3>
+<p><img src="assets/images/for-a-few-monads-more/wolf.png" class="right"
+width="394" height="222" alt="eu também sou um guarda" /></p>
 <p>Quando começamos nossa jornada rumo ao topo da Montanha Monad,
 primeiro olhamos para os Functors, que são para coisas sobre as quais se
 pode mapear. Em seguida, aprendemos sobre Functors aprimorados chamados
@@ -982,9 +1179,9 @@ que ela tenha uma Functor instance por causa da função
 <code>liftM</code>. O <code>liftM</code> recebe uma função e um monadic
 value e o mapeia sobre o monadic value. Portanto, é praticamente a mesma
 coisa que o <code>fmap</code>! Este é o tipo do <code>liftM</code>:</p>
-<p><code>{.haskell:hs} liftM :: (Monad m) =&gt; (a -&gt; b) -&gt; m a -&gt; m b</code></p>
+<pre class="haskell:hs"><code>liftM :: (Monad m) =&gt; (a -&gt; b) -&gt; m a -&gt; m b</code></pre>
 <p>E este é o tipo do <code>fmap</code>:</p>
-<p><code>{.haskell:hs} fmap :: (Functor f) =&gt; (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>fmap :: (Functor f) =&gt; (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>Se as instâncias de <code>Functor</code> e <code>Monad</code> para um
 tipo obedecerem às leis dos Functors e das Monads, estas duas coisas
 resultam na mesma coisa (e todas as Monads que conhecemos até agora
@@ -992,7 +1189,18 @@ obedecem a ambas). Isso é parecido com o <code>pure</code> e o
 <code>return</code> fazendo a mesma coisa, só que um tem uma restrição
 de classe <code>Applicative</code> enquanto o outro tem uma
 <code>Monad</code>. Vamos testar o <code>liftM</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; liftM (*3) (Just 8) Just 24 ghci&gt; fmap (*3) (Just 8) Just 24 ghci&gt; runWriter $ liftM not $ Writer (True, "grao-de-bico") (False,"grao-de-bico") ghci&gt; runWriter $ fmap not $ Writer (True, "grao-de-bico") (False,"grao-de-bico") ghci&gt; runState (liftM (+100) pop) [1,2,3,4] (101,[2,3,4]) ghci&gt; runState (fmap (+100) pop) [1,2,3,4] (101,[2,3,4])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; liftM (*3) (Just 8)
+Just 24
+ghci&gt; fmap (*3) (Just 8)
+Just 24
+ghci&gt; runWriter $ liftM not $ Writer (True, &quot;grao-de-bico&quot;)
+(False,&quot;grao-de-bico&quot;)
+ghci&gt; runWriter $ fmap not $ Writer (True, &quot;grao-de-bico&quot;)
+(False,&quot;grao-de-bico&quot;)
+ghci&gt; runState (liftM (+100) pop) [1,2,3,4]
+(101,[2,3,4])
+ghci&gt; runState (fmap (+100) pop) [1,2,3,4]
+(101,[2,3,4])</code></pre>
 <p>Já sabemos muito bem como o <code>fmap</code> funciona com valores
 <code>Maybe</code>. E o <code>liftM</code> faz a mesma coisa. Para
 valores <code>Writer</code>, a função é mapeada sobre o primeiro
@@ -1003,9 +1211,13 @@ função fornecida. Se não tivéssemos mapeado <code>(+100)</code> sobre o
 <code>pop</code> neste caso antes de executá-lo, ele teria retornado
 <code>(1,[2,3,4])</code>.</p>
 <p>É assim que o <code>liftM</code> é implementado:</p>
-<p><code>{.haskell:hs} liftM :: (Monad m) =&gt; (a -&gt; b) -&gt; m a -&gt; m b liftM f m = m &gt;&gt;= (\x -&gt; return (f x))</code></p>
+<pre class="haskell:hs"><code>liftM :: (Monad m) =&gt; (a -&gt; b) -&gt; m a -&gt; m b
+liftM f m = m &gt;&gt;= (\x -&gt; return (f x))</code></pre>
 <p>Ou com a notação <code>do</code>:</p>
-<p><code>{.haskell:hs} liftM :: (Monad m) =&gt; (a -&gt; b) -&gt; m a -&gt; m b liftM f m = do     x &lt;- m     return (f x)</code></p>
+<pre class="haskell:hs"><code>liftM :: (Monad m) =&gt; (a -&gt; b) -&gt; m a -&gt; m b
+liftM f m = do
+    x &lt;- m
+    return (f x)</code></pre>
 <p>Alimentamos o monadic value <code>m</code> na função e então
 aplicamos a função <code>f</code> ao seu resultado antes de colocá-lo de
 volta em um contexto padrão. Por causa das leis das Monads, isso garante
@@ -1018,12 +1230,15 @@ oferecem. Por isso, podemos concluir que as Monads são mais fortes que
 os simples e velhos Functors.</p>
 <p>A typeclass <code>Applicative</code> nos permite aplicar funções
 entre valores com contextos como se fossem valores normais. Assim:</p>
-<p><code>{.haskell:hs} ghci&gt; (+) &lt;$&gt; Just 3 &lt;*&gt; Just 5 Just 8 ghci&gt; (+) &lt;$&gt; Just 3 &lt;*&gt; Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (+) &lt;$&gt; Just 3 &lt;*&gt; Just 5
+Just 8
+ghci&gt; (+) &lt;$&gt; Just 3 &lt;*&gt; Nothing
+Nothing</code></pre>
 <p>Usar este estilo aplicativo torna as coisas bem fáceis. O
 <code>&lt;$&gt;</code> é apenas o <code>fmap</code> e o
 <code>&lt;*&gt;</code> é uma função da typeclass
 <code>Applicative</code> que tem o seguinte tipo:</p>
-<p><code>{.haskell:hs} (&lt;*&gt;) :: (Applicative f) =&gt; f (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>(&lt;*&gt;) :: (Applicative f) =&gt; f (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>Portanto, é parecido com o <code>fmap</code>, só que a própria função
 está em um contexto. Temos que de alguma forma extraí-la do contexto e
 mapeá-la sobre o valor <code>f a</code> para depois montar o contexto
@@ -1037,14 +1252,25 @@ a typeclass <code>Monad</code> nos dá. A função <code>ap</code> é
 basicamente o <code>&lt;*&gt;</code>, só que tem uma restrição
 <code>Monad</code> em vez de uma <code>Applicative</code>. Aqui está a
 sua definição:</p>
-<p><code>{.haskell:hs} ap :: (Monad m) =&gt; m (a -&gt; b) -&gt; m a -&gt; m b ap mf m = do     f &lt;- mf     x &lt;- m     return (f x)</code></p>
+<pre class="haskell:hs"><code>ap :: (Monad m) =&gt; m (a -&gt; b) -&gt; m a -&gt; m b
+ap mf m = do
+    f &lt;- mf
+    x &lt;- m
+    return (f x)</code></pre>
 <p><code>mf</code> é um valor monádico cujo resultado é uma função. Como
 a função está em um contexto, assim como o valor, pegamos a função do
 contexto e a chamamos de <code>f</code>, depois pegamos o valor e o
 chamamos de <code>x</code> e então finalmente aplicamos a função ao
 valor e apresentamos isso como resultado. Aqui está uma demonstração
 rápida:</p>
-<p><code>{.haskell:hs} ghci&gt; Just (+3) &lt;*&gt; Just 4 Just 7 ghci&gt; Just (+3) `ap` Just 4 Just 7 ghci&gt; [(+1),(+2),(+3)] &lt;*&gt; [10,11] [11,12,12,13,13,14] ghci&gt; [(+1),(+2),(+3)] `ap` [10,11] [11,12,12,13,13,14]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just (+3) &lt;*&gt; Just 4
+Just 7
+ghci&gt; Just (+3) `ap` Just 4
+Just 7
+ghci&gt; [(+1),(+2),(+3)] &lt;*&gt; [10,11]
+[11,12,12,13,13,14]
+ghci&gt; [(+1),(+2),(+3)] `ap` [10,11]
+[11,12,12,13,13,14]</code></pre>
 <p>Agora vemos que as Monads também são mais fortes que os aplicativos,
 porque podemos usar as funções da <code>Monad</code> para implementar as
 da <code>Applicative</code>. Na verdade, muitas vezes, quando se
@@ -1057,7 +1283,8 @@ algo, pode dar a ela uma Functor instance apenas dizendo que o
 <p>A função <code>liftA2</code> é uma função de conveniência para
 aplicar uma função entre dois valores aplicativos. Ela é definida
 simplesmente assim:</p>
-<p><code>{.haskell:hs} liftA2 :: (Applicative f) =&gt; (a -&gt; b -&gt; c) -&gt; f a -&gt; f b -&gt; f c liftA2 f x y = f &lt;$&gt; x &lt;*&gt; y</code></p>
+<pre class="haskell:hs"><code>liftA2 :: (Applicative f) =&gt; (a -&gt; b -&gt; c) -&gt; f a -&gt; f b -&gt; f c
+liftA2 f x y = f &lt;$&gt; x &lt;*&gt; y</code></pre>
 <p>A função <code>liftM2</code> faz a mesma coisa, só que tem uma
 restrição <code>Monad</code>. Também existem o <code>liftM3</code>,
 <code>liftM4</code> e <code>liftM5</code>.</p>
@@ -1066,7 +1293,7 @@ como, apesar de toda Monad ser um Functor e um Applicative Functor, elas
 não têm necessariamente Functor e Applicative instances, por isso
 examinamos os equivalentes monádicos das funções que os Functors e
 Applicative Functors usam.</p>
-<h3>A função join</h3>
+<h3 id="a-função-join">A função join</h3>
 <p>Aqui está algo para se pensar: se o resultado de um monadic value é
 outro monadic value, ou seja, se um monadic value está aninhado dentro
 de outro, você pode achatá-los para apenas um único monadic value
@@ -1075,11 +1302,16 @@ transformar isso em <code>Just 9</code>? Acontece que qualquer monadic
 value aninhado pode ser achatado e que essa é, na verdade, uma
 propriedade única das Monads. Para isso, existe a função
 <code>join</code>. O seu tipo é este:</p>
-<p><code>{.haskell:hs} join :: (Monad m) =&gt; m (m a) -&gt; m a</code></p>
+<pre class="haskell:hs"><code>join :: (Monad m) =&gt; m (m a) -&gt; m a</code></pre>
 <p>Portanto, ela recebe um valor monádico dentro de um valor monádico e
 nos dá apenas um valor monádico; ou seja, ela o achata de certa forma.
 Aqui está ela com alguns valores <code>Maybe</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; join (Just (Just 9)) Just 9 ghci&gt; join (Just Nothing) Nothing ghci&gt; join Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; join (Just (Just 9))
+Just 9
+ghci&gt; join (Just Nothing)
+Nothing
+ghci&gt; join Nothing
+Nothing</code></pre>
 <p>A primeira linha tem uma computação bem-sucedida como resultado de
 uma computação bem-sucedida, então ambas são apenas unidas em uma única
 computação bem-sucedida. A segunda linha apresenta um
@@ -1093,12 +1325,14 @@ resultado era uma falha, e o mesmo acontece aqui. Na terceira linha,
 tentamos achatar o que é, desde o início, uma falha, de modo que o
 resultado é uma falha também.</p>
 <p>Achatar listas é bem intuitivo:</p>
-<p><code>{.haskell:hs} ghci&gt; join [[1,2,3],[4,5,6]] [1,2,3,4,5,6]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; join [[1,2,3],[4,5,6]]
+[1,2,3,4,5,6]</code></pre>
 <p>Como você pode ver, para listas, <code>join</code> é apenas
 <code>concat</code>. Para achatar um valor <code>Writer</code> cujo
 resultado é um valor <code>Writer</code> por si só, temos que usar o
 <code>mappend</code> no valor monóide.</p>
-<p><code>{.haskell:hs} ghci&gt; runWriter $ join (Writer (Writer (1,"aaa"),"bbb")) (1,"bbbaaa")</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runWriter $ join (Writer (Writer (1,&quot;aaa&quot;),&quot;bbb&quot;))
+(1,&quot;bbbaaa&quot;)</code></pre>
 <p>O valor monóide externo <code>"bbb"</code> vem primeiro e depois
 <code>"aaa"</code> é anexado a éle. Intuitivamente falando, quando você
 quer examinar qual é o resultado de um valor <code>Writer</code>, você
@@ -1106,12 +1340,18 @@ tem que escrever seu valor monóide no log primeiro e só então pode
 examinar o que ele tem dentro.</p>
 <p>Achatar valores <code>Either</code> é muito semelhante a achatar
 valores <code>Maybe</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; join (Right (Right 9)) :: Either String Int Right 9 ghci&gt; join (Right (Left "erro")) :: Either String Int Left "erro" ghci&gt; join (Left "erro") :: Either String Int Left "erro"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; join (Right (Right 9)) :: Either String Int
+Right 9
+ghci&gt; join (Right (Left &quot;erro&quot;)) :: Either String Int
+Left &quot;erro&quot;
+ghci&gt; join (Left &quot;erro&quot;) :: Either String Int
+Left &quot;erro&quot;</code></pre>
 <p>Se aplicarmos o <code>join</code> a uma computação estatal cujo
 resultado é uma computação estatal por si só, o resultado é uma
 computação estatal que executa primeiro a computação estatal externa e
 depois a resultante. Veja:</p>
-<p><code>{.haskell:hs} ghci&gt; runState (join (State $ \s -&gt; (push 10,1:2:s))) [0,0,0] ((),[10,1,2,0,0,0])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; runState (join (State $ \s -&gt; (push 10,1:2:s))) [0,0,0]
+((),[10,1,2,0,0,0])</code></pre>
 <p>O lambda aqui recebe um estado e coloca <code>2</code> e
 <code>1</code> na pilha e apresenta <code>push 10</code> como seu
 resultado. Portanto, quando tudo isso é achatado com <code>join</code> e
@@ -1119,7 +1359,10 @@ depois executado, ele primeiro coloca <code>2</code> e <code>1</code> na
 pilha e depois o <code>push 10</code> é realizado, colocando um
 <code>10</code> no topo.</p>
 <p>A implementação do <code>join</code> é a seguinte:</p>
-<p><code>{.haskell:hs} join :: (Monad m) =&gt; m (m a) -&gt; m a join mm = do     m &lt;- mm     m</code></p>
+<pre class="haskell:hs"><code>join :: (Monad m) =&gt; m (m a) -&gt; m a
+join mm = do
+    m &lt;- mm
+    m</code></pre>
 <p>Como o resultado de <code>mm</code> é um valor monádico, pegamos esse
 resultado e o colocamos em uma linha própria, pois se trata de um valor
 monádico. O truque aqui é que, quando fazemos <code>m &lt;- mm</code>, o
@@ -1129,9 +1372,12 @@ exemplo, valores <code>Maybe</code> resultam em valores
 valores <code>Just</code>. Aqui está como ficaria se o valor
 <code>mm</code> fosse definido antecipadamente como
 <code>Just (Just 8)</code>:</p>
-<p><code>{.haskell:hs} joinedMaybes :: Maybe Int joinedMaybes = do     m &lt;- Just (Just 8)     m</code></p>
-<p><img src="assets/images/for-a-few-monads-more/tipi.png"
-alt="eu também sou um guarda também" />{.right width=253 height=379}</p>
+<pre class="haskell:hs"><code>joinedMaybes :: Maybe Int
+joinedMaybes = do
+    m &lt;- Just (Just 8)
+    m</code></pre>
+<p><img src="assets/images/for-a-few-monads-more/tipi.png" class="right"
+width="253" height="379" alt="eu também sou um guarda também" /></p>
 <p>Talvez a coisa mais interessante sobre a <code>join</code> é que,
 para toda Monad, alimentar um monadic value a uma função com
 <code>&gt;&gt;=</code> é a mesma coisa que apenas mapear essa função
@@ -1151,13 +1397,13 @@ digamos que tenhamos <code>Just 9</code> e a função
 própria Monad instance para algum tipo, porque muitas vezes é mais fácil
 descobrir como achatar um monadic value aninhado do que descobrir como
 implementar o <code>&gt;&gt;=</code>.</p>
-<h3>filterM</h3>
+<h3 id="filterm">filterM</h3>
 <p>A função <code>filter</code> é praticamente o pão de cada dia da
 programação Haskell (<code>map</code> sendo a manteiga). Ela recebe um
 predicado e uma lista para filtrar e então retorna uma nova lista onde
 apenas os elementos que satisfazem o predicado são mantidos. O seu tipo
 é este:</p>
-<p><code>{.haskell:hs} filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]</code></p>
+<pre class="haskell:hs"><code>filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]</code></pre>
 <p>O predicado recebe um elemento da lista e retorna um valor
 <code>Bool</code>. Agora, e se o valor <code>Bool</code> que ele
 retornasse fosse na verdade um monadic value? Uau! Ou seja, e se ele
@@ -1174,7 +1420,7 @@ tivesse algum contexto anexado, caso contrário o contexto com o qual
 cada <code>Bool</code> veio seria perdido.</p>
 <p>A função <code>filterM</code> de <code>Control.Monad</code> faz
 exatamente o que queremos! O seu tipo é este:</p>
-<p><code>{.haskell:hs} filterM :: (Monad m) =&gt; (a -&gt; m Bool) -&gt; [a] -&gt; m [a]</code></p>
+<pre class="haskell:hs"><code>filterM :: (Monad m) =&gt; (a -&gt; m Bool) -&gt; [a] -&gt; m [a]</code></pre>
 <p>O predicado retorna um monadic value cujo resultado é um
 <code>Bool</code>, mas como é um monadic value, seu contexto pode ser
 qualquer coisa, desde uma falha possível até o não-determinismo e muito
@@ -1182,12 +1428,20 @@ mais! Para garantir que o contexto seja refletido no resultado final, o
 resultado também é um monadic value.</p>
 <p>Vamos pegar uma lista e manter apenas os valores menores que 4. Para
 começar, usaremos apenas a função <code>filter</code> normal:</p>
-<p><code>{.haskell:hs} ghci&gt; filter (\x -&gt; x &lt; 4) [9,1,5,2,10,3] [1,2,3]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; filter (\x -&gt; x &lt; 4) [9,1,5,2,10,3]
+[1,2,3]</code></pre>
 <p>Isso é bem fácil. Agora, vamos criar um predicado que, além de
 apresentar um resultado <code>True</code> ou <code>False</code>, também
 forneça um log do que fez. É claro que usaremos a mônada
 <code>Writer</code> para isso:</p>
-<p><code>{.haskell:hs} keepSmall :: Int -&gt; Writer [String] Bool keepSmall x     | x &lt; 4 = do         tell ["Mantendo " ++ show x]         return True     | otherwise = do         tell [show x ++ " e muito grande, jogando fora"]         return False</code></p>
+<pre class="haskell:hs"><code>keepSmall :: Int -&gt; Writer [String] Bool
+keepSmall x
+    | x &lt; 4 = do
+        tell [&quot;Mantendo &quot; ++ show x]
+        return True
+    | otherwise = do
+        tell [show x ++ &quot; e muito grande, jogando fora&quot;]
+        return False</code></pre>
 <p>Em vez de apenas retornar um <code>Bool</code>, esta função retorna
 um <code>Writer [String] Bool</code>. É um predicado monádico. Parece
 sofisticado, não é? Se o número for menor que <code>4</code>, relatamos
@@ -1195,11 +1449,18 @@ que o estamos mantendo e depois damos um <code>return True</code>.</p>
 <p>Agora, vamos passá-lo para o <code>filterM</code> junto com uma
 lista. Como o predicado retorna um valor <code>Writer</code>, a lista
 resultante também será um valor <code>Writer</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; fst $ runWriter $ filterM keepSmall [9,1,5,2,10,3] [1,2,3]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fst $ runWriter $ filterM keepSmall [9,1,5,2,10,3]
+[1,2,3]</code></pre>
 <p>Examinando o resultado do valor <code>Writer</code> resultante, vemos
 que está tudo em ordem. Agora, vamos imprimir o log e ver o que
 obtivemos:</p>
-<p><code>{.haskell:hs} ghci&gt; mapM_ putStrLn $ snd $ runWriter $ filterM keepSmall [9,1,5,2,10,3] 9 e muito grande, jogando fora Mantendo 1 5 e muito grande, jogando fora Mantendo 2 10 e muito grande, jogando fora Mantendo 3</code></p>
+<pre class="haskell:hs"><code>ghci&gt; mapM_ putStrLn $ snd $ runWriter $ filterM keepSmall [9,1,5,2,10,3]
+9 e muito grande, jogando fora
+Mantendo 1
+5 e muito grande, jogando fora
+Mantendo 2
+10 e muito grande, jogando fora
+Mantendo 3</code></pre>
 <p>Incrível. Assim, apenas fornecendo um predicado monádico para o
 <code>filterM</code>, fomos capazes de filtrar uma lista aproveitando o
 contexto monádico que usamos.</p>
@@ -1209,7 +1470,14 @@ pensarmos nela como conjuntos por enquanto). O conjunto das partes de
 algum conjunto é o conjunto de todos os subconjuntos desse conjunto.
 Portanto, se tivermos um conjunto como <code>[1,2,3]</code>, seu
 conjunto das partes incluiria os seguintes conjuntos:</p>
-<p><code>{.haskell:hs} [1,2,3] [1,2] [1,3] [1] [2,3] [2] [3] []</code></p>
+<pre class="haskell:hs"><code>[1,2,3]
+[1,2]
+[1,3]
+[1]
+[2,3]
+[2]
+[3]
+[]</code></pre>
 <p>Em outras palavras, obter um conjunto das partes é como obter todas
 as combinações de manter e descartar elementos de um conjunto.
 <code>[2,3]</code> é como o conjunto original, só que excluímos o número
@@ -1222,18 +1490,20 @@ gostaríamos de fazer ambos na verdade. Portanto, simularemos a filtragem
 de uma lista e usaremos um predicado que, de forma não-determinística,
 tanto mantém quanto descarta cada elemento da lista. Aqui está a nossa
 função <code>powerset</code>:</p>
-<p><code>{.haskell:hs} powerset :: [a] -&gt; [[a]] powerset xs = filterM (\x -&gt; [True, False]) xs</code></p>
+<pre class="haskell:hs"><code>powerset :: [a] -&gt; [[a]]
+powerset xs = filterM (\x -&gt; [True, False]) xs</code></pre>
 <p>Espere, é só isso? Sim. Escolhemos descartar e manter cada elemento,
 independentemente de qual seja esse elemento. Temos um predicado
 não-determinístico, de modo que a lista resultante também será um valor
 não-determinístico e será, portanto, uma lista de listas. Vamos
 testar:</p>
-<p><code>{.haskell:hs} ghci&gt; powerset [1,2,3] [[1,2,3],[1,2],[1,3],[1],[2,3],[2],[3],[]]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; powerset [1,2,3]
+[[1,2,3],[1,2],[1,3],[1],[2,3],[2],[3],[]]</code></pre>
 <p>Isso exige um pouco de reflexão para entender, mas se você apenas
 considerar as listas como valores não-determinísticos que não sabem o
 que ser e então decidem ser tudo de uma vez, fica um pouco mais
 fácil.</p>
-<h3>foldM</h3>
+<h3 id="foldm">foldM</h3>
 <p>A contraparte monádica do <code>foldl</code> é o <code>foldM</code>.
 Se você se lembra do seu <code>foldl</code>, ele recebia uma função
 binária, um acumulador inicial e uma lista para dobrar e então reduzia a
@@ -1241,18 +1511,24 @@ lista a um único valor dobrando a função binária sobre a lista a partir
 da esquerda. O <code>foldM</code> faz a mesma coisa, só que recebe uma
 função binária que produz um resultado monádico e então dobra a lista
 com essa função. O seu tipo é este:</p>
-<p><code>{.haskell:hs} foldM :: (Monad m) =&gt; (a -&gt; b -&gt; m a) -&gt; a -&gt; [b] -&gt; m a</code></p>
+<pre class="haskell:hs"><code>foldM :: (Monad m) =&gt; (a -&gt; b -&gt; m a) -&gt; a -&gt; [b] -&gt; m a</code></pre>
 <p>O valor retornado pela função binária é monádico e, portanto, o
 resultado de toda a dobra também é monádico. Vamos pegar uma lista e
 dobrá-la, mas em vez de apenas somar os números, vamos garantir que a
 soma nunca ultrapasse <code>100</code>. Se a soma ultrapassar
 <code>100</code>, falharemos.</p>
-<p><code>{.haskell:hs} binSmalls :: Int -&gt; Int -&gt; Maybe Int binSmalls acc x     | x &gt; 9 = Nothing     | otherwise = Just (acc + x)</code></p>
+<pre class="haskell:hs"><code>binSmalls :: Int -&gt; Int -&gt; Maybe Int
+binSmalls acc x
+    | x &gt; 9 = Nothing
+    | otherwise = Just (acc + x)</code></pre>
 <p>Nossa função binária recebe um acumulador e um elemento da lista e,
 se o elemento for maior que <code>9</code>, ela falha retornando
 <code>Nothing</code>, caso contrário, ela retorna a soma envolta em um
 <code>Just</code>. Agora, vamos usá-la com o <code>foldM</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; foldM binSmalls 0 [2,8,3,1] Just 14 ghci&gt; foldM binSmalls 0 [2,11,3,1] Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; foldM binSmalls 0 [2,8,3,1]
+Just 14
+ghci&gt; foldM binSmalls 0 [2,11,3,1]
+Nothing</code></pre>
 <p>Se qualquer etapa da dobra falhar, todo o <code>foldM</code> resulta
 em uma falha.</p>
 <p>Logicamente, se usarmos um <code>Writer</code> como a Monad para o
@@ -1260,7 +1536,7 @@ em uma falha.</p>
 em cada etapa da dobra. E se usarmos uma lista como a Monad, o
 <code>foldM</code> pode ser usado para dobras não-determinísticas, o que
 é bem legal.</p>
-<h2>Criando uma calculadora RPN segura {#safe-rpn-calculator}</h2>
+<h2 id="safe-rpn-calculator">Criando uma calculadora RPN segura</h2>
 <p>Quando resolvemos o problema de <a
 href="functionally-solving-problems.html#reverse-polish-notation-calculator">implementar
 uma calculadora RPN</a>, mencionamos que ela funcionava bem desde que a
@@ -1274,11 +1550,16 @@ processado um por um. Se fosse um número, ele era empilhado; se fosse um
 operador, os dois números do topo eram desempilhados e opados e o
 resultado era empilhado de volta.</p>
 <p>Lembre-se da nossa implementação original:</p>
-<p>```{.haskell:hs} import Data.List</p>
-<p>solveRPN :: String -&gt; Double solveRPN = head . foldl
-foldingFunction [] . words ```</p>
+<pre class="haskell:hs"><code>import Data.List
+
+solveRPN :: String -&gt; Double
+solveRPN = head . foldl foldingFunction [] . words</code></pre>
 <p>E a função de dobra:</p>
-<p><code>{.haskell:hs} foldingFunction :: [Double] -&gt; String -&gt; [Double] foldingFunction (x:y:ys) "*" = (x * y):ys foldingFunction (x:y:ys) "+" = (x + y):ys foldingFunction (x:y:ys) "-" = (y - x):ys foldingFunction xs numberString = read numberString:xs</code></p>
+<pre class="haskell:hs"><code>foldingFunction :: [Double] -&gt; String -&gt; [Double]
+foldingFunction (x:y:ys) &quot;*&quot; = (x * y):ys
+foldingFunction (x:y:ys) &quot;+&quot; = (x + y):ys
+foldingFunction (x:y:ys) &quot;-&quot; = (y - x):ys
+foldingFunction xs numberString = read numberString:xs</code></pre>
 <p>Dobragem da esquerda para a direita, acumulador sendo a pilha. Agora,
 vamos torná-la segura! Primeiro, vamos fazer de modo que a
 <code>foldingFunction</code> possa falhar graciosamente. O seu tipo
@@ -1293,12 +1574,21 @@ válido. Para corrigir isso, usaremos <code>reads</code>, que é como o
 o resto da string se a leitura foi bem-sucedida ou uma lista vazia se
 falhou. Podemos usá-la para fazer uma função que tenta ler uma string
 como um número e, se conseguir, retorna um <code>Just numero</code>:</p>
-<p><code>{.haskell:hs} readMaybe :: (Read a) =&gt; String -&gt; Maybe a readMaybe st = case reads st of [(x,"")] -&gt; Just x                                 _ -&gt; Nothing</code></p>
+<pre class="haskell:hs"><code>readMaybe :: (Read a) =&gt; String -&gt; Maybe a
+readMaybe st = case reads st of [(x,&quot;&quot;)] -&gt; Just x
+                                _ -&gt; Nothing</code></pre>
 <p>Vamos testar:</p>
-<p><code>{.haskell:hs} ghci&gt; readMaybe "1" :: Maybe Int Just 1 ghci&gt; readMaybe "GO TO HELL" :: Maybe Int Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; readMaybe &quot;1&quot; :: Maybe Int
+Just 1
+ghci&gt; readMaybe &quot;GO TO HELL&quot; :: Maybe Int
+Nothing</code></pre>
 <p>Parece que funciona. Agora, vamos reescrever nossa
 <code>foldingFunction</code> para ser uma monadic function:</p>
-<p><code>{.haskell:hs} foldingFunction :: [Double] -&gt; String -&gt; Maybe [Double] foldingFunction (x:y:ys) "*" = return ((x * y):ys) foldingFunction (x:y:ys) "+" = return ((x + y):ys) foldingFunction (x:y:ys) "-" = return ((y - x):ys) foldingFunction xs numberString = liftM (:xs) (readMaybe numberString)</code></p>
+<pre class="haskell:hs"><code>foldingFunction :: [Double] -&gt; String -&gt; Maybe [Double]
+foldingFunction (x:y:ys) &quot;*&quot; = return ((x * y):ys)
+foldingFunction (x:y:ys) &quot;+&quot; = return ((x + y):ys)
+foldingFunction (x:y:ys) &quot;-&quot; = return ((y - x):ys)
+foldingFunction xs numberString = liftM (:xs) (readMaybe numberString)</code></pre>
 <p>As três primeiras linhas, que cuidam dos operadores, agora retornam
 monadic values (usamos o <code>return</code> para envolver a nova pilha
 em um <code>Just</code>). A última linha tenta ler a string como um
@@ -1307,7 +1597,10 @@ número e, se conseguir, coloca esse número no topo da pilha. Usamos o
 resultado de <code>readMaybe</code>.</p>
 <p>Agora que temos uma monadic folding function, usaremos o
 <code>foldM</code> em vez do <code>foldl</code>. Veja como fica:</p>
-<p><code>{.haskell:hs} solveRPN :: String -&gt; Maybe Double solveRPN st = do     [result] &lt;- foldM foldingFunction [] (words st)     return result</code></p>
+<pre class="haskell:hs"><code>solveRPN :: String -&gt; Maybe Double
+solveRPN st = do
+    [result] &lt;- foldM foldingFunction [] (words st)
+    return result</code></pre>
 <p>Usamos a notação <code>do</code> para obter o resultado da dobra
 monádica. Como a dobra retorna um <code>Maybe [Double]</code>, se tudo
 correu bem, terminamos com uma lista contendo um único elemento, que é o
@@ -1317,20 +1610,33 @@ resultado geral também será um <code>Nothing</code>. Se o resultado da
 dobra for uma lista que não tem exatamente um elemento, o pattern match
 falhará e a mônada <code>Maybe</code> cuidará disso para nós, retornando
 um <code>Nothing</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; solveRPN "1 2 * 4 +" Just 6.0 ghci&gt; solveRPN "1 2 * 4 + 5 *" Just 30.0 ghci&gt; solveRPN "1 2 * 4" Nothing ghci&gt; solveRPN "1 8 blabla" Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; solveRPN &quot;1 2 * 4 +&quot;
+Just 6.0
+ghci&gt; solveRPN &quot;1 2 * 4 + 5 *&quot;
+Just 30.0
+ghci&gt; solveRPN &quot;1 2 * 4&quot;
+Nothing
+ghci&gt; solveRPN &quot;1 8 blabla&quot;
+Nothing</code></pre>
 <p>A primeira falha acontece porque a pilha final tinha dois elementos
 (<code>[4.0,2.0]</code>), então o pattern match falhou. A segunda falha
-acontece porque "blabla" não é um número.</p>
+acontece porque “blabla” não é um número.</p>
 <p>Nossa calculadora RPN agora é muito mais robusta! Ela pode lidar com
 erros de entrada sem explodir. E tudo isso graças ao <code>foldM</code>
 e ao contexto de falha possível oferecido pela Maybe Monad.</p>
-<h2>Composição de monadic functions {#composing-monadic-functions}</h2>
+<h2 id="composing-monadic-functions">Composição de monadic
+functions</h2>
 <p>Ao aprender sobre as Monad laws, aprendemos sobre a função
 <code>&lt;=&lt;</code>, que é como a composição normal de funções, porém
 em vez de funcionar com funções normais do tipo <code>a -&gt; b</code>,
 ela funciona com monadic functions do tipo <code>a -&gt; m b</code>. Por
 exemplo:</p>
-<p><code>{.haskell:hs} ghci&gt; let f = (+1) . (*100) ghci&gt; f 4 401 ghci&gt; let g = (\x -&gt; return (x+1)) &lt;=&lt; (\x -&gt; return (x*100)) ghci&gt; Just 4 &gt;&gt;= g Just 401</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let f = (+1) . (*100)
+ghci&gt; f 4
+401
+ghci&gt; let g = (\x -&gt; return (x+1)) &lt;=&lt; (\x -&gt; return (x*100))
+ghci&gt; Just 4 &gt;&gt;= g
+Just 401</code></pre>
 <p>Neste exemplo, primeiro compusemos duas funções normais, aplicamos o
 resultado a <code>4</code> e depois fizemos o mesmo com monadic
 functions usando <code>&lt;=&lt;</code> e alimentamos o monadic result
@@ -1338,7 +1644,9 @@ com <code>&gt;&gt;=</code>.</p>
 <p>Se tivermos um monte de funções em uma lista, podemos compô-las todas
 em uma única função gigante usando o <code>foldr</code> e a função de
 composição normal.</p>
-<p><code>{.haskell:hs} ghci&gt; let f = foldr (.) id [(+1),(*100),(+5)] ghci&gt; f 1 106</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let f = foldr (.) id [(+1),(*100),(+5)]
+ghci&gt; f 1
+106</code></pre>
 <p>A função <code>f</code> recebe um número, soma <code>5</code> a ele,
 multiplica o resultado por <code>100</code> e depois soma
 <code>1</code>. Podemos fazer o mesmo para monadic functions, só que
@@ -1347,7 +1655,9 @@ usamos o <code>&lt;=&lt;</code> em vez de <code>.</code> e o
 de uma contraparte monádica do <code>foldr</code>, porque o
 <code>foldr</code> funciona para qualquer tipo, e o tipo das nossas
 monadic functions é <code>a -&gt; m a</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; let f = foldr (&lt;=&lt;) return [(\x -&gt; [x,x]),(\x -&gt; [x,x,x])] ghci&gt; f 4 [4,4,4,4,4,4]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let f = foldr (&lt;=&lt;) return [(\x -&gt; [x,x]),(\x -&gt; [x,x,x])]
+ghci&gt; f 4
+[4,4,4,4,4,4]</code></pre>
 <p>A função <code>f</code> recebe um número e cria uma lista que o
 contém três vezes, e depois essa lista é alimentada na função que
 duplica os elementos.</p>
@@ -1358,7 +1668,7 @@ tínhamos uma função chamada <code>moveKnight</code>, que retornava todas
 as posições possíveis onde o cavalo poderia estar após um movimento.
 Então, para calcular todas as posições possíveis após três movimentos,
 criamos a seguinte função:</p>
-<p><code>{.haskell:hs} in3 start = return start &gt;&gt;= moveKnight &gt;&gt;= moveKnight &gt;&gt;= moveKnight</code></p>
+<pre class="haskell:hs"><code>in3 start = return start &gt;&gt;= moveKnight &gt;&gt;= moveKnight &gt;&gt;= moveKnight</code></pre>
 <p>Para verificar se ele poderia chegar a uma posição <code>end</code>
 começando em <code>start</code>, apenas verificávamos se
 <code>end</code> estava na lista resultante.</p>
@@ -1368,15 +1678,16 @@ recebesse <code>n</code> e retornasse uma monadic function como
 <code>moveKnight</code>, mas que em vez de um movimento, fizesse
 <code>n</code> movimentos. O <code>foldr</code> e o
 <code>&lt;=&lt;</code> são perfeitos para isso:</p>
-<p>```{.haskell:hs} import Control.Monad</p>
-<p>canReachIn :: Int -&gt; KnightPos -&gt; KnightPos -&gt; Bool
-canReachIn n start end = end <code>elem</code> res where res = res
-(foldr (&lt;=&lt;) return (replicate n moveKnight)) start ```</p>
+<pre class="haskell:hs"><code>import Control.Monad
+
+canReachIn :: Int -&gt; KnightPos -&gt; KnightPos -&gt; Bool
+canReachIn n start end = end `elem` res
+    where res = res (foldr (&lt;=&lt;) return (replicate n moveKnight)) start</code></pre>
 <p>Primeiro usamos o <code>replicate</code> para criar uma lista de
 tamanho <code>n</code> contendo a função <code>moveKnight</code>. Em
 seguida, compusemos todas essas funções monádicas em uma só e aplicamos
 a posição inicial à função resultante.</p>
-<h2>Criando Monads {#making-monads}</h2>
+<h2 id="making-monads">Criando Monads</h2>
 <p>Nesta seção, vamos ver um exemplo de como um tipo é criado,
 identificado como um Functor e, em seguida, recebe Applicative e Monad
 instances.</p>
@@ -1387,34 +1698,41 @@ não-determinístico, poderíamos vê-lo como um valor que é <code>3</code>,
 <code>5</code> e <code>9</code> ao mesmo tempo. Mas e se quiséssemos
 dizer que há 50% de chance de ele ser <code>3</code> e 25% de chance de
 ser <code>5</code> ou <code>9</code>?</p>
-<p><img src="assets/images/for-a-few-monads-more/dice.png"
-alt="probabilidade" />{.left width=200 height=200}</p>
+<p><img src="assets/images/for-a-few-monads-more/dice.png" class="left"
+width="200" height="200" alt="probabilidade" /></p>
 <p>Para modelar isso, representaremos um valor com sua probabilidade
 como um par, onde o primeiro componente do par é o valor e o segundo é a
 probabilidade. Para representar uma lista de probabilidades, basta
 termos uma lista de tais pares.</p>
-<p><code>{.haskell:hs} [(3,0.5),(5,0.25),(9,0.25)]</code></p>
+<pre class="haskell:hs"><code>[(3,0.5),(5,0.25),(9,0.25)]</code></pre>
 <p>Em Haskell, as probabilidades são representadas por números de ponto
 flutuante, mas os números racionais (como os do módulo
 <code>Data.Ratio</code>) são muito adequados para probabilidades porque
 são precisos e não apresentam os erros de arredondamento inerentes aos
 <code>Double</code>. Por isso, usaremos <code>Rational</code>.</p>
-<p>```{.haskell:hs} import Data.Ratio</p>
-<p>ghci&gt; 1%4 1 % 4 ghci&gt; 1%2 + 1%2 1 % 1 ghci&gt; 1%3 + 5%4 19 %
-12 ```</p>
+<pre class="haskell:hs"><code>import Data.Ratio
+
+ghci&gt; 1%4
+1 % 4
+ghci&gt; 1%2 + 1%2
+1 % 1
+ghci&gt; 1%3 + 5%4
+19 % 12</code></pre>
 <p>Como já temos listas para representar o não-determinismo, e o que
 estamos fazendo aqui é apenas adicionar uma probabilidade a cada item da
 lista, vamos dar um nome ao nosso novo tipo.</p>
-<p><code>{.haskell:hs} newtype Prob a = Prob { getProb :: [(a,Rational)] } deriving Show</code></p>
+<pre class="haskell:hs"><code>newtype Prob a = Prob { getProb :: [(a,Rational)] } deriving Show</code></pre>
 <p>Tudo bem, este é o nosso tipo. Ele é um functor? Bem, a lista é um
 functor, então este provavelmente também é, já que apenas adicionamos
 algo aos elementos da lista. Quando mapeamos uma função sobre uma lista,
 nós a aplicamos a cada elemento. Aqui, faremos o mesmo, mas manteremos a
 probabilidade intacta.</p>
-<p><code>{.haskell:hs} instance Functor Prob where     fmap f (Prob xs) = Prob $ map (\(x,p) -&gt; (f x,p)) xs</code></p>
+<pre class="haskell:hs"><code>instance Functor Prob where
+    fmap f (Prob xs) = Prob $ map (\(x,p) -&gt; (f x,p)) xs</code></pre>
 <p>Mapeamos a função sobre os valores, deixando as probabilidades como
 estão. Vamos ver se funciona:</p>
-<p><code>{.haskell:hs} ghci&gt; fmap negate (Prob [(3,1%2),(5,1%4),(9,1%4)]) Prob {getProb = [(-3,1 % 2),(-5,1 % 4),(-9,1 % 4)]}</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap negate (Prob [(3,1%2),(5,1%4),(9,1%4)])
+Prob {getProb = [(-3,1 % 2),(-5,1 % 4),(-9,1 % 4)]}</code></pre>
 <p>Agora, e quanto à sua Monad instance? Bem, antes de podermos torná-la
 uma <code>Monad</code>, ela também precisa ser um Applicative Functor.
 Como já aprendemos, poderíamos apenas usar o <code>return</code> e o
@@ -1424,7 +1742,7 @@ Monad de qualquer maneira, vamos fazê-lo agora.</p>
 em um contexto mínimo. O que seria uma probabilidade mínima para um
 valor? Se o valor tem que ser exatamente esse valor, sua probabilidade
 deve ser <code>1</code> (ou seja, 100%).</p>
-<p><code>{.haskell:hs} return x = Prob [(x,1%1)]</code></p>
+<pre class="haskell:hs"><code>return x = Prob [(x,1%1)]</code></pre>
 <p>E o <code>&gt;&gt;=</code>? O <code>&gt;&gt;=</code> recebe um valor
 monádico e uma função que retorna um valor monádico e tem que nos dar um
 novo valor monádico. No nosso caso, o valor monádico é uma lista de
@@ -1448,7 +1766,9 @@ teremos o nosso resultado.</p>
 <p>Mas antes de escrever o <code>&gt;&gt;=</code>, vamos escrever o
 <code>flatten</code>, que achata um <code>Prob (Prob a)</code> em um
 <code>Prob a</code>.</p>
-<p><code>{.haskell:hs} flatten :: Prob (Prob a) -&gt; Prob a flatten (Prob xs) = Prob $ concat $ map multAll xs     where multAll (Prob innerxs,p) = map (\(x,r) -&gt; (x,p*r)) innerxs</code></p>
+<pre class="haskell:hs"><code>flatten :: Prob (Prob a) -&gt; Prob a
+flatten (Prob xs) = Prob $ concat $ map multAll xs
+    where multAll (Prob innerxs,p) = map (\(x,r) -&gt; (x,p*r)) innerxs</code></pre>
 <p>Recebemos uma lista de probabilidades de probabilidades
 (<code>xs</code>). Para cada uma delas, chamamos o par
 <code>(Prob innerxs, p)</code>. Então, multiplicamos a probabilidade
@@ -1456,7 +1776,10 @@ teremos o nosso resultado.</p>
 <code>innerxs</code> e retornamos essa lista. Ao final, apenas
 concatenamos tudo isso em uma única lista grande.</p>
 <p>Agora podemos escrever a nossa Monad instance:</p>
-<p><code>{.haskell:hs} instance Monad Prob where     return x = Prob [(x,1%1)]     m &gt;&gt;= f = flatten (fmap f m)     fail _ = Prob []</code></p>
+<pre class="haskell:hs"><code>instance Monad Prob where
+    return x = Prob [(x,1%1)]
+    m &gt;&gt;= f = flatten (fmap f m)
+    fail _ = Prob []</code></pre>
 <p>Como já tínhamos o <code>flatten</code>, o <code>&gt;&gt;=</code> foi
 apenas uma questão de usá-lo junto com o <code>fmap</code>, conforme
 aprendemos anteriormente. Agora que temos a Monad, vamos ver o que
@@ -1465,16 +1788,24 @@ podemos fazer com ela!</p>
 dar cara e a outra tem 75% de chance. Se jogarmos ambas, qual a
 probabilidade de ambas darem cara? Primeiro, vamos representar as
 moedas:</p>
-<p>```{.haskell:hs} data Coin = Heads | Tails deriving (Show, Eq)</p>
-<p>coin :: Prob Coin coin = Prob [(Heads,1%10),(Tails,9%10)]</p>
-<p>loadedCoin :: Prob Coin loadedCoin = Prob [(Heads,1%2),(Tails,1%2)]
-```</p>
+<pre class="haskell:hs"><code>data Coin = Heads | Tails deriving (Show, Eq)
+
+coin :: Prob Coin
+coin = Prob [(Heads,1%10),(Tails,9%10)]
+
+loadedCoin :: Prob Coin
+loadedCoin = Prob [(Heads,1%2),(Tails,1%2)]</code></pre>
 <p>E agora, o lançamento:</p>
-<p>```{.haskell:hs} import Data.List (all)</p>
-<p>flipTwo :: Prob Bool flipTwo = do a &lt;- coin b &lt;- loadedCoin
-return (all (==Heads) [a,b]) ```</p>
+<pre class="haskell:hs"><code>import Data.List (all)
+
+flipTwo :: Prob Bool
+flipTwo = do
+    a &lt;- coin
+    b &lt;- loadedCoin
+    return (all (==Heads) [a,b])</code></pre>
 <p>Vamos ver o resultado:</p>
-<p><code>{.haskell:hs} ghci&gt; getProb flipTwo [(True,1 % 20),(False,1 % 20),(False,9 % 20),(False,9 % 20)]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; getProb flipTwo
+[(True,1 % 20),(False,1 % 20),(False,9 % 20),(False,9 % 20)]</code></pre>
 <p>Se somarmos todos os resultados <code>False</code>, veremos que a
 probabilidade de não obtermos duas caras é de 19/20, que é 95%.
 Portanto, a probabilidade de ambas serem cara é de 5%.</p>
@@ -1491,9 +1822,15 @@ usá-las, fica difícil imaginar a programação funcional sem elas!</p>
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="a-fistful-of-monads.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="zippers.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="a-fistful-of-monads.html">Anterior (Por um Punhado de Monads)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="zippers.html" class="nxtlink">Próximo (Zippers)</a>
+        </li>
     </ul>
 </div>
 

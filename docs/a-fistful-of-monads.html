@@ -9,19 +9,25 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="functors-applicative-functors-and-monoids.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="for-a-few-monads-more.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="functors-applicative-functors-and-monoids.html">Anterior (Funtores, Funtores Aplicativos e Monoides)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="for-a-few-monads-more.html" class="nxtlink">Próximo (Por mais Alguns Monads)</a>
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Por um Punhado de Monads</h1>
+<h1 id="por-um-punhado-de-monads">Por um Punhado de Monads</h1>
 <p>Quando falamos pela primeira vez sobre Functors, vimos que eles eram
 um conceito útil para valores que podem ser mapeados. Então, levamos
 esse conceito um passo adiante introduzindo Applicative Functors, que
@@ -32,7 +38,7 @@ significado desses contextos.</p>
 Functors anabolizados, assim como Applicative Functors são apenas
 Functors anabolizados.</p>
 <p><img src="assets/images/a-fistful-of-monads/smugpig.png"
-alt="more cool than u" />{.right width=307 height=168}</p>
+class="right" width="307" height="168" alt="more cool than u" /></p>
 <p>Quando começamos com Functors, vimos que é possível mapear funções
 sobre vários tipos de dados. Vimos que para este propósito, a typeclass
 <code>Functor</code> foi introduzida e ela nos fez perguntar: quando
@@ -45,7 +51,7 @@ outras funções do tipo <code>r -&gt; a</code> para obter funções do tipo
 <code>r -&gt; b</code>. Para responder a essa pergunta de como mapear
 uma função sobre algum tipo de dado, tudo o que tivemos que fazer foi
 olhar para o tipo de <code>fmap</code>:</p>
-<p><code>{.haskell:hs} fmap :: (Functor f) =&gt; (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>fmap :: (Functor f) =&gt; (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>E então fazê-lo funcionar para o nosso tipo de dado escrevendo a
 instância de <code>Functor</code> apropriada.</p>
 <p>Então vimos uma possível melhoria dos Functors e dissemos, ei, e se
@@ -57,7 +63,7 @@ tivermos <code>[(*2),(+4)]</code>, como aplicaríamos isso a
 <code>[1,2,3]</code>? Como isso funcionaria afinal? Para isso, a
 typeclass <code>Applicative</code> foi introduzida, na qual queríamos a
 resposta para o seguinte tipo:</p>
-<p><code>{.haskell:hs} (&lt;*&gt;) :: (Applicative f) =&gt; f (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>(&lt;*&gt;) :: (Applicative f) =&gt; f (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>Também vimos que podemos pegar um valor normal e embrulhá-lo dentro
 de um tipo de dado. Por exemplo, podemos pegar um <code>1</code> e
 embrulhá-lo para que se torne um <code>Just 1</code>. Ou podemos
@@ -74,7 +80,12 @@ caractere, mas também pode ser uma ausência de caractere.</p>
 <p>Foi legal ver como a typeclass <code>Applicative</code> nos permitiu
 usar funções normais nesses valores com contexto e como esse contexto
 foi preservado. Observe:</p>
-<p><code>{.haskell:hs} ghci&gt; (*) &lt;$&gt; Just 2 &lt;*&gt; Just 8 Just 16 ghci&gt; (++) &lt;$&gt; Just "klingon" &lt;*&gt; Nothing Nothing ghci&gt; (-) &lt;$&gt; [3,4] &lt;*&gt; [1,2,3] [2,1,0,3,2,1]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (*) &lt;$&gt; Just 2 &lt;*&gt; Just 8
+Just 16
+ghci&gt; (++) &lt;$&gt; Just &quot;klingon&quot; &lt;*&gt; Nothing
+Nothing
+ghci&gt; (-) &lt;$&gt; [3,4] &lt;*&gt; [1,2,3]
+[2,1,0,3,2,1]</code></pre>
 <p>Ah, legal, então agora que os tratamos como valores Applicatives,
 valores <code>Maybe a</code> representam computações que podem ter
 falhado, valores <code>[a]</code> representam computações que têm vários
@@ -87,7 +98,7 @@ estamos preocupados com isso: se você tem um valor com um contexto,
 você aplica uma função do tipo <code>a -&gt; m b</code> a um valor do
 tipo <code>m a</code>? Então, essencialmente, vamos querer esta
 função:</p>
-<p><code>{.haskell:hs} (&gt;&gt;=) :: (Monad m) =&gt; m a -&gt; (a -&gt; m b) -&gt; m b</code></p>
+<pre class="haskell:hs"><code>(&gt;&gt;=) :: (Monad m) =&gt; m a -&gt; (a -&gt; m b) -&gt; m b</code></pre>
 <p><strong>Se temos um valor chique e uma função que pega um valor
 normal, mas retorna um valor chique, como alimentamos esse valor chique
 na função?</strong> Esta é a principal questão com a qual nos
@@ -97,26 +108,28 @@ mas Monads são apenas Applicative Functors que suportam
 <code>&gt;&gt;=</code>. A função <code>&gt;&gt;=</code> é pronunciada
 como <em>bind</em>.</p>
 <p>Quando temos um valor normal <code>a</code> e uma função normal
-<code>a -&gt; b</code>, é muito fácil alimentar o valor para a função
---- você apenas aplica a função ao valor normalmente e é isso. Mas
-quando estamos lidando com valores que vêm com certos contextos, é
-preciso pensar um pouco para ver como esses valores chiques são
-alimentados para funções e como levar em consideração seu comportamento,
-mas você verá que é fácil como um dois três.</p>
-<h2>Molhando os pés com Maybe {#getting-our-feet-wet-with-maybe}</h2>
-<p><img src="assets/images/a-fistful-of-monads/buddha.png"
-alt="monads, grasshoppa" />{.left width=302 height=387}</p>
+<code>a -&gt; b</code>, é muito fácil alimentar o valor para a função —
+você apenas aplica a função ao valor normalmente e é isso. Mas quando
+estamos lidando com valores que vêm com certos contextos, é preciso
+pensar um pouco para ver como esses valores chiques são alimentados para
+funções e como levar em consideração seu comportamento, mas você verá
+que é fácil como um dois três.</p>
+<h2 id="getting-our-feet-wet-with-maybe">Molhando os pés com Maybe</h2>
+<p><img src="assets/images/a-fistful-of-monads/buddha.png" class="left"
+width="302" height="387" alt="monads, grasshoppa" /></p>
 <p>Agora que temos uma vaga ideia sobre o que são Monads, vamos ver se
 podemos tornar essa ideia um pouco menos vaga.</p>
 <p>Para surpresa de ninguém, <code>Maybe</code> é uma Monad, então vamos
 explorá-la um pouco mais e ver se podemos combiná-la com o que sabemos
 sobre Monads.</p>
-<p>::: {.hintbox} Certifique-se de entender <a
+<div class="hintbox">
+<p>Certifique-se de entender <a
 href="functors-applicative-functors-and-monoids.html#applicative-functors">Applicatives</a>
 neste ponto. É bom se você tiver uma noção de como as várias instâncias
 <code>Applicative</code> funcionam e que tipo de computações elas
 representam, porque Monads nada mais são do que pegar nosso conhecimento
-Applicative existente e atualizá-lo. :::</p>
+Applicative existente e atualizá-lo.</p>
+</div>
 <p>Um valor do tipo <code>Maybe a</code> representa um valor do tipo
 <code>a</code> com o contexto de possível falha anexado. Um valor de
 <code>Just "dharma"</code> significa que a string <code>"dharma"</code>
@@ -129,7 +142,10 @@ sobre o interior se for um valor <code>Just</code>, caso contrário, o
 <code>Nothing</code> é mantido porque não há nada sobre o que
 mapeá-la!</p>
 <p>Assim:</p>
-<p><code>{.haskell:hs} ghci&gt; fmap (++"!") (Just "wisdom") Just "wisdom!" ghci&gt; fmap (++"!") Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap (++&quot;!&quot;) (Just &quot;wisdom&quot;)
+Just &quot;wisdom!&quot;
+ghci&gt; fmap (++&quot;!&quot;) Nothing
+Nothing</code></pre>
 <p>Como um Applicative Functor, ele funciona de forma semelhante. No
 entanto, Applicatives também têm a função embrulhada. <code>Maybe</code>
 é um Applicative Functor de tal forma que quando usamos
@@ -140,12 +156,20 @@ valor <code>Just</code>, caso contrário, o resultado é
 <code>Nothing</code>. Faz sentido porque se você está perdendo a função
 ou a coisa a qual você está aplicando, você não pode inventar algo do
 nada, então você tem que propagar a falha:</p>
-<p><code>{.haskell:hs} ghci&gt; Just (+3) &lt;*&gt; Just 3 Just 6 ghci&gt; Nothing &lt;*&gt; Just "greed" Nothing ghci&gt; Just ord &lt;*&gt; Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just (+3) &lt;*&gt; Just 3
+Just 6
+ghci&gt; Nothing &lt;*&gt; Just &quot;greed&quot;
+Nothing
+ghci&gt; Just ord &lt;*&gt; Nothing
+Nothing</code></pre>
 <p>Quando usamos o Applicative style para ter funções normais agindo
 sobre valores <code>Maybe</code>, é semelhante. Todos os valores têm que
 ser valores <code>Just</code>, caso contrário, é tudo por
 <code>Nothing</code> (nada)!</p>
-<p><code>{.haskell:hs} ghci&gt; max &lt;$&gt; Just 3 &lt;*&gt; Just 6 Just 6 ghci&gt; max &lt;$&gt; Just 3 &lt;*&gt; Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; max &lt;$&gt; Just 3 &lt;*&gt; Just 6
+Just 6
+ghci&gt; max &lt;$&gt; Just 3 &lt;*&gt; Nothing
+Nothing</code></pre>
 <p>E agora, vamos pensar sobre como faríamos <code>&gt;&gt;=</code> para
 <code>Maybe</code>. Como dissemos, <code>&gt;&gt;=</code> pega um valor
 monádico e uma função que pega um valor normal e retorna um valor
@@ -159,7 +183,10 @@ descobrir como ele faz isso, podemos usar a intuição que temos de
 <code>Maybe</code> sendo um Applicative Functor. Digamos que temos uma
 função <code>\x -&gt; Just (x+1)</code>. Ela pega um número, adiciona
 <code>1</code> a ele e o embrulha em um <code>Just</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; (\x -&gt; Just (x+1)) 1 Just 2 ghci&gt; (\x -&gt; Just (x+1)) 100 Just 101</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (\x -&gt; Just (x+1)) 1
+Just 2
+ghci&gt; (\x -&gt; Just (x+1)) 100
+Just 101</code></pre>
 <p>Se o alimentarmos com <code>1</code>, ele avalia para
 <code>Just 2</code>. Se dermos a ele o número <code>100</code>, o
 resultado é <code>Just 101</code>. Muito direto. Agora aqui está o ponto
@@ -175,17 +202,29 @@ dizer que o resultado é <code>Nothing</code>.</p>
 <code>applyMaybe</code> por enquanto. Ele pega um <code>Maybe a</code> e
 uma função que retorna um <code>Maybe b</code> e consegue aplicar essa
 função ao <code>Maybe a</code>. Aqui está em código:</p>
-<p><code>{.haskell:hs} applyMaybe :: Maybe a -&gt; (a -&gt; Maybe b) -&gt; Maybe b applyMaybe Nothing f  = Nothing applyMaybe (Just x) f = f x</code></p>
+<pre class="haskell:hs"><code>applyMaybe :: Maybe a -&gt; (a -&gt; Maybe b) -&gt; Maybe b
+applyMaybe Nothing f  = Nothing
+applyMaybe (Just x) f = f x</code></pre>
 <p>Ok, agora vamos brincar com isso um pouco. Vamos usá-lo como uma
 função infixa para que o valor <code>Maybe</code> esteja no lado
 esquerdo e a função no direito:</p>
-<p><code>{.haskell:hs} ghci&gt; Just 3 `applyMaybe` \x -&gt; Just (x+1) Just 4 ghci&gt; Just "smile" `applyMaybe` \x -&gt; Just (x ++ " :)") Just "smile :)" ghci&gt; Nothing `applyMaybe` \x -&gt; Just (x+1) Nothing ghci&gt; Nothing `applyMaybe` \x -&gt; Just (x ++ " :)") Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just 3 `applyMaybe` \x -&gt; Just (x+1)
+Just 4
+ghci&gt; Just &quot;smile&quot; `applyMaybe` \x -&gt; Just (x ++ &quot; :)&quot;)
+Just &quot;smile :)&quot;
+ghci&gt; Nothing `applyMaybe` \x -&gt; Just (x+1)
+Nothing
+ghci&gt; Nothing `applyMaybe` \x -&gt; Just (x ++ &quot; :)&quot;)
+Nothing</code></pre>
 <p>No exemplo acima, vemos que quando usamos <code>applyMaybe</code> com
 um valor <code>Just</code> e uma função, a função simplesmente foi
 aplicada ao valor dentro do <code>Just</code>. Quando tentamos usá-lo
 com um <code>Nothing</code>, todo o resultado foi <code>Nothing</code>.
 E se a função retornar um <code>Nothing</code>? Vamos ver:</p>
-<p><code>{.haskell:hs} ghci&gt; Just 3 `applyMaybe` \x -&gt; if x &gt; 2 then Just x else Nothing Just 3 ghci&gt; Just 1 `applyMaybe` \x -&gt; if x &gt; 2 then Just x else Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just 3 `applyMaybe` \x -&gt; if x &gt; 2 then Just x else Nothing
+Just 3
+ghci&gt; Just 1 `applyMaybe` \x -&gt; if x &gt; 2 then Just x else Nothing
+Nothing</code></pre>
 <p>Exatamente o que esperávamos. Se o valor monádico à esquerda for um
 <code>Nothing</code>, a coisa toda é <code>Nothing</code>. E se a função
 à direita retornar um <code>Nothing</code>, o resultado é
@@ -205,22 +244,23 @@ são uma atualização de Applicative Functors, e que elas também podem
 fazer algumas coisas legais que Applicative Functors não podem.</p>
 <p>Voltaremos ao <code>Maybe</code> em um minuto, mas primeiro, vamos
 verificar a typeclass que pertence às Monads.</p>
-<h2>A typeclass Monad {#the-monad-type-class}</h2>
+<h2 id="the-monad-type-class">A typeclass Monad</h2>
 <p>Así como Functors têm a typeclass <code>Functor</code> e Applicative
 Functors têm a typeclass <code>Applicative</code>, Monads vêm com sua
 própria typeclass: <code>Monad</code>! Uau, quem diria? É assim que a
 typeclass se parece:</p>
-<p>```{.haskell:hs} class Monad m where return :: a -&gt; m a</p>
-<pre><code>(&gt;&gt;=) :: m a -&gt; (a -&gt; m b) -&gt; m b
+<pre class="haskell:hs"><code>class Monad m where
+    return :: a -&gt; m a
 
-(&gt;&gt;) :: m a -&gt; m b -&gt; m b
-x &gt;&gt; y = x &gt;&gt;= \_ -&gt; y
+    (&gt;&gt;=) :: m a -&gt; (a -&gt; m b) -&gt; m b
 
-fail :: String -&gt; m a
-fail msg = error msg</code></pre>
-<p>```</p>
-<p><img src="assets/images/a-fistful-of-monads/kid.png"
-alt="this is you on monads" />{.right width=363 height=451}</p>
+    (&gt;&gt;) :: m a -&gt; m b -&gt; m b
+    x &gt;&gt; y = x &gt;&gt;= \_ -&gt; y
+
+    fail :: String -&gt; m a
+    fail msg = error msg</code></pre>
+<p><img src="assets/images/a-fistful-of-monads/kid.png" class="right"
+width="363" height="451" alt="this is you on monads" /></p>
 <p>Vamos começar com a primeira linha. Diz
 <code>class Monad m where</code>. Mas espere, não dissemos que Monads
 são apenas Applicative Functors anabolizados? Não deveria haver uma
@@ -243,12 +283,14 @@ com <code>return</code>. Já usamos <code>return</code> ao fazer E/S. Nós
 a usamos para pegar um valor e fazer uma ação de E/S falsa que não faz
 nada além de produzir esse valor. Para <code>Maybe</code>, ela pega um
 valor e o embrulha em um <code>Just</code>.</p>
-<p>::: {.hintbox} Apenas um lembrete: <code>return</code> não é nada
-parecido com o <code>return</code> que está na maioria das outras
-linguagens. Ele não encerra a execução da função ou algo assim, ele
-apenas pega um valor normal e o coloca em um contexto. :::</p>
-<p><img src="assets/images/a-fistful-of-monads/tur2.png"
-alt="hmmm yaes" />{.left width=169 height=145}</p>
+<div class="hintbox">
+<p>Apenas um lembrete: <code>return</code> não é nada parecido com o
+<code>return</code> que está na maioria das outras linguagens. Ele não
+encerra a execução da função ou algo assim, ele apenas pega um valor
+normal e o coloca em um contexto.</p>
+</div>
+<p><img src="assets/images/a-fistful-of-monads/tur2.png" class="left"
+width="169" height="145" alt="hmmm yaes" /></p>
 <p>É como a aplicação de função, só que em vez de pegar um valor normal
 e alimentá-lo a uma função normal, ela pega um valor monadic (ou seja,
 um valor com um contexto) e o alimenta a uma função que pega um valor
@@ -264,7 +306,11 @@ para Monads que encontraremos mais tarde. Não precisamos nos preocupar
 muito com <code>fail</code> por enquanto.</p>
 <p>Agora que sabemos como é a typeclass <code>Monad</code>, vamos ver
 como <code>Maybe</code> é uma instância de <code>Monad</code>!</p>
-<p><code>{.haskell:hs} instance Monad Maybe where     return x = Just x     Nothing &gt;&gt;= f = Nothing     Just x &gt;&gt;= f  = f x     fail _ = Nothing</code></p>
+<pre class="haskell:hs"><code>instance Monad Maybe where
+    return x = Just x
+    Nothing &gt;&gt;= f = Nothing
+    Just x &gt;&gt;= f  = f x
+    fail _ = Nothing</code></pre>
 <p><code>return</code> é o mesmo que <code>pure</code>, então esse é
 fácil. Fazemos o que fizemos na typeclass <code>Applicative</code> e o
 embrulhamos em um <code>Just</code>.</p>
@@ -276,7 +322,12 @@ porque se não houver valor, então não há como aplicar nossa função a
 ele. Se for um <code>Just</code>, pegamos o que está dentro e aplicamos
 <code>f</code> a ele.</p>
 <p>Podemos brincar com <code>Maybe</code> como uma Monad:</p>
-<p><code>{.haskell:hs} ghci&gt; return "WHAT" :: Maybe String Just "WHAT" ghci&gt; Just 9 &gt;&gt;= \x -&gt; return (x*10) Just 90 ghci&gt; Nothing &gt;&gt;= \x -&gt; return (x*10) Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; return &quot;WHAT&quot; :: Maybe String
+Just &quot;WHAT&quot;
+ghci&gt; Just 9 &gt;&gt;= \x -&gt; return (x*10)
+Just 90
+ghci&gt; Nothing &gt;&gt;= \x -&gt; return (x*10)
+Nothing</code></pre>
 <p>Nada novo ou emocionante na primeira linha, já que já usamos
 <code>pure</code> com <code>Maybe</code> e sabemos que
 <code>return</code> é apenas <code>pure</code> com um nome diferente. As
@@ -288,9 +339,9 @@ valor de um <code>Maybe</code> sem pattern matching. E ainda não
 perdemos o contexto de nosso valor <code>Maybe</code>, porque quando é
 <code>Nothing</code>, o resultado de usar <code>&gt;&gt;=</code> será
 <code>Nothing</code> também.</p>
-<h2>Andando na linha {#walk-the-line}</h2>
-<p><img src="assets/images/a-fistful-of-monads/pierre.png"
-alt="pierre" />{.left width=374 height=405}</p>
+<h2 id="walk-the-line">Andando na linha</h2>
+<p><img src="assets/images/a-fistful-of-monads/pierre.png" class="left"
+width="374" height="405" alt="pierre" /></p>
 <p>Agora que sabemos como alimentar um valor <code>Maybe a</code> para
 uma função do tipo <code>a -&gt; Maybe b</code> levando em consideração
 o contexto de possível falha, vamos ver como podemos usar
@@ -320,7 +371,8 @@ decidir voar para longe.</p>
 <p>Podemos representar a vara com um simples par de inteiros. O primeiro
 componente significará o número de pássaros no lado esquerdo e o segundo
 componente o número de pássaros no lado direito:</p>
-<p><code>{.haskell:hs} type Birds = Int type Pole = (Birds,Birds)</code></p>
+<pre class="haskell:hs"><code>type Birds = Int
+type Pole = (Birds,Birds)</code></pre>
 <p>Primeiro fizemos um sinônimo de tipo para <code>Int</code>, chamado
 <code>Birds</code>, porque estamos usando inteiros para representar
 quantos pássaros existem. E então fizemos um sinônimo de tipo
@@ -328,17 +380,24 @@ quantos pássaros existem. E então fizemos um sinônimo de tipo
 confundir com uma pessoa de ascendência polonesa).</p>
 <p>Em seguida, que tal fazermos uma função que pega um número de
 pássaros e os pousa em um lado da vara. Aqui estão as funções:</p>
-<p>```{.haskell:hs} landLeft :: Birds -&gt; Pole -&gt; Pole landLeft n
-(left,right) = (left + n,right)</p>
-<p>landRight :: Birds -&gt; Pole -&gt; Pole landRight n (left,right) =
-(left,right + n) ```</p>
+<pre class="haskell:hs"><code>landLeft :: Birds -&gt; Pole -&gt; Pole
+landLeft n (left,right) = (left + n,right)
+
+landRight :: Birds -&gt; Pole -&gt; Pole
+landRight n (left,right) = (left,right + n)</code></pre>
 <p>Coisa bem direta. Vamos testá-las:</p>
-<p><code>{.haskell:hs} ghci&gt; landLeft 2 (0,0) (2,0) ghci&gt; landRight 1 (1,2) (1,3) ghci&gt; landRight (-1) (1,2) (1,1)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; landLeft 2 (0,0)
+(2,0)
+ghci&gt; landRight 1 (1,2)
+(1,3)
+ghci&gt; landRight (-1) (1,2)
+(1,1)</code></pre>
 <p>Para fazer os pássaros voarem para longe, apenas fizemos um número
 negativo de pássaros pousar em um lado. Como pousar um pássaro no
 <code>Pole</code> retorna um <code>Pole</code>, podemos encadear
 aplicações de <code>landLeft</code> e <code>landRight</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; landLeft 2 (landRight 1 (landLeft 1 (0,0))) (3,1)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; landLeft 2 (landRight 1 (landLeft 1 (0,0)))
+(3,1)</code></pre>
 <p>Quando aplicamos a função <code>landLeft 1</code> a
 <code>(0,0)</code>, obtemos <code>(1,0)</code>. Então, pousamos um
 pássaro no lado direito, resultando em <code>(1,1)</code>. Finalmente,
@@ -346,13 +405,19 @@ dois pássaros pousam no lado esquerdo, resultando em <code>(3,1)</code>.
 Aplicamos uma função a algo escrevendo primeiro a função e depois
 escrevendo seu parâmetro, mas aqui seria melhor se a vara fosse primeiro
 e depois a função de pouso. Se fizermos uma função como esta:</p>
-<p><code>{.haskell:hs} x -: f = f x</code></p>
+<pre class="haskell:hs"><code>x -: f = f x</code></pre>
 <p>Podemos aplicar funções escrevendo primeiro o parâmetro e depois a
 função:</p>
-<p><code>{.haskell:hs} ghci&gt; 100 -: (*3) 300 ghci&gt; True -: not False ghci&gt; (0,0) -: landLeft 2 (2,0)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; 100 -: (*3)
+300
+ghci&gt; True -: not
+False
+ghci&gt; (0,0) -: landLeft 2
+(2,0)</code></pre>
 <p>Ao usar isso, podemos pousar pássaros repetidamente na vara de uma
 maneira mais legível:</p>
-<p><code>{.haskell:hs} ghci&gt; (0,0) -: landLeft 1 -: landRight 1 -: landLeft 2 (3,1)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (0,0) -: landLeft 1 -: landRight 1 -: landLeft 2
+(3,1)</code></pre>
 <p>Muito legal! Este exemplo é equivalente ao anterior, onde pousamos
 repetidamente pássaros na vara, só que parece mais organizado. Aqui, é
 mais óbvio que começamos com <code>(0,0)</code> e depois pousamos um
@@ -360,7 +425,8 @@ pássaro na esquerda, depois um na direita e finalmente dois na
 esquerda.</p>
 <p>So far so good, mas o que acontece se 10 pássaros pousarem em um
 lado?</p>
-<p><code>{.haskell:hs} ghci&gt; landLeft 10 (0,3) (10,3)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; landLeft 10 (0,3)
+(10,3)</code></pre>
 <p>Pode parecer que está tudo bem, mas se você seguir os passos aqui,
 verá que em um momento há 4 pássaros no lado direito e nenhum pássaro no
 lado esquerdo! Para consertar isso, temos que dar outra olhada em nossas
@@ -370,12 +436,15 @@ que elas retornem uma nova vara se o equilíbrio estiver ok, mas falhem
 se os pássaros pousarem de maneira desequilibrada. E que melhor maneira
 de adicionar um contexto de falha ao valor do que usando
 <code>Maybe</code>! Vamos refazer essas funções:</p>
-<p>```{.haskell:hs} landLeft :: Birds -&gt; Pole -&gt; Maybe Pole
-landLeft n (left,right) | abs ((left + n) - right) &lt; 4 = Just (left +
-n, right) | otherwise = Nothing</p>
-<p>landRight :: Birds -&gt; Pole -&gt; Maybe Pole landRight n
-(left,right) | abs (left - (right + n)) &lt; 4 = Just (left, right + n)
-| otherwise = Nothing ```</p>
+<pre class="haskell:hs"><code>landLeft :: Birds -&gt; Pole -&gt; Maybe Pole
+landLeft n (left,right)
+    | abs ((left + n) - right) &lt; 4 = Just (left + n, right)
+    | otherwise                    = Nothing
+
+landRight :: Birds -&gt; Pole -&gt; Maybe Pole
+landRight n (left,right)
+    | abs (left - (right + n)) &lt; 4 = Just (left, right + n)
+    | otherwise                    = Nothing</code></pre>
 <p>Em vez de retornar um <code>Pole</code>, essas funções agora retornam
 um <code>Maybe Pole</code>. Elas ainda pegam o número de pássaros e a
 vara antiga como antes, mas então verificam se pousar tantos pássaros na
@@ -384,7 +453,10 @@ diferença entre o número de pássaros na nova vara é menor que 4. Se for,
 embrulhamos a nova vara em um <code>Just</code> e a retornamos. Se não
 for, retornamos um <code>Nothing</code>, indicando falha.</p>
 <p>Vamos dar uma chance a esses bebês:</p>
-<p><code>{.haskell:hs} ghci&gt; landLeft 2 (0,0) Just (2,0) ghci&gt; landLeft 10 (0,3) Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; landLeft 2 (0,0)
+Just (2,0)
+ghci&gt; landLeft 10 (0,3)
+Nothing</code></pre>
 <p>Legal! Quando pousamos pássaros sem desequilibrar Pierre, obtemos uma
 nova vara embrulhada em um <code>Just</code>. Mas quando muitos mais
 pássaros acabam em um lado da vara, obtemos um <code>Nothing</code>.
@@ -399,7 +471,8 @@ repetidamente na vara. Não podemos mais fazer
 alimentá-lo a uma função que pega um <code>Pole</code> e retorna um
 <code>Maybe Pole</code>. Felizmente, temos <code>&gt;&gt;=</code>, que
 faz exatamente isso para <code>Maybe</code>. Vamos tentar:</p>
-<p><code>{.haskell:hs} ghci&gt; landRight 1 (0,0) &gt;&gt;= landLeft 2 Just (2,1)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; landRight 1 (0,0) &gt;&gt;= landLeft 2
+Just (2,1)</code></pre>
 <p>Lembre-se, <code>landLeft 2</code> tem um tipo de
 <code>Pole -&gt; Maybe Pole</code>. Não poderíamos simplesmente
 alimentá-lo com o <code>Maybe Pole</code> que é o resultado de
@@ -409,12 +482,14 @@ pegar esse valor com um contexto e dá-lo a <code>landLeft 2</code>.
 <code>Maybe</code> como um valor com contexto, porque se alimentarmos um
 <code>Nothing</code> em <code>landLeft 2</code>, o resultado é
 <code>Nothing</code> e a falha é propagada:</p>
-<p><code>{.haskell:hs} ghci&gt; Nothing &gt;&gt;= landLeft 2 Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Nothing &gt;&gt;= landLeft 2
+Nothing</code></pre>
 <p>Com isso, agora podemos encadear pousos que podem falhar porque
 <code>&gt;&gt;=</code> nos permite alimentar um valor monadic a uma
 função que pega um normal.</p>
 <p>Aqui está uma sequência de pousos de pássaros:</p>
-<p><code>{.haskell:hs} ghci&gt; return (0,0) &gt;&gt;= landRight 2 &gt;&gt;= landLeft 2 &gt;&gt;= landRight 2 Just (2,4)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; return (0,0) &gt;&gt;= landRight 2 &gt;&gt;= landLeft 2 &gt;&gt;= landRight 2
+Just (2,4)</code></pre>
 <p>No início, usamos <code>return</code> para pegar uma vara e
 embrulhá-la em um <code>Just</code>. Poderíamos ter apenas aplicado
 <code>landRight 2</code> a <code>(0,0)</code>, teria sido o mesmo, mas
@@ -425,14 +500,16 @@ por sua vez, é alimentado para <code>landLeft 2</code>, resultando em
 <code>Just (2,2)</code>, e assim por diante.</p>
 <p>Lembre-se deste exemplo de antes de introduzirmos falha na rotina de
 Pierre:</p>
-<p><code>{.haskell:hs} ghci&gt; (0,0) -: landLeft 1 -: landRight 4 -: landLeft (-1) -: landRight (-2) (0,2)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (0,0) -: landLeft 1 -: landRight 4 -: landLeft (-1) -: landRight (-2)
+(0,2)</code></pre>
 <p>Não simulou muito bem a interação dele com os pássaros porque no meio
 ali o equilíbrio dele estava ruim, mas o resultado não refletiu isso.
 Mas vamos tentar isso agora usando aplicação monadic
 (<code>&gt;&gt;=</code>) em vez de aplicação normal:</p>
-<p><code>{.haskell:hs} ghci&gt; return (0,0) &gt;&gt;= landLeft 1 &gt;&gt;= landRight 4 &gt;&gt;= landLeft (-1) &gt;&gt;= landRight (-2) Nothing</code></p>
-<p><img src="assets/images/a-fistful-of-monads/banana.png"
-alt="iama banana" />{.right width=262 height=130}</p>
+<pre class="haskell:hs"><code>ghci&gt; return (0,0) &gt;&gt;= landLeft 1 &gt;&gt;= landRight 4 &gt;&gt;= landLeft (-1) &gt;&gt;= landRight (-2)
+Nothing</code></pre>
+<p><img src="assets/images/a-fistful-of-monads/banana.png" class="right"
+width="262" height="130" alt="iama banana" /></p>
 <p>Incrível. O resultado final representa falha, que é o que
 esperávamos. Vamos ver como esse resultado foi obtido. Primeiro,
 <code>return</code> coloca <code>(0,0)</code> em um contexto padrão,
@@ -466,39 +543,55 @@ determina se o pouso terá sucesso ou falhará.</p>
 <p>Também podemos criar uma função que ignora o número atual de pássaros
 na vara de equilíbrio e apenas faz Pierre escorregar e cair. Podemos
 chamá-la de <code>banana</code>:</p>
-<p><code>{.haskell:hs} banana :: Pole -&gt; Maybe Pole banana _ = Nothing</code></p>
+<pre class="haskell:hs"><code>banana :: Pole -&gt; Maybe Pole
+banana _ = Nothing</code></pre>
 <p>Agora podemos encadeá-la com nossos pousos de pássaros. Ela sempre
 fará nosso equilibrista cair, porque ignora o que quer que seja passado
 para ela e sempre retorna uma falha. Confira:</p>
-<p><code>{.haskell:hs} ghci&gt; return (0,0) &gt;&gt;= landLeft 1 &gt;&gt;= banana &gt;&gt;= landRight 1 Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; return (0,0) &gt;&gt;= landLeft 1 &gt;&gt;= banana &gt;&gt;= landRight 1
+Nothing</code></pre>
 <p>O valor <code>Just (1,0)</code> é alimentado para
 <code>banana</code>, mas ela produz um <code>Nothing</code>, o que faz
 com que tudo resulte em um <code>Nothing</code>. Que infelicidade!</p>
 <p>Em vez de fazer funções que ignoram sua entrada e apenas retornam um
 monadic value predeterminado, podemos usar a função
 <code>&gt;&gt;</code>, cuja implementação padrão é esta:</p>
-<p><code>{.haskell:hs} (&gt;&gt;) :: (Monad m) =&gt; m a -&gt; m b -&gt; m b m &gt;&gt; n = m &gt;&gt;= \_ -&gt; n</code></p>
+<pre class="haskell:hs"><code>(&gt;&gt;) :: (Monad m) =&gt; m a -&gt; m b -&gt; m b
+m &gt;&gt; n = m &gt;&gt;= \_ -&gt; n</code></pre>
 <p>Normalmente, passar algum valor para uma função que ignora seu
 parâmetro e sempre retorna apenas algum valor predeterminado sempre
 resultaria nesse valor predeterminado. Com Monads, no entanto, seu
 contexto e significado também devem ser considerados. Aqui está como
 <code>&gt;&gt;</code> age com <code>Maybe</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; Nothing &gt;&gt; Just 3 Nothing ghci&gt; Just 3 &gt;&gt; Just 4 Just 4 ghci&gt; Just 3 &gt;&gt; Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Nothing &gt;&gt; Just 3
+Nothing
+ghci&gt; Just 3 &gt;&gt; Just 4
+Just 4
+ghci&gt; Just 3 &gt;&gt; Nothing
+Nothing</code></pre>
 <p>Se você substituir <code>&gt;&gt;</code> por
 <code>&gt;&gt;= \_ -&gt;</code>, é fácil ver por que ele age como
 age.</p>
 <p>Podemos substituir nossa função <code>banana</code> na cadeia por um
 <code>&gt;&gt;</code> e, em seguida, um <code>Nothing</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; return (0,0) &gt;&gt;= landLeft 1 &gt;&gt; Nothing &gt;&gt;= landRight 1 Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; return (0,0) &gt;&gt;= landLeft 1 &gt;&gt; Nothing &gt;&gt;= landRight 1
+Nothing</code></pre>
 <p>Aí está, falha garantida e óbvia!</p>
 <p>Também vale a pena dar uma olhada em como isso ficaria se não
 tivéssemos feito a escolha inteligente de tratar valores
 <code>Maybe</code> como valores com um contexto de falha e alimentá-los
 para funções como fizemos. Aqui está como uma série de pousos de
 pássaros se pareceria:</p>
-<p><code>{.haskell:hs} routine :: Maybe Pole routine = case landLeft 1 (0,0) of     Nothing -&gt; Nothing     Just pole1 -&gt; case landRight 4 pole1 of         Nothing -&gt; Nothing         Just pole2 -&gt; case landLeft 2 pole2 of             Nothing -&gt; Nothing             Just pole3 -&gt; landLeft 1 pole3</code></p>
+<pre class="haskell:hs"><code>routine :: Maybe Pole
+routine = case landLeft 1 (0,0) of
+    Nothing -&gt; Nothing
+    Just pole1 -&gt; case landRight 4 pole1 of
+        Nothing -&gt; Nothing
+        Just pole2 -&gt; case landLeft 2 pole2 of
+            Nothing -&gt; Nothing
+            Just pole3 -&gt; landLeft 1 pole3</code></pre>
 <p><img src="assets/images/a-fistful-of-monads/centaur.png"
-alt="john joe glanton" />{.right width=297 height=331}</p>
+class="right" width="297" height="331" alt="john joe glanton" /></p>
 <p>Pousamos um pássaro na esquerda e então examinamos a possibilidade de
 falha e a possibilidade de sucesso. No caso de falha, retornamos um
 <code>Nothing</code>. No caso de sucesso, pousamos pássaros na direita e
@@ -522,7 +615,7 @@ mecanismo para lidar com falhas praticamente de graça, porque
 funções. Neste caso, o contexto era que nossos valores eram valores com
 falha e, portanto, quando aplicamos funções a tais valores, a
 possibilidade de falha sempre foi levada em conta.</p>
-<h2>do notation {#do-notation}</h2>
+<h2 id="do-notation">do notation</h2>
 <p>Monads em Haskell são tão úteis que ganharam sua própria sintaxe
 especial chamada <code>do notation</code>. Já encontramos a
 <code>do notation</code> quando estávamos fazendo E/S e lá dissemos que
@@ -532,25 +625,33 @@ usada para qualquer Monad. Seu princípio ainda é o mesmo: colar monadic
 values em sequência. Vamos dar uma olhada em como a
 <code>do notation</code> funciona e por que é útil.</p>
 <p>Considere este exemplo familiar de aplicação monadic:</p>
-<p><code>{.haskell:hs} ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Just (show x ++ "!")) Just "3!"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Just (show x ++ &quot;!&quot;))
+Just &quot;3!&quot;</code></pre>
 <p>Já vimos isso. Alimentar um monadic value a uma função que retorna
 um, nada demais. Observe como quando fazemos isso, <code>x</code> se
 torna <code>3</code> dentro do lambda. Uma vez que estamos dentro desse
 lambda, é apenas um valor normal, em vez de um monadic value. Agora, e
 se tivéssemos outro <code>&gt;&gt;=</code> dentro dessa função? Confira
 isso:</p>
-<p><code>{.haskell:hs} ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Just "!" &gt;&gt;= (\y -&gt; Just (show x ++ y))) Just "3!"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Just &quot;!&quot; &gt;&gt;= (\y -&gt; Just (show x ++ y)))
+Just &quot;3!&quot;</code></pre>
 <p>Ah, um uso aninhado de <code>&gt;&gt;=</code>! No lambda mais
 externo, alimentamos <code>Just "!"</code> ao lambda
 <code>\y -&gt; Just (show x ++ y)</code>. Dentro deste lambda, o
 <code>y</code> se torna <code>"!"</code>. <code>x</code> ainda é
 <code>3</code> porque o obtivemos do lambda externo. Tudo isso meio que
 me lembra a seguinte expressão:</p>
-<p><code>{.haskell:hs} ghci&gt; let x = 3; y = "!" in show x ++ y "3!"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let x = 3; y = &quot;!&quot; in show x ++ y
+&quot;3!&quot;</code></pre>
 <p>A principal diferença entre esses dois é que os valores no primeiro
 exemplo são monadic. Eles são valores com um contexto de falha. Podemos
 substituir qualquer um deles por uma falha:</p>
-<p><code>{.haskell:hs} ghci&gt; Nothing &gt;&gt;= (\x -&gt; Just "!" &gt;&gt;= (\y -&gt; Just (show x ++ y))) Nothing ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Nothing &gt;&gt;= (\y -&gt; Just (show x ++ y))) Nothing ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Just "!" &gt;&gt;= (\y -&gt; Nothing)) Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Nothing &gt;&gt;= (\x -&gt; Just &quot;!&quot; &gt;&gt;= (\y -&gt; Just (show x ++ y)))
+Nothing
+ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Nothing &gt;&gt;= (\y -&gt; Just (show x ++ y)))
+Nothing
+ghci&gt; Just 3 &gt;&gt;= (\x -&gt; Just &quot;!&quot; &gt;&gt;= (\y -&gt; Nothing))
+Nothing</code></pre>
 <p>Na primeira linha, alimentar um <code>Nothing</code> a uma função
 naturalmente resulta em um <code>Nothing</code>. Na segunda linha,
 alimentamos <code>Just 3</code> a uma função e o <code>x</code> se torna
@@ -562,13 +663,20 @@ os valores em questão são monadic values.</p>
 <p>Para ilustrar ainda mais esse ponto, vamos escrever isso em um script
 e fazer com que cada valor <code>Maybe</code> ocupe sua própria
 linha:</p>
-<p><code>{.haskell:hs} foo :: Maybe String foo = Just 3   &gt;&gt;= (\x -&gt;       Just "!" &gt;&gt;= (\y -&gt;       Just (show x ++ y)))</code></p>
+<pre class="haskell:hs"><code>foo :: Maybe String
+foo = Just 3   &gt;&gt;= (\x -&gt;
+      Just &quot;!&quot; &gt;&gt;= (\y -&gt;
+      Just (show x ++ y)))</code></pre>
 <p>Para nos salvar de escrever todos esses lambdas irritantes, Haskell
 nos dá a <code>do notation</code>. Ela nos permite escrever o pedaço de
 código anterior assim:</p>
-<p><code>{.haskell:hs} foo :: Maybe String foo = do     x &lt;- Just 3     y &lt;- Just "!"     Just (show x ++ y)</code></p>
-<p><img src="assets/images/a-fistful-of-monads/owld.png"
-alt="90s owl" />{.right width=269 height=348}</p>
+<pre class="haskell:hs"><code>foo :: Maybe String
+foo = do
+    x &lt;- Just 3
+    y &lt;- Just &quot;!&quot;
+    Just (show x ++ y)</code></pre>
+<p><img src="assets/images/a-fistful-of-monads/owld.png" class="right"
+width="269" height="348" alt="90s owl" /></p>
 <p>Parece que ganhamos a capacidade de extrair temporariamente coisas de
 valores <code>Maybe</code> sem ter que verificar se os valores
 <code>Maybe</code> são valores <code>Just</code> ou valores
@@ -592,12 +700,16 @@ cadeia de aplicações <code>&gt;&gt;=</code>. Em vez disso, seu resultado
 é o resultado de todo o monadic value colado, levando em consideração a
 possível falha de quaisquer anteriores.</p>
 <p>Por exemplo, examine a seguinte linha:</p>
-<p><code>{.haskell:hs} ghci&gt; Just 9 &gt;&gt;= (\x -&gt; Just (x &gt; 8)) Just True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just 9 &gt;&gt;= (\x -&gt; Just (x &gt; 8))
+Just True</code></pre>
 <p>Como o parâmetro esquerdo de <code>&gt;&gt;=</code> é um valor
 <code>Just</code>, o lambda é aplicado a <code>9</code> e o resultado é
 um <code>Just True</code>. Se reescrevermos isso em notação
 <code>do</code>, obtemos:</p>
-<p><code>{.haskell:hs} marySue :: Maybe Bool marySue = do     x &lt;- Just 9     Just (x &gt; 8)</code></p>
+<pre class="haskell:hs"><code>marySue :: Maybe Bool
+marySue = do
+    x &lt;- Just 9
+    Just (x &gt; 8)</code></pre>
 <p>Se compararmos esses dois, é fácil ver por que o resultado de todo o
 monadic value é o resultado do último monadic value na <code>do</code>
 expression com todos os anteriores encadeados nele.</p>
@@ -610,9 +722,15 @@ encadear etapas sucessivas porque cada uma dependia da anterior e cada
 uma tinha um contexto adicionado de possível falha. Aqui estão dois
 pássaros pousando no lado esquerdo, depois dois pássaros pousando no
 lado direito e depois um pássaro pousando no lado esquerdo:</p>
-<p><code>{.haskell:hs} routine :: Maybe Pole routine = do     start &lt;- return (0,0)     first &lt;- landLeft 2 start     second &lt;- landRight 2 first     landLeft 1 second</code></p>
+<pre class="haskell:hs"><code>routine :: Maybe Pole
+routine = do
+    start &lt;- return (0,0)
+    first &lt;- landLeft 2 start
+    second &lt;- landRight 2 first
+    landLeft 1 second</code></pre>
 <p>Vamos ver se ele tem sucesso:</p>
-<p><code>{.haskell:hs} ghci&gt; routine Just (3,2)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; routine
+Just (3,2)</code></pre>
 <p>Ele tem! Ótimo. Quando estávamos fazendo essas rotinas escrevendo
 explicitamente <code>&gt;&gt;=</code>, geralmente dizíamos algo como
 <code>return (0,0) &gt;&gt;= landLeft 2</code>, porque
@@ -631,13 +749,27 @@ resultado dos anteriores, juntamente com seus contextos (neste caso, se
 tiveram sucesso ou falharam).</p>
 <p>Novamente, vamos dar uma olhada em como este trecho de código seria
 se não tivéssemos usado os aspectos monadic de <code>Maybe</code>:</p>
-<p><code>{.haskell:hs} routine :: Maybe Pole routine =     case Just (0,0) of         Nothing -&gt; Nothing         Just start -&gt; case landLeft 2 start of             Nothing -&gt; Nothing             Just first -&gt; case landRight 2 first of                 Nothing -&gt; Nothing                 Just second -&gt; landLeft 1 second</code></p>
+<pre class="haskell:hs"><code>routine :: Maybe Pole
+routine =
+    case Just (0,0) of
+        Nothing -&gt; Nothing
+        Just start -&gt; case landLeft 2 start of
+            Nothing -&gt; Nothing
+            Just first -&gt; case landRight 2 first of
+                Nothing -&gt; Nothing
+                Just second -&gt; landLeft 1 second</code></pre>
 <p>Veja como no caso de sucesso, a tupla dentro de
 <code>Just (0,0)</code> se torna <code>start</code>, o resultado de
 <code>landLeft 2 start</code> se torna <code>first</code>, etc.</p>
 <p>Se quisermos jogar uma casca de banana para Pierre na
 <code>do notation</code>, podemos fazer o seguinte:</p>
-<p><code>{.haskell:hs} routine :: Maybe Pole routine = do     start &lt;- return (0,0)     first &lt;- landLeft 2 start     Nothing     second &lt;- landRight 2 first     landLeft 1 second</code></p>
+<pre class="haskell:hs"><code>routine :: Maybe Pole
+routine = do
+    start &lt;- return (0,0)
+    first &lt;- landLeft 2 start
+    Nothing
+    second &lt;- landRight 2 first
+    landLeft 1 second</code></pre>
 <p>Quando escrevemos uma linha na <code>do notation</code> sem vincular
 o monadic value com <code>&lt;-</code>, é exatamente como colocar
 <code>&gt;&gt;</code> após o monadic value cujo resultado queremos
@@ -656,7 +788,10 @@ logo antes. Mas ainda assim, isso nos deu alguma visão sobre a
 nomes, podemos utilizar pattern matching, assim como em expressões
 <code>let</code> e parâmetros de função. Aqui está um exemplo de pattern
 matching em uma <code>do notation</code>:</p>
-<p><code>{.haskell:hs} justH :: Maybe Char justH = do     (x:xs) &lt;- Just "hello"     return x</code></p>
+<pre class="haskell:hs"><code>justH :: Maybe Char
+justH = do
+    (x:xs) &lt;- Just &quot;hello&quot;
+    return x</code></pre>
 <p>Usamos pattern matching para pegar o primeiro caractere da string
 <code>"hello"</code> e então o apresentamos como resultado. Então
 <code>justH</code> avalia para <code>Just 'h'</code>.</p>
@@ -671,29 +806,34 @@ em uma <code>do</code> expression, a função <code>fail</code> é chamada.
 Ela faz parte da typeclass <code>Monad</code> e permite que o pattern
 matching falho resulte em uma falha no contexto da Monad atual em vez de
 fazer nosso programa travar. Sua implementação padrão é esta:</p>
-<p><code>{.haskell:hs} fail :: (Monad m) =&gt; String -&gt; m a fail msg = error msg</code></p>
+<pre class="haskell:hs"><code>fail :: (Monad m) =&gt; String -&gt; m a
+fail msg = error msg</code></pre>
 <p>Então, por padrão, ela faz nosso programa travar, mas Monads que
 incorporam um contexto de possível falha (como <code>Maybe</code>)
 geralmente a implementam por conta própria. Para <code>Maybe</code>, ela
 é implementada assim:</p>
-<p><code>{.haskell:hs} fail _ = Nothing</code></p>
+<pre class="haskell:hs"><code>fail _ = Nothing</code></pre>
 <p>Ela ignora a mensagem de erro e faz um <code>Nothing</code>. Então,
 quando o pattern matching falha em um valor <code>Maybe</code> que está
 escrito na notação <code>do</code>, todo o valor resulta em um
 <code>Nothing</code>. Isso é preferível a ter nosso programa travando.
 Aqui está uma expressão <code>do</code> com um padrão que está fadado a
 falhar:</p>
-<p><code>{.haskell:hs} wopwop :: Maybe Char wopwop = do     (x:xs) &lt;- Just ""     return x</code></p>
+<pre class="haskell:hs"><code>wopwop :: Maybe Char
+wopwop = do
+    (x:xs) &lt;- Just &quot;&quot;
+    return x</code></pre>
 <p>O pattern matching falha, então o efeito é o mesmo que se toda a
 linha com o padrão fosse substituída por um <code>Nothing</code>. Vamos
 testar isso:</p>
-<p><code>{.haskell:hs} ghci&gt; wopwop Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; wopwop
+Nothing</code></pre>
 <p>O pattern matching falho causou uma falha dentro do contexto de nossa
 Monad em vez de causar uma falha em todo o programa, o que é bem
 legal.</p>
-<h2>The List Monad {#the-list-monad}</h2>
-<p><img src="assets/images/a-fistful-of-monads/deadcat.png"
-alt="dead cat" />{.left width=235 height=230}</p>
+<h2 id="the-list-monad">The List Monad</h2>
+<p><img src="assets/images/a-fistful-of-monads/deadcat.png" class="left"
+width="235" height="230" alt="dead cat" /></p>
 <p>Até agora, vimos como valores <code>Maybe</code> podem ser vistos
 como valores com um contexto de falha e como podemos incorporar
 tratamento de falha em nosso código usando <code>&gt;&gt;=</code> para
@@ -707,7 +847,8 @@ determinístico. Ele tem apenas um resultado e sabemos exatamente o que
 resultados, então podemos vê-lo como um valor que é na verdade muitos
 valores ao mesmo tempo. Usar listas como Applicative Functors mostra bem
 esse não-determinismo:</p>
-<p><code>{.haskell:hs} ghci&gt; (*) &lt;$&gt; [1,2,3] &lt;*&gt; [10,100,1000] [10,100,1000,20,200,2000,30,300,3000]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (*) &lt;$&gt; [1,2,3] &lt;*&gt; [10,100,1000]
+[10,100,1000,20,200,2000,30,300,3000]</code></pre>
 <p>Todas as combinações possíveis de multiplicar elementos da lista da
 esquerda com elementos da lista da direita estão incluídas na lista
 resultante. Ao lidar com não-determinismo, há muitas escolhas que
@@ -717,7 +858,10 @@ resultados.</p>
 <p>Esse contexto de não-determinismo se traduz para Monads muito bem.
 Vamos em frente e ver como a instância <code>Monad</code> para listas se
 parece:</p>
-<p><code>{.haskell:hs} instance Monad [] where     return x = [x]     xs &gt;&gt;= f = concat (map f xs)     fail _ = []</code></p>
+<pre class="haskell:hs"><code>instance Monad [] where
+    return x = [x]
+    xs &gt;&gt;= f = concat (map f xs)
+    fail _ = []</code></pre>
 <p><code>return</code> faz a mesma coisa que <code>pure</code>, então já
 devemos estar familiarizados com <code>return</code> para listas. Ele
 pega um valor e o coloca em um contexto padrão mínimo que ainda produz
@@ -733,7 +877,8 @@ retorna um que tem contexto. Se essa função produzisse apenas um valor
 normal em vez de um com contexto, <code>&gt;&gt;=</code> não seria tão
 útil porque após um uso, o contexto seria perdido. De qualquer forma,
 vamos tentar alimentar um valor não-determinístico a uma função:</p>
-<p><code>{.haskell:hs} ghci&gt; [3,4,5] &gt;&gt;= \x -&gt; [x,-x] [3,-3,4,-4,5,-5]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [3,4,5] &gt;&gt;= \x -&gt; [x,-x]
+[3,-3,4,-4,5,-5]</code></pre>
 <p>Quando usamos <code>&gt;&gt;=</code> com <code>Maybe</code>, o
 monadic value foi alimentado na função enquanto cuidava de possíveis
 falhas. Aqui, ele cuida do não-determinismo para nós.
@@ -749,7 +894,7 @@ cada valor da lista que é alimentado a ele.</p>
 <p>Para ver como isso é alcançado, podemos apenas seguir a
 implementação. Primeiro, começamos com a lista <code>[3,4,5]</code>.
 Então, mapeamos o lambda sobre ela e o resultado é o seguinte:</p>
-<p><code>{.haskell:hs} [[3,-3],[4,-4],[5,-5]]</code></p>
+<pre class="haskell:hs"><code>[[3,-3],[4,-4],[5,-5]]</code></pre>
 <p>O lambda é aplicado a cada elemento e obtemos uma lista de listas.
 Finalmente, nós apenas achatamos (flatten) a lista e voilà! Aplicamos
 uma função não-determinística a um valor não-determinístico!</p>
@@ -758,7 +903,10 @@ uma função não-determinística a um valor não-determinístico!</p>
 porque significa a ausência de um resultado. É por isso que a falha é
 apenas definida como a lista vazia. A mensagem de erro é jogada fora.
 Vamos brincar com listas que falham:</p>
-<p><code>{.haskell:hs} ghci&gt; [] &gt;&gt;= \x -&gt; ["bad","mad","rad"] [] ghci&gt; [1,2,3] &gt;&gt;= \x -&gt; [] []</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [] &gt;&gt;= \x -&gt; [&quot;bad&quot;,&quot;mad&quot;,&quot;rad&quot;]
+[]
+ghci&gt; [1,2,3] &gt;&gt;= \x -&gt; []
+[]</code></pre>
 <p>Na primeira linha, uma lista vazia é alimentada ao lambda. Como a
 lista não tem elementos, nenhum deles pode ser passado para a função e,
 portanto, o resultado é uma lista vazia. Isso é semelhante a alimentar
@@ -769,9 +917,10 @@ função falha para cada elemento que entra nela, o resultado é uma
 falha.</p>
 <p>Assim como com valores <code>Maybe</code>, podemos encadear várias
 listas com <code>&gt;&gt;=</code>, propagando o não-determinismo:</p>
-<p><code>{.haskell:hs} ghci&gt; [1,2] &gt;&gt;= \n -&gt; ['a','b'] &gt;&gt;= \ch -&gt; return (n,ch) [(1,'a'),(1,'b'),(2,'a'),(2,'b')]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [1,2] &gt;&gt;= \n -&gt; [&#39;a&#39;,&#39;b&#39;] &gt;&gt;= \ch -&gt; return (n,ch)
+[(1,&#39;a&#39;),(1,&#39;b&#39;),(2,&#39;a&#39;),(2,&#39;b&#39;)]</code></pre>
 <p><img src="assets/images/a-fistful-of-monads/concatmap.png"
-alt="concatmap" />{.left width=399 height=340}</p>
+class="left" width="399" height="340" alt="concatmap" /></p>
 <p>A lista <code>[1,2]</code> é vinculada a <code>n</code> e
 <code>['a','b']</code> é vinculada a <code>ch</code>. Então, fazemos
 <code>return (n,ch)</code> (ou <code>[(n,ch)]</code>), o que significa
@@ -786,12 +935,18 @@ produza uma tupla de um elemento de cada lista.</p>
 em um contexto mínimo, ele não tem nenhum efeito extra (como falhar em
 <code>Maybe</code> ou resultar em mais não-determinismo para listas),
 mas apresenta algo como seu resultado.</p>
-<p>::: {.hintbox} Quando você tem valores não-determinísticos
-interagindo, você pode ver sua computação como uma árvore onde cada
-resultado possível em uma lista representa um ramo separado. :::</p>
+<div class="hintbox">
+<p>Quando você tem valores não-determinísticos interagindo, você pode
+ver sua computação como uma árvore onde cada resultado possível em uma
+lista representa um ramo separado.</p>
+</div>
 <p>Aqui está a expressão anterior reescrita na
 <code>do notation</code>:</p>
-<p><code>{.haskell:hs} listOfTuples :: [(Int,Char)] listOfTuples = do     n &lt;- [1,2]     ch &lt;- ['a','b']     return (n,ch)</code></p>
+<pre class="haskell:hs"><code>listOfTuples :: [(Int,Char)]
+listOfTuples = do
+    n &lt;- [1,2]
+    ch &lt;- [&#39;a&#39;,&#39;b&#39;]
+    return (n,ch)</code></pre>
 <p>Isso torna um pouco mais óbvio que <code>n</code> assume cada valor
 de <code>[1,2]</code> e <code>ch</code> assume cada valor de
 <code>['a','b']</code>. Assim como com <code>Maybe</code>, estamos
@@ -800,7 +955,8 @@ normais e <code>&gt;&gt;=</code> cuida do contexto para nós. O contexto
 neste caso é o não-determinismo.</p>
 <p>Usar listas com <code>do notation</code> realmente me lembra de algo
 que vimos antes. Confira o seguinte trecho de código:</p>
-<p><code>{.haskell:hs} ghci&gt; [ (n,ch) | n &lt;- [1,2], ch &lt;- ['a','b'] ] [(1,'a'),(1,'b'),(2,'a'),(2,'b')]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [ (n,ch) | n &lt;- [1,2], ch &lt;- [&#39;a&#39;,&#39;b&#39;] ]
+[(1,&#39;a&#39;),(1,&#39;b&#39;),(2,&#39;a&#39;),(2,&#39;b&#39;)]</code></pre>
 <p>Sim! List comprehensions! Em nosso exemplo de
 <code>do notation</code>, <code>n</code> tornou-se cada resultado de
 <code>[1,2]</code> e para cada resultado, <code>ch</code> recebeu um
@@ -818,7 +974,8 @@ fazer computações que apresentam não-determinismo.</p>
 <p>List comprehensions nos permitem filtrar nossa saída. Por exemplo,
 podemos filtrar uma lista de números para procurar apenas aqueles
 números cujos dígitos contêm um <code>7</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; [ x | x &lt;- [1..50], '7' `elem` show x ] [7,17,27,37,47]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [ x | x &lt;- [1..50], &#39;7&#39; `elem` show x ]
+[7,17,27,37,47]</code></pre>
 <p>Aplicamos <code>show</code> a <code>x</code> para transformar nosso
 número em uma string e então verificamos se o caractere <code>'7'</code>
 faz parte dessa string. Muito inteligente. Para ver como a filtragem em
@@ -826,31 +983,48 @@ list comprehensions se traduz para a List Monad, temos que verificar a
 função <code>guard</code> e a typeclass <code>MonadPlus</code>. A
 typeclass <code>MonadPlus</code> é para Monads que também podem agir
 como Monoids. Aqui está sua definição:</p>
-<p><code>{.haskell:hs} class Monad m =&gt; MonadPlus m where     mzero :: m a     mplus :: m a -&gt; m a -&gt; m a</code></p>
+<pre class="haskell:hs"><code>class Monad m =&gt; MonadPlus m where
+    mzero :: m a
+    mplus :: m a -&gt; m a -&gt; m a</code></pre>
 <p><code>mzero</code> é sinônimo de <code>mempty</code> da typeclass
 <code>Monoid</code> e <code>mplus</code> corresponde a
 <code>mappend</code>. Como listas são Monoids, bem como Monads, elas
 podem ser feitas uma instância desta typeclass:</p>
-<p><code>{.haskell:hs} instance MonadPlus [] where     mzero = []     mplus = (++)</code></p>
+<pre class="haskell:hs"><code>instance MonadPlus [] where
+    mzero = []
+    mplus = (++)</code></pre>
 <p>Para listas <code>mzero</code> representa uma computação
-não-determinística que não tem resultados de forma alguma --- uma
+não-determinística que não tem resultados de forma alguma — uma
 computação falha. <code>mplus</code> une dois valores
 não-determinísticos em um. A função <code>guard</code> é definida
 assim:</p>
-<p><code>{.haskell:hs} guard :: (MonadPlus m) =&gt; Bool -&gt; m () guard True = return () guard False = mzero</code></p>
+<pre class="haskell:hs"><code>guard :: (MonadPlus m) =&gt; Bool -&gt; m ()
+guard True = return ()
+guard False = mzero</code></pre>
 <p>Ela pega um valor booleano e se for <code>True</code>, pega um
 <code>()</code> e o coloca em um contexto padrão mínimo que ainda tem
 sucesso. Caso contrário, ela faz um monadic value de falha. Aqui está
 ela em ação:</p>
-<p><code>{.haskell:hs} ghci&gt; guard (5 &gt; 2) :: Maybe () Just () ghci&gt; guard (1 &gt; 2) :: Maybe () Nothing ghci&gt; guard (5 &gt; 2) :: [()] [()] ghci&gt; guard (1 &gt; 2) :: [()] []</code></p>
+<pre class="haskell:hs"><code>ghci&gt; guard (5 &gt; 2) :: Maybe ()
+Just ()
+ghci&gt; guard (1 &gt; 2) :: Maybe ()
+Nothing
+ghci&gt; guard (5 &gt; 2) :: [()]
+[()]
+ghci&gt; guard (1 &gt; 2) :: [()]
+[]</code></pre>
 <p>Parece interessante, mas como é útil? Na List Monad, nós a usamos
 para filtrar computações não-determinísticas. Observe:</p>
-<p><code>{.haskell:hs} ghci&gt; [1..50] &gt;&gt;= (\x -&gt; guard ('7' `elem` show x) &gt;&gt; return x) [7,17,27,37,47]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [1..50] &gt;&gt;= (\x -&gt; guard (&#39;7&#39; `elem` show x) &gt;&gt; return x)
+[7,17,27,37,47]</code></pre>
 <p>O resultado aqui é o mesmo que o resultado de nossa compreensão de
 lista anterior. Como <code>guard</code> consegue isso? Vamos ver
 primeiro como <code>guard</code> funciona em conjunto com
 <code>&gt;&gt;</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; guard (5 &gt; 2) &gt;&gt; return "cool" :: [String] ["cool"] ghci&gt; guard (1 &gt; 2) &gt;&gt; return "cool" :: [String] []</code></p>
+<pre class="haskell:hs"><code>ghci&gt; guard (5 &gt; 2) &gt;&gt; return &quot;cool&quot; :: [String]
+[&quot;cool&quot;]
+ghci&gt; guard (1 &gt; 2) &gt;&gt; return &quot;cool&quot; :: [String]
+[]</code></pre>
 <p>Se <code>guard</code> tiver sucesso, o resultado contido nele é uma
 tupla vazia. Então, usamos <code>&gt;&gt;</code> para ignorar essa tupla
 vazia e apresentar outra coisa como resultado. No entanto, se
@@ -864,15 +1038,20 @@ faça um valor bem-sucedido que tenha um resultado fictício de
 computação continue.</p>
 <p>Aqui está o exemplo anterior reescrito na
 <code>do notation</code>:</p>
-<p><code>{.haskell:hs} sevensOnly :: [Int] sevensOnly = do     x &lt;- [1..50]     guard ('7' `elem` show x)     return x</code></p>
+<pre class="haskell:hs"><code>sevensOnly :: [Int]
+sevensOnly = do
+    x &lt;- [1..50]
+    guard (&#39;7&#39; `elem` show x)
+    return x</code></pre>
 <p>Se tivéssemos esquecido de apresentar <code>x</code> como o resultado
 final usando <code>return</code>, a lista resultante seria apenas uma
 lista de tuplas vazias. Aqui está isso novamente na forma de uma list
 comprehension:</p>
-<p><code>{.haskell:hs} ghci&gt; [ x | x &lt;- [1..50], '7' `elem` show x ] [7,17,27,37,47]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; [ x | x &lt;- [1..50], &#39;7&#39; `elem` show x ]
+[7,17,27,37,47]</code></pre>
 <p>Portanto, a filtragem em list comprehensions é o mesmo que usar
 <code>guard</code>.</p>
-<h3>A missão do cavalo {#a-knights-quest}</h3>
+<h3 id="a-knights-quest">A missão do cavalo</h3>
 <p>Aqui está um problema que realmente se presta a ser resolvido com
 não-determinismo. Digamos que você tenha um tabuleiro de xadrez e apenas
 uma peça de cavalo nele. Queremos descobrir se o cavalo pode chegar a
@@ -880,11 +1059,11 @@ uma determinada posição em três movimentos. Vamos usar apenas um par de
 números para representar a posição do cavalo no tabuleiro de xadrez. O
 primeiro número determinará a coluna em que ele está e o segundo número
 determinará a linha.</p>
-<p><img src="assets/images/a-fistful-of-monads/chess.png"
-alt="hee haw im a horse" />{.center width=760 height=447}</p>
+<p><img src="assets/images/a-fistful-of-monads/chess.png" class="center"
+width="760" height="447" alt="hee haw im a horse" /></p>
 <p>Vamos criar um sinônimo de tipo para a posição atual do cavalo no
 tabuleiro de xadrez:</p>
-<p><code>{.haskell:hs} type KnightPos = (Int,Int)</code></p>
+<pre class="haskell:hs"><code>type KnightPos = (Int,Int)</code></pre>
 <p>Então, digamos que o cavalo comece em <code>(6,2)</code>. Ele pode
 chegar a <code>(6,1)</code> em exatamente três movimentos? Vamos ver. Se
 começarmos em <code>(6,2)</code>, qual é o melhor movimento a fazer a
@@ -892,7 +1071,13 @@ seguir? Eu sei, que tal todos eles! Temos não-determinismo à nossa
 disposição, então, em vez de escolher um movimento, vamos escolher todos
 eles de uma vez. Aqui está uma função que pega a posição do cavalo e
 retorna todos os seus próximos movimentos:</p>
-<p><code>{.haskell:hs} moveKnight :: KnightPos -&gt; [KnightPos] moveKnight (c,r) = do     (c',r') &lt;- [(c+2,r-1),(c+2,r+1),(c-2,r-1),(c-2,r+1)                ,(c+1,r-2),(c+1,r+2),(c-1,r-2),(c-1,r+2)                ]     guard (c' `elem` [1..8] &amp;&amp; r' `elem` [1..8])     return (c',r')</code></p>
+<pre class="haskell:hs"><code>moveKnight :: KnightPos -&gt; [KnightPos]
+moveKnight (c,r) = do
+    (c&#39;,r&#39;) &lt;- [(c+2,r-1),(c+2,r+1),(c-2,r-1),(c-2,r+1)
+               ,(c+1,r-2),(c+1,r+2),(c-1,r-2),(c-1,r+2)
+               ]
+    guard (c&#39; `elem` [1..8] &amp;&amp; r&#39; `elem` [1..8])
+    return (c&#39;,r&#39;)</code></pre>
 <p>O cavalo sempre pode dar um passo horizontalmente ou verticalmente e
 dois passos horizontalmente ou verticalmente, mas seu movimento deve ser
 tanto horizontal quanto vertical. <code>(c',r')</code> assume cada valor
@@ -903,22 +1088,34 @@ estiver, ele produz uma lista vazia, o que causa uma falha e
 <p>Esta função também pode ser escrita sem o uso de listas como uma
 Monad, mas fizemos isso aqui apenas por diversão. Aqui está a mesma
 função feita com <code>filter</code>:</p>
-<p><code>{.haskell:hs} moveKnight :: KnightPos -&gt; [KnightPos] moveKnight (c,r) = filter onBoard     [(c+2,r-1),(c+2,r+1),(c-2,r-1),(c-2,r+1)     ,(c+1,r-2),(c+1,r+2),(c-1,r-2),(c-1,r+2)     ]     where onBoard (c,r) = c `elem` [1..8] &amp;&amp; r `elem` [1..8]</code></p>
+<pre class="haskell:hs"><code>moveKnight :: KnightPos -&gt; [KnightPos]
+moveKnight (c,r) = filter onBoard
+    [(c+2,r-1),(c+2,r+1),(c-2,r-1),(c-2,r+1)
+    ,(c+1,r-2),(c+1,r+2),(c-1,r-2),(c-1,r+2)
+    ]
+    where onBoard (c,r) = c `elem` [1..8] &amp;&amp; r `elem` [1..8]</code></pre>
 <p>Ambas fazem a mesma coisa, então escolha a que você acha mais bonita.
 Vamos testar:</p>
-<p><code>{.haskell:hs} ghci&gt; moveKnight (6,2) [(8,1),(8,3),(4,1),(4,3),(7,4),(5,4)] ghci&gt; moveKnight (8,1) [(6,2),(7,3)]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; moveKnight (6,2)
+[(8,1),(8,3),(4,1),(4,3),(7,4),(5,4)]
+ghci&gt; moveKnight (8,1)
+[(6,2),(7,3)]</code></pre>
 <p>Funciona que é uma beleza! Pegamos uma posição e realizamos todos os
 movimentos possíveis de uma vez, por assim dizer. Então, agora que temos
 uma próxima posição não-determinística, apenas usamos
 <code>&gt;&gt;=</code> para alimentá-la a <code>moveKnight</code>. Aqui
 está uma função que pega uma posição e retorna todas as posições que
 você pode alcançar a partir dela em três movimentos:</p>
-<p><code>{.haskell:hs} in3 :: KnightPos -&gt; [KnightPos] in3 start = do     first &lt;- moveKnight start     second &lt;- moveKnight first     moveKnight second</code></p>
+<pre class="haskell:hs"><code>in3 :: KnightPos -&gt; [KnightPos]
+in3 start = do
+    first &lt;- moveKnight start
+    second &lt;- moveKnight first
+    moveKnight second</code></pre>
 <p>Se você passar <code>(6,2)</code>, a lista resultante é bem grande,
 porque se houver várias maneiras de chegar a alguma posição em três
 movimentos, ela aparece na lista várias vezes. O exemplo acima sem a
 <code>do notation</code>:</p>
-<p><code>{.haskell:hs} in3 start = return start &gt;&gt;= moveKnight &gt;&gt;= moveKnight &gt;&gt;= moveKnight</code></p>
+<pre class="haskell:hs"><code>in3 start = return start &gt;&gt;= moveKnight &gt;&gt;= moveKnight &gt;&gt;= moveKnight</code></pre>
 <p>Usar <code>&gt;&gt;=</code> uma vez nos dá todos os movimentos
 possíveis desde o início e então, quando usamos <code>&gt;&gt;=</code>
 pela segunda vez, para cada primeiro movimento possível, cada próximo
@@ -930,23 +1127,26 @@ o mesmo que apenas aplicar normalmente a função a esse valor, mas
 fizemos isso aqui de qualquer maneira por estilo.</p>
 <p>Agora, vamos fazer uma função que pega duas posições e nos diz se
 você pode ir de uma para a outra em exatamente três passos:</p>
-<p><code>{.haskell:hs} canReachIn3 :: KnightPos -&gt; KnightPos -&gt; Bool canReachIn3 start end = end `elem` in3 start</code></p>
+<pre class="haskell:hs"><code>canReachIn3 :: KnightPos -&gt; KnightPos -&gt; Bool
+canReachIn3 start end = end `elem` in3 start</code></pre>
 <p>Geramos todas as posições possíveis em três passos e então vemos se a
 posição que estamos procurando está entre elas. Então vamos ver se
 podemos ir de <code>(6,2)</code> para <code>(6,1)</code> em três
 movimentos:</p>
-<p><code>{.haskell:hs} ghci&gt; (6,2) `canReachIn3` (6,1) True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (6,2) `canReachIn3` (6,1)
+True</code></pre>
 <p>Sim! Que tal de <code>(6,2)</code> para <code>(7,3)</code>?</p>
-<p><code>{.haskell:hs} ghci&gt; (6,2) `canReachIn3` (7,3) False</code></p>
+<pre class="haskell:hs"><code>ghci&gt; (6,2) `canReachIn3` (7,3)
+False</code></pre>
 <p>Não! Como exercício, você pode alterar essa função para que, quando
 você puder alcançar uma posição a partir da outra, ela diga quais
 movimentos tomar. Mais tarde, veremos como modificar essa função para
 que também passemos o número de movimentos a serem feitos, em vez de
 esse número ser codificado como é agora.</p>
-<h2>Monad Laws {#monad-laws}</h2>
+<h2 id="monad-laws">Monad Laws</h2>
 <p><img src="assets/images/a-fistful-of-monads/judgedog.png"
-alt="the court finds you guilty of peeing all over everything" />{.right
-width=343 height=170}</p>
+class="right" width="343" height="170"
+alt="the court finds you guilty of peeing all over everything" /></p>
 <p>Assim como Applicative Functors, e Functors antes deles, Monads vêm
 com algumas leis que todas as instâncias de Monads devem respeitar. Só
 porque algo é feito uma instância da typeclass <code>Monad</code> não
@@ -963,14 +1163,14 @@ tipo. Podemos confiar nos tipos que vêm com a biblioteca padrão para
 satisfazer as laws, mas mais tarde, quando formos fazer nossas próprias
 Monads, teremos que verificar manualmente se as laws valem. Mas não se
 preocupe, elas não são complicadas.</p>
-<h3>Left Identity {#left-identity}</h3>
+<h3 id="left-identity">Left Identity</h3>
 <p>A primeira Monad law afirma que se pegarmos um valor, o colocarmos em
 um contexto padrão com <code>return</code> e então o alimentarmos a uma
 função usando <code>&gt;&gt;=</code>, é o mesmo que apenas pegar o valor
 e aplicar a função a ele. Para colocar formalmente:</p>
 <ul>
-<li><code>return x &gt;&gt;= f</code>{.label .law} é a mesma maldita
-coisa que <code>f x</code>{.label .law}</li>
+<li><code class="label law">return x &gt;&gt;= f</code> é a mesma
+maldita coisa que <code class="label law">f x</code></li>
 </ul>
 <p>Se você olhar para monadic values como valores com um contexto e
 <code>return</code> como pegar um valor e colocá-lo em um contexto
@@ -985,24 +1185,30 @@ um valor e queremos colocá-lo em tal contexto, faz sentido que o
 tratemos como uma computação bem-sucedida porque, bem, sabemos qual é o
 valor. Aqui está algum uso de <code>return</code> com
 <code>Maybe</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; return 3 &gt;&gt;= (\x -&gt; Just (x+100000)) Just 100003 ghci&gt; (\x -&gt; Just (x+100000)) 3 Just 100003</code></p>
+<pre class="haskell:hs"><code>ghci&gt; return 3 &gt;&gt;= (\x -&gt; Just (x+100000))
+Just 100003
+ghci&gt; (\x -&gt; Just (x+100000)) 3
+Just 100003</code></pre>
 <p>Para a List Monad, <code>return</code> coloca algo em uma lista
 unitária. A implementação de <code>&gt;&gt;=</code> para listas percorre
 todos os valores na lista e aplica a função a eles, mas como há apenas
 um valor em uma lista unitária, é o mesmo que aplicar a função a esse
 valor:</p>
-<p><code>{.haskell:hs} ghci&gt; return "WoM" &gt;&gt;= (\x -&gt; [x,x,x]) ["WoM","WoM","WoM"] ghci&gt; (\x -&gt; [x,x,x]) "WoM" ["WoM","WoM","WoM"]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; return &quot;WoM&quot; &gt;&gt;= (\x -&gt; [x,x,x])
+[&quot;WoM&quot;,&quot;WoM&quot;,&quot;WoM&quot;]
+ghci&gt; (\x -&gt; [x,x,x]) &quot;WoM&quot;
+[&quot;WoM&quot;,&quot;WoM&quot;,&quot;WoM&quot;]</code></pre>
 <p>Dissemos que para <code>IO</code>, usar <code>return</code> faz uma
 ação de E/S que não tem efeitos colaterais, mas apenas apresenta um
 valor como seu resultado. Então faz sentido que essa lei valha para
 <code>IO</code> também.</p>
-<h3>Right Identity {#right-identity}</h3>
+<h3 id="right-identity">Right Identity</h3>
 <p>A segunda lei afirma que se temos um monadic value e usamos
 <code>&gt;&gt;=</code> para alimentá-lo a <code>return</code>, o
 resultado é nosso monadic value original. Formalmente:</p>
 <ul>
-<li><code>m &gt;&gt;= return</code>{.label .law} não é diferente de
-apenas <code>m</code>{.label .law}</li>
+<li><code class="label law">m &gt;&gt;= return</code> não é diferente de
+apenas <code class="label law">m</code></li>
 </ul>
 <p>Esta pode ser um pouco menos óbvia que a primeira, mas vamos ver por
 que ela deve valer. Quando alimentamos monadic values a funções usando
@@ -1013,10 +1219,15 @@ em um contexto mínimo que ainda apresenta esse valor como seu resultado.
 Isso significa que, por exemplo, para <code>Maybe</code>, ele não
 introduz nenhuma falha e para listas, ele não introduz nenhum
 não-determinismo extra. Aqui está um teste para algumas Monads:</p>
-<p><code>{.haskell:hs} ghci&gt; Just "move on up" &gt;&gt;= (\x -&gt; return x) Just "move on up" ghci&gt; [1,2,3,4] &gt;&gt;= (\x -&gt; return x) [1,2,3,4] ghci&gt; putStrLn "Wah!" &gt;&gt;= (\x -&gt; return x) Wah!</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just &quot;move on up&quot; &gt;&gt;= (\x -&gt; return x)
+Just &quot;move on up&quot;
+ghci&gt; [1,2,3,4] &gt;&gt;= (\x -&gt; return x)
+[1,2,3,4]
+ghci&gt; putStrLn &quot;Wah!&quot; &gt;&gt;= (\x -&gt; return x)
+Wah!</code></pre>
 <p>Se olharmos mais de perto o exemplo da lista, a implementação de
 <code>&gt;&gt;=</code> é:</p>
-<p><code>{.haskell:hs} xs &gt;&gt;= f = concat (map f xs)</code></p>
+<pre class="haskell:hs"><code>xs &gt;&gt;= f = concat (map f xs)</code></pre>
 <p>Então, quando alimentamos <code>[1,2,3,4]</code> a
 <code>return</code>, primeiro <code>return</code> é mapeado sobre
 <code>[1,2,3,4]</code>, resultando em <code>[[1],[2],[3],[4]]</code> e
@@ -1026,14 +1237,14 @@ que descrevem como <code>return</code> deve se comportar. É uma função
 importante para transformar valores normais em monadic values e não
 seria bom se o monadic value que ela produzisse fizesse um monte de
 outras coisas.</p>
-<h3>Associativity {#associativity}</h3>
+<h3 id="associativity">Associativity</h3>
 <p>A final Monad law diz que quando temos uma cadeia de aplicações de
 funções monadic com <code>&gt;&gt;=</code>, não deve importar como elas
 são aninhadas. Escrito formalmente:</p>
 <ul>
-<li>Fazer <code>(m &gt;&gt;= f) &gt;&gt;= g</code>{.label .law} é
-exatamente como fazer
-<code>m &gt;&gt;= (\x -&gt; f x &gt;&gt;= g)</code>{.label .law}</li>
+<li>Fazer <code class="label law">(m &gt;&gt;= f) &gt;&gt;= g</code> é
+exatamente como fazer <code
+class="label law">m &gt;&gt;= (\x -&gt; f x &gt;&gt;= g)</code></li>
 </ul>
 <p>Hmmm, agora o que está acontecendo aqui? Temos um monadic value
 <code>m</code> e duas monadic functions <code>f</code> e <code>g</code>.
@@ -1049,15 +1260,20 @@ igualdade um pouco mais clara.</p>
 bamba enquanto pássaros pousavam em sua vara de equilíbrio? Para simular
 pássaros pousando em sua vara de equilíbrio, fizemos uma cadeia de
 várias funções que poderiam produzir falha:</p>
-<p><code>{.haskell:hs} ghci&gt; return (0,0) &gt;&gt;= landRight 2 &gt;&gt;= landLeft 2 &gt;&gt;= landRight 2 Just (2,4)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; return (0,0) &gt;&gt;= landRight 2 &gt;&gt;= landLeft 2 &gt;&gt;= landRight 2
+Just (2,4)</code></pre>
 <p>Começamos com <code>Just (0,0)</code> e então vinculamos esse valor à
 próxima monadic function, <code>landRight 2</code>. O resultado disso
 foi outro monadic value que foi vinculado à próxima monadic function, e
 assim por diante. Se fôssemos colocar parênteses explicitamente nisso,
 escreveríamos:</p>
-<p><code>{.haskell:hs} ghci&gt; ((return (0,0) &gt;&gt;= landRight 2) &gt;&gt;= landLeft 2) &gt;&gt;= landRight 2 Just (2,4)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; ((return (0,0) &gt;&gt;= landRight 2) &gt;&gt;= landLeft 2) &gt;&gt;= landRight 2
+Just (2,4)</code></pre>
 <p>Mas também podemos escrever a rotina assim:</p>
-<p><code>{.haskell:hs} return (0,0) &gt;&gt;= (\x -&gt; landRight 2 x &gt;&gt;= (\y -&gt; landLeft 2 y &gt;&gt;= (\z -&gt; landRight 2 z)))</code></p>
+<pre class="haskell:hs"><code>return (0,0) &gt;&gt;= (\x -&gt;
+landRight 2 x &gt;&gt;= (\y -&gt;
+landLeft 2 y &gt;&gt;= (\z -&gt;
+landRight 2 z)))</code></pre>
 <p><code>return (0,0)</code> é o mesmo que <code>Just (0,0)</code> e
 quando o alimentamos para o lambda, o <code>x</code> se torna
 <code>(0,0)</code>. <code>landRight</code> pega um número de pássaros e
@@ -1070,7 +1286,8 @@ o resultado de toda a expressão.</p>
 monadic functions, o que importa é o significado delas. Aqui está outra
 maneira de ver esta lei: considere compor duas funções, <code>f</code> e
 <code>g</code>. A composição de duas funções é implementada assim:</p>
-<p><code>{.haskell:hs} (.) :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; (a -&gt; c) f . g = (\x -&gt; f (g x))</code></p>
+<pre class="haskell:hs"><code>(.) :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; (a -&gt; c)
+f . g = (\x -&gt; f (g x))</code></pre>
 <p>Se o tipo de <code>g</code> for <code>a -&gt; b</code> e o tipo de
 <code>f</code> for <code>b -&gt; c</code>, nós as organizamos em uma
 nova função que tem um tipo de <code>a -&gt; c</code>, para que seu
@@ -1083,21 +1300,27 @@ função aceita um <code>b</code> normal, não um monadic. No entanto,
 poderíamos usar <code>&gt;&gt;=</code> para fazer isso acontecer. Então,
 usando <code>&gt;&gt;=</code>, podemos compor duas monadic
 functions:</p>
-<p><code>{.haskell:hs} (&lt;=&lt;) :: (Monad m) =&gt; (b -&gt; m c) -&gt; (a -&gt; m b) -&gt; (a -&gt; m c) f &lt;=&lt; g = (\x -&gt; g x &gt;&gt;= f)</code></p>
+<pre class="haskell:hs"><code>(&lt;=&lt;) :: (Monad m) =&gt; (b -&gt; m c) -&gt; (a -&gt; m b) -&gt; (a -&gt; m c)
+f &lt;=&lt; g = (\x -&gt; g x &gt;&gt;= f)</code></pre>
 <p>Então agora podemos compor duas monadic functions:</p>
-<p><code>{.haskell:hs} ghci&gt; let f x = [x,-x] ghci&gt; let g x = [x*3,x*2] ghci&gt; let h = f &lt;=&lt; g ghci&gt; h 3 [9,-9,6,-6]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let f x = [x,-x]
+ghci&gt; let g x = [x*3,x*2]
+ghci&gt; let h = f &lt;=&lt; g
+ghci&gt; h 3
+[9,-9,6,-6]</code></pre>
 <p>Legal. Então o que isso tem a ver com a lei da associatividade? Bem,
 quando olhamos para a lei como uma lei de composições, ela afirma que
-<code>f &lt;=&lt; (g &lt;=&lt; h)</code>{.label .law} deve ser o mesmo
-que <code>(f &lt;=&lt; g) &lt;=&lt; h</code>{.label .law}. Esta é apenas
-outra maneira de dizer que para Monads, o aninhamento de operações não
-deve importar.</p>
+<code class="label law">f &lt;=&lt; (g &lt;=&lt; h)</code> deve ser o
+mesmo que <code class="label law">(f &lt;=&lt; g) &lt;=&lt; h</code>.
+Esta é apenas outra maneira de dizer que para Monads, o aninhamento de
+operações não deve importar.</p>
 <p>Se traduzirmos as duas primeiras leis para usar
 <code>&lt;=&lt;</code>, então a Left Identity afirma que para toda
-monadic function <code>f</code>, <code>f &lt;=&lt; return</code>{.label
-.law} é o mesmo que escrever apenas <code>f</code>{.label .law} e a
-Right Identity diz que <code>return &lt;=&lt; f</code>{.label .law}
-também não é diferente de <code>f</code>{.label .law}.</p>
+monadic function <code>f</code>, <code
+class="label law">f &lt;=&lt; return</code> é o mesmo que escrever
+apenas <code class="label law">f</code> e a Right Identity diz que <code
+class="label law">return &lt;=&lt; f</code> também não é diferente de
+<code class="label law">f</code>.</p>
 <p>Isso é muito semelhante a como, se <code>f</code> é uma função
 normal, <code>(f . g) . h</code> é o mesmo que <code>f . (g . h)</code>,
 <code>f . id</code> é sempre o mesmo que <code>f</code> e
@@ -1109,9 +1332,15 @@ aprenderemos como fazer as nossas próprias.</p>
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="functors-applicative-functors-and-monoids.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="for-a-few-monads-more.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="functors-applicative-functors-and-monoids.html">Anterior (Funtores, Funtores Aplicativos e Monoides)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="for-a-few-monads-more.html" class="nxtlink">Próximo (Por mais Alguns Monads)</a>
+        </li>
     </ul>
 </div>
 

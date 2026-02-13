@@ -9,20 +9,27 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="input-and-output.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="functors-applicative-functors-and-monoids.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="input-and-output.html">Anterior (Entrada e Saída)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="functors-applicative-functors-and-monoids.html" class="nxtlink">Próximo (Funtores, Funtores Aplicativos e Monoides)</a>
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Resolvendo Problemas Funcionalmente (Functionally Solving
-Problems)</h1>
+<h1
+id="resolvendo-problemas-funcionalmente-functionally-solving-problems">Resolvendo
+Problemas Funcionalmente (Functionally Solving Problems)</h1>
 <p>Neste capítulo, examinaremos alguns problemas interessantes e como
 pensar funcionalmente para resolvê-los da maneira mais elegante
 possível. Provavelmente não introduziremos novos conceitos, apenas vamos
@@ -30,8 +37,8 @@ flexionar nossos músculos Haskell recém-adquiridos e praticar nossas
 habilidades de codificação. Cada seção apresentará um problema
 diferente. Primeiro, descreveremos o problema, e depois tentaremos
 descobrir qual é a melhor (ou a menos pior) maneira de resolvê-lo.</p>
-<h2>Calculadora de Notação Polonesa Reversa (Reverse Polish notation
-calculator) {#reverse-polish-notation-calculator}</h2>
+<h2 id="reverse-polish-notation-calculator">Calculadora de Notação
+Polonesa Reversa (Reverse Polish notation calculator)</h2>
 <p>Normalmente, quando escrevemos expressões matemáticas na escola,
 escrevemos de maneira infixa. Por exemplo, escrevemos
 <code>10 - (4 + 3) * 2</code>. <code>+</code>, <code>*</code> e
@@ -58,7 +65,7 @@ de volta para a pilha. Ao chegar ao final da expressão, você deve ficar
 com um único número se a expressão foi bem formada e esse número
 representa o resultado.</p>
 <p><img src="assets/images/functionally-solving-problems/rpn.png"
-alt="this expression" />{.center width=626 height=224}</p>
+class="center" width="626" height="224" alt="this expression" /></p>
 <p>Vamos passar pela expressão <code>10 4 3 + 2 * -</code> juntos!
 Primeiro, empurramos <code>10</code> para a pilha e a pilha agora é
 <code>10</code>. O próximo item é <code>4</code>, então o empurramos
@@ -86,13 +93,15 @@ parâmetro uma string que contém uma expressão RPN, como
 string como parâmetro e produza um número como resultado. Portanto,
 provavelmente será algo como
 <code>solveRPN :: (Num a) =&gt; String -&gt; a</code>.</p>
-<p>::: {.hintbox} <strong>Dica profissional:</strong> Ajuda muito pensar
-primeiro qual deve ser a declaração de tipo de uma função antes de nos
-preocuparmos com a implementação e depois anotá-lá. Em Haskell, a
-declaração de tipo de uma função nos diz muito sobre a função, devido ao
-sistema de tipos muito forte. :::</p>
+<div class="hintbox">
+<p><strong>Dica profissional:</strong> Ajuda muito pensar primeiro qual
+deve ser a declaração de tipo de uma função antes de nos preocuparmos
+com a implementação e depois anotá-lá. Em Haskell, a declaração de tipo
+de uma função nos diz muito sobre a função, devido ao sistema de tipos
+muito forte.</p>
+</div>
 <p><img src="assets/images/functionally-solving-problems/calculator.png"
-alt="HA HA HA" />{.left width=220 height=190}</p>
+class="left" width="220" height="190" alt="HA HA HA" /></p>
 <p>Legal. Ao implementar uma solução para um problema em Haskell, também
 é bom pensar em como você fez à mão e talvez tente ver se consegue obter
 alguma percepção disso. Aqui vemos que tratamos cada número ou operador
@@ -128,10 +137,11 @@ esquerdo sobre essa lista e terminaremos com uma pilha que tem um único
 item, então <code>[-4]</code>. Tiramos esse único item da lista e esse é
 o nosso resultado final!</p>
 <p>Então, aqui está um esboço dessa função:</p>
-<p>```{.haskell:hs} import Data.List</p>
-<p>solveRPN :: (Num a) =&gt; String -&gt; a solveRPN expression = head
-(foldl foldingFunction [] (words expression)) where foldingFunction
-stack item = ... ```</p>
+<pre class="haskell:hs"><code>import Data.List
+
+solveRPN :: (Num a) =&gt; String -&gt; a
+solveRPN expression = head (foldl foldingFunction [] (words expression))
+    where   foldingFunction stack item = ...</code></pre>
 <p>Pegamos a expressão e a transformamos em uma lista de itens. Então
 fazemos o fold sobre essa lista de itens com a função de dobra
 (<code>foldingFunction</code>). Cuidado com o <code>[]</code>, que
@@ -150,16 +160,22 @@ retornar <code>[40]</code>. Mas, antes disso, vamos transformar nossa
 função em <a href="higher-order-functions.html#composition">estilo livre
 de pontos</a> (point-free style), porque tem muitos parênteses que estão
 me assustando:</p>
-<p>```{.haskell:hs} import Data.List</p>
-<p>solveRPN :: (Num a) =&gt; String -&gt; a solveRPN = head . foldl
-foldingFunction [] . words where foldingFunction stack item = ...
-```</p>
+<pre class="haskell:hs"><code>import Data.List
+
+solveRPN :: (Num a) =&gt; String -&gt; a
+solveRPN = head . foldl foldingFunction [] . words
+    where   foldingFunction stack item = ...</code></pre>
 <p>Ah, aí vamos nós. Muito melhor. Portanto, a função de dobra levará
 uma pilha e um item e retornará uma nova pilha. Usaremos correspondência
 de padrões (pattern matching) para obter os itens do topo de uma pilha e
 corresponder aos operadores como <code>"*"</code> e
 <code>"-"</code>.</p>
-<p><code>{.haskell:hs} solveRPN :: (Num a, Read a) =&gt; String -&gt; a solveRPN = head . foldl foldingFunction [] . words     where   foldingFunction (x:y:ys) "*" = (x * y):ys             foldingFunction (x:y:ys) "+" = (x + y):ys             foldingFunction (x:y:ys) "-" = (y - x):ys             foldingFunction xs numberString = read numberString:xs</code></p>
+<pre class="haskell:hs"><code>solveRPN :: (Num a, Read a) =&gt; String -&gt; a
+solveRPN = head . foldl foldingFunction [] . words
+    where   foldingFunction (x:y:ys) &quot;*&quot; = (x * y):ys
+            foldingFunction (x:y:ys) &quot;+&quot; = (x + y):ys
+            foldingFunction (x:y:ys) &quot;-&quot; = (y - x):ys
+            foldingFunction xs numberString = read numberString:xs</code></pre>
 <p>Nós estabelecemos isso como quatro padrões. Os padrões serão tentados
 de cima para baixo. Primeiro, a função de dobra verá se o item atual é
 <code>"* "</code>. Se for, levará uma lista como <code>[3,4,9,3]</code>
@@ -197,7 +213,18 @@ com que esses dois números sejam retirados da pilha, somados e
 empurrados de volta. A pilha final é <code>[5]</code>, que é o número
 que retornamos.</p>
 <p>Vamos brincar com a nossa função:</p>
-<p><code>{.haskell:hs} ghci&gt; solveRPN "10 4 3 + 2 * -" -4 ghci&gt; solveRPN "2 3 +" 5 ghci&gt; solveRPN "90 34 12 33 55 66 + * - +" -3947 ghci&gt; solveRPN "90 34 12 33 55 66 + * - + -" 4037 ghci&gt; solveRPN "90 34 12 33 55 66 + * - + -" 4037 ghci&gt; solveRPN "90 3 -" 87</code></p>
+<pre class="haskell:hs"><code>ghci&gt; solveRPN &quot;10 4 3 + 2 * -&quot;
+-4
+ghci&gt; solveRPN &quot;2 3 +&quot;
+5
+ghci&gt; solveRPN &quot;90 34 12 33 55 66 + * - +&quot;
+-3947
+ghci&gt; solveRPN &quot;90 34 12 33 55 66 + * - + -&quot;
+4037
+ghci&gt; solveRPN &quot;90 34 12 33 55 66 + * - + -&quot;
+4037
+ghci&gt; solveRPN &quot;90 3 -&quot;
+87</code></pre>
 <p>Legal, funciona! Uma coisa boa dessa função é que ela pode ser
 facilmente modificada para suportar vários outros operadores. Eles nem
 precisam ser operadores binários. Por exemplo, podemos criar um operador
@@ -209,24 +236,36 @@ empurram de volta sua soma.</p>
 <p>Vamos modificar nossa função para receber mais alguns operadores. Por
 uma questão de simplicidade, alteraremos sua declaração de tipo para que
 ela retorne um número do tipo <code>Float</code>.</p>
-<p>```{.haskell:hs} import Data.List</p>
-<p>solveRPN :: String -&gt; Float solveRPN = head . foldl
-foldingFunction [] . words where foldingFunction (x:y:ys) "<em>" = (x
-</em> y):ys foldingFunction (x:y:ys) "+" = (x + y):ys foldingFunction
-(x:y:ys) "-" = (y - x):ys foldingFunction (x:y:ys) "/" = (y / x):ys
-foldingFunction (x:y:ys) "^" = (y ** x):ys foldingFunction (x:xs) "ln" =
-log x:xs foldingFunction xs "sum" = [sum xs] foldingFunction xs
-numberString = read numberString:xs ```</p>
+<pre class="haskell:hs"><code>import Data.List
+
+solveRPN :: String -&gt; Float
+solveRPN = head . foldl foldingFunction [] . words
+    where   foldingFunction (x:y:ys) &quot;*&quot; = (x * y):ys
+            foldingFunction (x:y:ys) &quot;+&quot; = (x + y):ys
+            foldingFunction (x:y:ys) &quot;-&quot; = (y - x):ys
+            foldingFunction (x:y:ys) &quot;/&quot; = (y / x):ys
+            foldingFunction (x:y:ys) &quot;^&quot; = (y ** x):ys
+            foldingFunction (x:xs) &quot;ln&quot; = log x:xs
+            foldingFunction xs &quot;sum&quot; = [sum xs]
+            foldingFunction xs numberString = read numberString:xs</code></pre>
 <p>Uau, ótimo! <code>/</code> é divisão, é claro, e <code>**</code> é a
 exponenciação de ponto flutuante. Com o operador de logaritmo, apenas
 combinamos padrões com um único elemento e o restante da pilha, porque
 precisamos apenas de um elemento para executar seu logaritmo natural.
 Com o operador de soma, apenas retornamos uma pilha que possui apenas um
 elemento, que é a soma da pilha até agora.</p>
-<p><code>{.haskell:hs} ghci&gt; solveRPN "2.7 ln" 0.9932518 ghci&gt; solveRPN "10 10 10 10 sum 4 /" 10.0 ghci&gt; solveRPN "10 10 10 10 10 sum 4 /" 12.5 ghci&gt; solveRPN "10 2 ^" 100.0</code></p>
+<pre class="haskell:hs"><code>ghci&gt; solveRPN &quot;2.7 ln&quot;
+0.9932518
+ghci&gt; solveRPN &quot;10 10 10 10 sum 4 /&quot;
+10.0
+ghci&gt; solveRPN &quot;10 10 10 10 10 sum 4 /&quot;
+12.5
+ghci&gt; solveRPN &quot;10 2 ^&quot;
+100.0</code></pre>
 <p>Observe que podemos incluir números de ponto flutuante em nossa
 expressão, porque <code>read</code> sabe como lê-los.</p>
-<p><code>{.haskell:hs} ghci&gt; solveRPN "43.2425 0.5 ^" 6.575903</code></p>
+<pre class="haskell:hs"><code>ghci&gt; solveRPN &quot;43.2425 0.5 ^&quot;
+6.575903</code></pre>
 <p>Eu acho que fazer uma função que possa calcular expressões RPN
 arbitrárias de ponto flutuante e tem a opção de ser facilmente estendida
 em 10 linhas é incrível.</p>
@@ -240,8 +279,8 @@ envolveria muita verificação de <code>Nothing</code> em cada etapa. Se
 você está se sentindo pronto para o desafio, pode ir em frente e tentar!
 Dica: você pode usar <code>reads</code> para ver se uma leitura foi
 bem-sucedida ou não.</p>
-<h2>Heathrow para Londres (Heathrow to London)
-{#heathrow-to-london}</h2>
+<h2 id="heathrow-to-london">Heathrow para Londres (Heathrow to
+London)</h2>
 <p>O nosso próximo problema é o seguinte: seu avião acabou de pousar na
 Inglaterra e você alugou um carro. Você tem uma reunião muito em breve e
 precisa ir do Aeroporto de Heathrow para Londres o mais rápido possível
@@ -253,7 +292,7 @@ caminho ideal para que você chegue a Londres o mais rápido possível!
 Você começa no lado esquerdo e pode atravessar para a outra estrada
 principal ou seguir em frente.</p>
 <p><img src="assets/images/functionally-solving-problems/roads.png"
-alt="Heathrow - London" />{.center width=780 height=237}</p>
+class="center" width="780" height="237" alt="Heathrow - London" /></p>
 <p>Como você pode ver na imagem, o caminho mais curto de Heathrow para
 Londres, neste caso, é começar na estrada principal B, atravessar,
 seguir em frente em A, atravessar novamente e seguir em frente duas
@@ -262,7 +301,18 @@ escolhido qualquer outro caminho, levaria mais do que isso.</p>
 <p>Nosso trabalho é fazer um programa que receba uma entrada que
 represente um sistema rodoviário e imprima qual é o caminho mais curto
 através dele. Aqui está a aparência da entrada para este caso:</p>
-<p><code>{.plain} 50 10 30 5 90 20 40 2 25 10 8 0</code></p>
+<pre class="plain"><code>50
+10
+30
+5
+90
+20
+40
+2
+25
+10
+8
+0</code></pre>
 <p>Para analisar mentalmente o arquivo de entrada, leia-o de três em
 três e divida mentalmente o sistema rodoviário em seções. Cada seção é
 composta por estrada A, estrada B e uma estrada de cruzamento. Para que
@@ -296,7 +346,7 @@ dizer que temos certeza.</p>
 do nosso sistema rodoviário:</p>
 <p><img
 src="assets/images/functionally-solving-problems/roads_simple.png"
-alt="roads" />{.center width=686 height=245}</p>
+class="center" width="686" height="245" alt="roads" /></p>
 <p>Tudo bem, você consegue descobrir qual é o caminho mais curto para o
 primeiro cruzamento (o primeiro ponto azul em A, marcado como
 <em>A1</em>) na estrada A? Isso é bastante trivial. Apenas vemos se é
@@ -327,12 +377,13 @@ obviamente, o caminho mais barato para <em>A2</em> é
 <code>B, C, A</code>.</p>
 <p>Da mesma forma, a maneira mais barata de <em>B2</em> é avançar de
 <em>A1</em> e depois atravessar.</p>
-<p>::: {.hintbox} <strong>Talvez você esteja se perguntando</strong>:
-mas e a chegar a <em>A2</em> cruzando primeiro em <em>B1</em> e depois
-seguindo em frente? Bem, já cobrimos a travessia de <em>B1</em> para
-<em>A1</em> quando estávamos procurando a melhor maneira de <em>A1</em>,
-então não precisamos levar isso em consideração na próxima etapa também.
-:::</p>
+<div class="hintbox">
+<p><strong>Talvez você esteja se perguntando</strong>: mas e a chegar a
+<em>A2</em> cruzando primeiro em <em>B1</em> e depois seguindo em
+frente? Bem, já cobrimos a travessia de <em>B1</em> para <em>A1</em>
+quando estávamos procurando a melhor maneira de <em>A1</em>, então não
+precisamos levar isso em consideração na próxima etapa também.</p>
+</div>
 <p>Agora que temos o melhor caminho para <em>A2</em> e <em>B2</em>,
 podemos repetir isso indefinidamente até chegarmos ao fim. Depois de
 obtermos os melhores caminhos para <em>A4</em> e <em>B4</em>, o que for
@@ -369,7 +420,8 @@ outro com uma estrada que tem um comprimento de um, vemos que cada
 cruzamento (ou nó) aponta para o nó do outro lado e também para o
 próximo do seu lado. Exceto pelos últimos nós, eles apenas apontam para
 o outro lado.</p>
-<p><code>{.haskell:hs} data Node = Node Road Road | EndNode Road data Road = Road Int Node</code></p>
+<pre class="haskell:hs"><code>data Node = Node Road Road | EndNode Road
+data Road = Road Int Node</code></pre>
 <p>Um nó é um nó normal e possui informações sobre a estrada que leva à
 outra estrada principal e a estrada que leva ao próximo nó ou um nó
 final, que só tem informações sobre a estrada para a outra estrada
@@ -382,7 +434,8 @@ que apontam para <em>B1</em> e <em>A2</em>.</p>
 que apontam para a frente. Cada nó tem uma parte da estrada que aponta
 para a estrada oposta, mas apenas os nós que não são os finais têm peças
 de estrada que apontam para a frente.</p>
-<p><code>{.haskell:hs} data Node = Node Road (Maybe Road) data Road = Road Int Node</code></p>
+<pre class="haskell:hs"><code>data Node = Node Road (Maybe Road)
+data Road = Road Int Node</code></pre>
 <p>Essa é uma maneira correta de representar o sistema rodoviário em
 Haskell e certamente poderíamos resolver esse problema com ele, mas
 talvez pudéssemos criar algo mais simples? Se pensarmos em nossa solução
@@ -398,7 +451,8 @@ facilmente representado como quatro seções: <code>50, 10, 30</code>,
 <code>10, 8, 0</code>.</p>
 <p>É sempre bom manter nossos tipos de dados o mais simples possível,
 embora não mais simples!</p>
-<p><code>{.haskell:hs} data Section = Section { getA :: Int, getB :: Int, getC :: Int } deriving (Show) type RoadSystem = [Section]</code></p>
+<pre class="haskell:hs"><code>data Section = Section { getA :: Int, getB :: Int, getC :: Int } deriving (Show)
+type RoadSystem = [Section]</code></pre>
 <p>Isso é praticamente perfeito! É o mais simples possível e tenho a
 sensação de que funcionará perfeitamente para implementar nossa
 solução.</p>
@@ -406,20 +460,22 @@ solução.</p>
 três números inteiros para os comprimentos de suas três partes da
 estrada. Introduzimos um sinônimo de tipo também, dizendo que
 <code>RoadSystem</code> é uma lista de seções.</p>
-<p>::: {.hintbox} Poderíamos também usar uma tripla de
-<code>(Int, Int, Int)</code> para representar uma seção de estrada. O
-uso de tuplas em vez de criar seus próprios tipos de dados algébricos é
-bom para algumas coisas localizadas pequenas, mas geralmente é melhor
-criar um novo tipo para coisas assim. Dá ao sistema de tipos mais
-informações sobre o que é o quê. Podemos usar
-<code>(Int, Int, Int)</code> para representar uma seção de estrada ou um
-vetor no espaço 3D e podemos operar nesses dois, mas isso nos permite
-misturá-los. Se usarmos tipos de dados <code>Section</code> e
-<code>Vector</code>, não podemos acidentalmente adicionar um vetor a uma
-seção de um sistema viário. :::</p>
+<div class="hintbox">
+<p>Poderíamos também usar uma tripla de <code>(Int, Int, Int)</code>
+para representar uma seção de estrada. O uso de tuplas em vez de criar
+seus próprios tipos de dados algébricos é bom para algumas coisas
+localizadas pequenas, mas geralmente é melhor criar um novo tipo para
+coisas assim. Dá ao sistema de tipos mais informações sobre o que é o
+quê. Podemos usar <code>(Int, Int, Int)</code> para representar uma
+seção de estrada ou um vetor no espaço 3D e podemos operar nesses dois,
+mas isso nos permite misturá-los. Se usarmos tipos de dados
+<code>Section</code> e <code>Vector</code>, não podemos acidentalmente
+adicionar um vetor a uma seção de um sistema viário.</p>
+</div>
 <p>Nosso sistema rodoviário de Heathrow para Londres agora pode ser
 representado assim:</p>
-<p><code>{.haskell:hs} heathrowToLondon :: RoadSystem heathrowToLondon = [Section 50 10 30, Section 5 90 20, Section 40 2 25, Section 10 8 0]</code></p>
+<pre class="haskell:hs"><code>heathrowToLondon :: RoadSystem
+heathrowToLondon = [Section 50 10 30, Section 5 90 20, Section 40 2 25, Section 10 8 0]</code></pre>
 <p>Tudo o que precisamos fazer agora é implementar a solução que criamos
 anteriormente em Haskell. Qual deve ser a declaração de tipo para uma
 função que calcula um caminho mais curto para qualquer sistema
@@ -428,13 +484,14 @@ retornar um caminho. Representaremos um caminho como uma lista também.
 Vamos introduzir um tipo <code>Label</code> que é apenas uma enumeração
 de <code>A</code>, <code>B</code> ou <code>C</code>. Também faremos um
 sinônimo de tipo: <code>Path</code>.</p>
-<p><code>{.haskell:hs} data Label = A | B | C deriving (Show) type Path = [(Label, Int)]</code></p>
+<pre class="haskell:hs"><code>data Label = A | B | C deriving (Show)
+type Path = [(Label, Int)]</code></pre>
 <p>Nossa função, vamos chamá-la de <code>optimalPath</code>, deve ter
 uma declaração de tipo de
 <code>optimalPath :: RoadSystem -&gt; Path</code>. Se chamado com o
 sistema viário <code>heathrowToLondon</code>, deve retornar o seguinte
 caminho:</p>
-<p><code>{.haskell:hs} [(B,10),(C,30),(A,5),(C,20),(B,2),(B,8)]</code></p>
+<pre class="haskell:hs"><code>[(B,10),(C,30),(A,5),(C,20),(B,2),(B,8)]</code></pre>
 <p>Vamos ter que percorrer a lista com as seções da esquerda para a
 direita e manter o caminho ideal em A e o caminho ideal em B à medida
 que avançamos. Acumularemos o melhor caminho enquanto caminhamos sobre a
@@ -452,13 +509,29 @@ uma função, é necessário um par de caminhos e uma seção e produz um novo
 par de caminhos. O tipo é
 <code>(Path, Path) -&gt; Section -&gt; (Path, Path)</code>. Vamos em
 frente e implementar essa função, porque ela deve ser útil.</p>
-<p>::: {.hintbox} <strong>Dica:</strong> será útil porque
+<div class="hintbox">
+<p><strong>Dica:</strong> será útil porque
 <code>(Path, Path) -&gt; Section -&gt; (Path, Path)</code> pode ser
 usada como a função binária para um fold esquerdo, que deve ter um tipo
-de <code>a -&gt; b -&gt; a</code> :::</p>
-<p><code>{.haskell:hs} roadStep :: (Path, Path) -&gt; Section -&gt; (Path, Path) roadStep (pathA, pathB) (Section a b c) =     let priceA = sum $ map snd pathA         priceB = sum $ map snd pathB         forwardPriceToA = priceA + a         crossPriceToA = priceB + b + c         forwardPriceToB = priceB + b         crossPriceToB = priceA + a + c         newPathToA = if forwardPriceToA &lt;= crossPriceToA                         then (A,a):pathA                         else (C,c):(B,b):pathB         newPathToB = if forwardPriceToB &lt;= crossPriceToB                         then (B,b):pathB                         else (C,c):(A,a):pathA     in  (newPathToA, newPathToB)</code></p>
+de <code>a -&gt; b -&gt; a</code></p>
+</div>
+<pre class="haskell:hs"><code>roadStep :: (Path, Path) -&gt; Section -&gt; (Path, Path)
+roadStep (pathA, pathB) (Section a b c) =
+    let priceA = sum $ map snd pathA
+        priceB = sum $ map snd pathB
+        forwardPriceToA = priceA + a
+        crossPriceToA = priceB + b + c
+        forwardPriceToB = priceB + b
+        crossPriceToB = priceA + a + c
+        newPathToA = if forwardPriceToA &lt;= crossPriceToA
+                        then (A,a):pathA
+                        else (C,c):(B,b):pathB
+        newPathToB = if forwardPriceToB &lt;= crossPriceToB
+                        then (B,b):pathB
+                        else (C,c):(A,a):pathA
+    in  (newPathToA, newPathToB)</code></pre>
 <p><img src="assets/images/functionally-solving-problems/guycar.png"
-alt="this is you" />{.right width=420 height=381}</p>
+class="right" width="420" height="381" alt="this is you" /></p>
 <p>O que está acontecendo aqui? Primeiro, calcule o preço ideal na
 estrada A com base no melhor até agora em A e fazemos o mesmo para B.
 Nós fazemos <code>sum $ map snd pathA</code>, então se
@@ -496,18 +569,21 @@ depois avança e atravessa para A. Fazemos a mesma coisa para
 <p>Vamos executar esta função na primeira seção de
 <code>heathrowToLondon</code>. Por ser a primeira seção, os melhores
 caminhos nos parâmetros A e B serão um par de listas vazias.</p>
-<p><code>{.haskell:hs} ghci&gt; roadStep ([], []) (head heathrowToLondon) ([(C,30),(B,10)],[(B,10)])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; roadStep ([], []) (head heathrowToLondon)
+([(C,30),(B,10)],[(B,10)])</code></pre>
 <p>Lembre-se, os caminhos são revertidos, então leia-os da direita para
 a esquerda. A partir disso, podemos ler que o melhor caminho para a
 próxima A é começar em B e depois atravessar para A e que o melhor
 caminho para a próxima B é apenas ir diretamente para a frente do ponto
 de partida em B.</p>
-<p>::: {.hintbox} <strong>Dica de otimização:</strong> quando fazemos
+<div class="hintbox">
+<p><strong>Dica de otimização:</strong> quando fazemos
 <code>priceA = sum $ map snd pathA</code>, estamos calculando o preço do
 caminho em cada etapa. Não precisaríamos fazer isso se implementássemos
 <code>roadStep</code> como uma função
 <code>(Path, Path, Int, Int) -&gt; Section -&gt; (Path, Path, Int, Int)</code>
-onde os inteiros representam o melhor preço em A e B. :::</p>
+onde os inteiros representam o melhor preço em A e B.</p>
+</div>
 <p>Agora que temos uma função que pega um par de caminhos e uma seção e
 produz um novo caminho ideal, podemos facilmente fazer um fold esquerdo
 sobre uma lista de seções. <code>roadStep</code> é chamado com
@@ -517,7 +593,12 @@ próxima seção e assim por diante. Quando percorremos todas as seções,
 ficamos com um par de caminhos ideais e o mais curto deles é a nossa
 resposta. Com isso em mente, podemos implementar
 <code>optimalPath</code>.</p>
-<p><code>{.haskell:hs} optimalPath :: RoadSystem -&gt; Path optimalPath roadSystem =     let (bestAPath, bestBPath) = foldl roadStep ([],[]) roadSystem     in  if sum (map snd bestAPath) &lt;= sum (map snd bestBPath)             then reverse bestAPath             else reverse bestBPath</code></p>
+<pre class="haskell:hs"><code>optimalPath :: RoadSystem -&gt; Path
+optimalPath roadSystem =
+    let (bestAPath, bestBPath) = foldl roadStep ([],[]) roadSystem
+    in  if sum (map snd bestAPath) &lt;= sum (map snd bestBPath)
+            then reverse bestAPath
+            else reverse bestBPath</code></pre>
 <p>Nós dobramos à esquerda sobre <code>roadSystem</code> (lembre-se, é
 uma lista de seções) com o acumulador inicial sendo um par de caminhos
 vazios. O resultado desse fold é um par de caminhos, para que
@@ -527,7 +608,8 @@ devolvê-lo, também o revertemos, porque os caminhos ideais até agora
 foram revertidos devido a nós escolhermos <em>consing</em> em vez de
 anexar (<em>appending</em>).</p>
 <p>Vamos testar isso!</p>
-<p><code>{.haskell:hs} ghci&gt; optimalPath heathrowToLondon [(B,10),(C,30),(A,5),(C,20),(B,2),(B,8),(C,0)]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; optimalPath heathrowToLondon
+[(B,10),(C,30),(A,5),(C,20),(B,2),(B,8),(C,0)]</code></pre>
 <p>Este é o resultado que deveríamos obter! Impressionante! Difere um
 pouco do nosso resultado esperado, porque há um passo <code>(C,0)</code>
 no final, o que significa que atravessamos para a outra estrada quando
@@ -542,20 +624,27 @@ imprimir o caminho.</p>
 em grupos do mesmo tamanho. Vamos chamá-lo de <code>groupsOf</code>.
 Para um parâmetro de <code>[1..10]</code>, <code>groupsOf 3</code> deve
 retornar <code>[[1,2,3],[4,5,6],[7,8,9],[10]]</code>.</p>
-<p><code>{.haskell:hs} groupsOf :: Int -&gt; [a] -&gt; [[a]] groupsOf 0 _ = undefined groupsOf _ [] = [] groupsOf n xs = take n xs : groupsOf n (drop n xs)</code></p>
+<pre class="haskell:hs"><code>groupsOf :: Int -&gt; [a] -&gt; [[a]]
+groupsOf 0 _ = undefined
+groupsOf _ [] = []
+groupsOf n xs = take n xs : groupsOf n (drop n xs)</code></pre>
 <p>Uma função recursiva padrão. Para um <code>xs</code> de
 <code>[1..10]</code> e um <code>n</code> de <code>3</code>, isso é igual
 a <code>[1,2,3] : groupsOf 3 [4,5,6,7,8,9,10]</code>. Quando a recursão
 termina, obtemos nossa lista em grupos de três. E aqui está nossa função
 <code>main</code>, que lê da entrada padrão, cria um
 <code>RoadSystem</code> fora dele e imprime o caminho mais curto:</p>
-<p>```{.haskell:hs} import Data.List</p>
-<p>main = do contents &lt;- getContents let threes = groupsOf 3 (map
-read $ lines contents) roadSystem = map ([a,b,c] -&gt; Section a b c)
-threes path = optimalPath roadSystem pathString = concat $ map (show .
-fst) path pathPrice = sum $ map snd path putStrLn $ "The best path to
-take is: " ++ pathString putStrLn $ "The price is: " ++ show pathPrice
-```</p>
+<pre class="haskell:hs"><code>import Data.List
+
+main = do
+    contents &lt;- getContents
+    let threes = groupsOf 3 (map read $ lines contents)
+        roadSystem = map (\[a,b,c] -&gt; Section a b c) threes
+        path = optimalPath roadSystem
+        pathString = concat $ map (show . fst) path
+        pathPrice = sum $ map snd path
+    putStrLn $ &quot;The best path to take is: &quot; ++ pathString
+    putStrLn $ &quot;The price is: &quot; ++ show pathPrice</code></pre>
 <p>Primeiro, obtemos todo o conteúdo da entrada padrão. Em seguida,
 chamamos <code>lines</code> com nosso conteúdo para converter algo como
 <code>"50\n10\n30\n...</code> para <code>["50","10","30"..</code> e
@@ -570,10 +659,23 @@ nosso sistema de estradas e até tem o tipo correto, ou seja,
 <code>optimalPath</code> com isso e depois obtemos o caminho e o preço
 em uma boa representação textual e imprimimos.</p>
 <p>Nós salvamos o seguinte texto</p>
-<p><code>{.plain} 50 10 30 5 90 20 40 2 25 10 8 0</code></p>
+<pre class="plain"><code>50
+10
+30
+5
+90
+20
+40
+2
+25
+10
+8
+0</code></pre>
 <p>em um arquivo chamado <code>paths.txt</code> e depois o alimentamos
 em nosso programa.</p>
-<p><code>{.plain} $ cat paths.txt | runhaskell heathrow.hs The best path to take is: BCACBBC The price is: 75</code></p>
+<pre class="plain"><code>$ cat paths.txt | runhaskell heathrow.hs
+The best path to take is: BCACBBC
+The price is: 75</code></pre>
 <p>Funciona como um encanto! Você pode usar seu conhecimento do módulo
 <code>Data.Random</code> para gerar um sistema de estradas muito mais
 longo, que você pode alimentar para o que acabamos de escrever. Se você
@@ -583,9 +685,15 @@ receber estouros de pilha (stack overflows), tente usar
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="input-and-output.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="functors-applicative-functors-and-monoids.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="input-and-output.html">Anterior (Entrada e Saída)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="functors-applicative-functors-and-monoids.html" class="nxtlink">Próximo (Funtores, Funtores Aplicativos e Monoides)</a>
+        </li>
     </ul>
 </div>
 

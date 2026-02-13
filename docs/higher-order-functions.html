@@ -9,22 +9,28 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="recursion.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="modules.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="recursion.html">Anterior (Recursão)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="modules.html" class="nxtlink">Próximo (Módulos)</a>
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Funções de Alta Ordem (Higher Order Functions)
-{#higher-order-functions}</h1>
-<p><img src="assets/images/higher-order-functions/sun.png"
-alt="sun" />{.right width=203 height=183}</p>
+<h1 id="higher-order-functions">Funções de Alta Ordem (Higher Order
+Functions)</h1>
+<p><img src="assets/images/higher-order-functions/sun.png" class="right"
+width="203" height="183" alt="sun" /></p>
 <p>As funções Haskell podem receber funções como parâmetros e retornar
 funções como valores de retorno. Uma função que faz qualquer uma dessas
 coisas é chamada de função de alta ordem. Funções de alta ordem não são
@@ -34,7 +40,7 @@ definindo o que as coisas <em>são</em> em vez de definir etapas que
 alteram algum estado e talvez fazendo um loop, as funções de alta ordem
 são indispensáveis. Elas são uma maneira realmente poderosa de resolver
 problemas e pensar sobre programas.</p>
-<h2>Funções curried (Curried functions) {#curried-functions}</h2>
+<h2 id="curried-functions">Funções curried (Curried functions)</h2>
 <p>Cada função em Haskell oficialmente aceita apenas um parâmetro. Então
 como é possível que definimos e usamos várias funções que aceitam mais
 de um parâmetro até agora? Bem, é um truque inteligente! Todas as
@@ -47,9 +53,12 @@ parâmetro e retorna <code>4</code> ou esse parâmetro, dependendo de qual
 é maior. Então, <code>5</code> é aplicado a essa função e essa função
 produz nosso resultado desejado. Isso soa complicado, mas na verdade é
 um conceito muito legal. As duas chamadas a seguir são equivalentes:</p>
-<p><code>{.haskell:ghci} ghci&gt; max 4 5 5 ghci&gt; (max 4) 5 5</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; max 4 5
+5
+ghci&gt; (max 4) 5
+5</code></pre>
 <p><img src="assets/images/higher-order-functions/curry.png"
-alt="haskell curry" />{.left width=160 height=238}</p>
+class="left" width="160" height="238" alt="haskell curry" /></p>
 <p>Colocar um espaço entre duas coisas é simplesmente <strong>aplicação
 de função</strong>. O espaço é como um operador e tem a maior
 precedência. Vamos examinar o tipo de <code>max</code>. É
@@ -68,7 +77,8 @@ parcial (chamar funções com poucos parâmetros, se você preferir) é uma
 maneira interessante de criar funções em tempo real para que possamos
 passá-las para outra função ou preenchê-las com alguns dados.</p>
 <p>Dê uma olhada nesta função ofensivamente simples:</p>
-<p><code>{.haskell:ghci} multThree :: (Num a) =&gt; a -&gt; a -&gt; a -&gt; a multThree x y z = x * y * z</code></p>
+<pre class="haskell:ghci"><code>multThree :: (Num a) =&gt; a -&gt; a -&gt; a -&gt; a
+multThree x y z = x * y * z</code></pre>
 <p>O que realmente acontece quando fazmos <code>multThree 3 5 9</code>
 ou <code>((multThree 3) 5) 9</code>? Primeiro, <code>3</code> é aplicado
 a <code>multThree</code>, porque eles são separados por um espaço. Isso
@@ -86,19 +96,26 @@ função pega um <code>a</code> e retorna uma função do tipo
 <code>(Num a) =&gt; a -&gt; a</code>. E essa função, finalmente, apenas
 pega um <code>a</code> e retorna um <code>a</code>. Dê uma olhada
 nisto:</p>
-<p><code>{.haskell:ghci} ghci&gt; let multTwoWithNine = multThree 9 ghci&gt; multTwoWithNine 2 3 54 ghci&gt; let multWithEighteen = multTwoWithNine 2 ghci&gt; multWithEighteen 10 180</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; let multTwoWithNine = multThree 9
+ghci&gt; multTwoWithNine 2 3
+54
+ghci&gt; let multWithEighteen = multTwoWithNine 2
+ghci&gt; multWithEighteen 10
+180</code></pre>
 <p>Ao chamar funções com poucos parâmetros, por assim dizer, estamos
 criando novas funções em tempo real. E se quiséssemos criar uma função
 que pega um número e o compara com <code>100</code>? Poderíamos fazer
 algo assim:</p>
-<p><code>{.haskell:hs} compareWithHundred :: (Num a, Ord a) =&gt; a -&gt; Ordering compareWithHundred x = compare 100 x</code></p>
+<pre class="haskell:hs"><code>compareWithHundred :: (Num a, Ord a) =&gt; a -&gt; Ordering
+compareWithHundred x = compare 100 x</code></pre>
 <p>Se o chamarmos com <code>99</code>, ele retornará um <code>GT</code>.
 Coisa simples. Observe que o <code>x</code> está no lado direito de
 ambos os lados da equação. Agora vamos pensar sobre o que
 <code>compare 100</code> retorna. Ele retorna uma função que pega um
 número e o compara com <code>100</code>. Uau! Não é essa a função que
 queríamos? Podemos reescrever isso como:</p>
-<p><code>{.haskell:hs} compareWithHundred :: (Num a, Ord a) =&gt; a -&gt; Ordering compareWithHundred = compare 100</code></p>
+<pre class="haskell:hs"><code>compareWithHundred :: (Num a, Ord a) =&gt; a -&gt; Ordering
+compareWithHundred = compare 100</code></pre>
 <p>A declaração de tipo permanece a mesma, porque
 <code>compare 100</code> retorna uma função. Compare tem um tipo de
 <code>(Ord a) =&gt; a -&gt; (a -&gt; Ordering)</code> e chamá-lo com
@@ -106,20 +123,24 @@ queríamos? Podemos reescrever isso como:</p>
 <code>(Num a, Ord a) =&gt; a -&gt; Ordering</code>. A restrição de
 classe adicional aparece lá porque <code>100</code> também faz parte da
 typeclass <code>Num</code>.</p>
-<p>::: {.hintbox} <strong>Yo!</strong> Certifique-se de entender
-realmente como as funções curried e a aplicação parcial funcionam,
-porque elas são realmente importantes! :::</p>
+<div class="hintbox">
+<p><strong>Yo!</strong> Certifique-se de entender realmente como as
+funções curried e a aplicação parcial funcionam, porque elas são
+realmente importantes!</p>
+</div>
 <p>Funções infix também podem ser parcialmente aplicadas usando seções.
 Para seccionar uma função infix, simplesmente cerque-a com parênteses e
 forneça apenas um parâmetro de um lado. Isso cria uma função que aceita
 um parâmetro e o aplica ao lado que está faltando um operando. Uma
 função insultuosamente trivial:</p>
-<p><code>{.haskell:hs} divideByTen :: (Floating a) =&gt; a -&gt; a divideByTen = (/10)</code></p>
+<pre class="haskell:hs"><code>divideByTen :: (Floating a) =&gt; a -&gt; a
+divideByTen = (/10)</code></pre>
 <p>Chamar, digamos, <code>divideByTen 200</code> é equivalente a fazer
 <code>200 / 10</code>, assim como fazer <code>(/10) 200</code>. Uma
 função que verifica se um caractere fornecido a ela é uma letra
 maiúscula:</p>
-<p><code>{.haskell:hs} isUpperAlphanum :: Char -&gt; Bool isUpperAlphanum = (`elem` ['A'..'Z'])</code></p>
+<pre class="haskell:hs"><code>isUpperAlphanum :: Char -&gt; Bool
+isUpperAlphanum = (`elem` [&#39;A&#39;..&#39;Z&#39;])</code></pre>
 <p>A única coisa especial sobre as seções é usar <code>-</code>. A
 partir da definição de seções, <code>(-4)</code> resultaria em uma
 função que pega um número e subtrai 4 dele. No entanto, por
@@ -130,7 +151,11 @@ parâmetro, aplique parcialmente a função <code>subtract</code> assim:
 <p>O que acontece se tentarmos apenas fazer <code>multThree 3 4</code>
 no GHCI em vez de vinculá-lo a um nome com um <em>let</em> ou passá-lo
 para outra função?</p>
-<p><code>{.haskell:hs} ghci&gt; multThree 3 4 &lt;interactive&gt;:1:1: error: [GHC-39999]     • No instance for ‘Show (a0 -&gt; a0)’ arising from a use of ‘print’         (maybe you haven't applied a function to enough arguments?)     • In a stmt of an interactive GHCi command: print it</code></p>
+<pre class="haskell:hs"><code>ghci&gt; multThree 3 4
+&lt;interactive&gt;:1:1: error: [GHC-39999]
+    • No instance for ‘Show (a0 -&gt; a0)’ arising from a use of ‘print’
+        (maybe you haven&#39;t applied a function to enough arguments?)
+    • In a stmt of an interactive GHCi command: print it</code></pre>
 <p>O GHCI está nos dizendo que a expressão produziu uma função do tipo
 <code>a -&gt; a</code>, mas não sabe como imprimi-la na tela. Funções
 não são instâncias da typeclass <code>Show</code>, então não podemos
@@ -140,13 +165,14 @@ calcula isso para <code>2</code> e depois chama <code>show</code> em
 <code>2</code> para obter uma representação textual desse número. E a
 representação textual de <code>2</code> é apenas a string
 <code>"2"</code>, que é então impressa em nossa tela.</p>
-<h2>Algum alto-ordenismo está em ordem {#higher-orderism}</h2>
+<h2 id="higher-orderism">Algum alto-ordenismo está em ordem</h2>
 <p>As funções podem receber funções como parâmetros e também retornar
 funções. Para ilustrar isso, vamos fazer uma função que pega uma função
 e a aplica duas vezes a algo!</p>
-<p><code>{.haskell:hs} applyTwice :: (a -&gt; a) -&gt; a -&gt; a applyTwice f x = f (f x)</code></p>
+<pre class="haskell:hs"><code>applyTwice :: (a -&gt; a) -&gt; a -&gt; a
+applyTwice f x = f (f x)</code></pre>
 <p><img src="assets/images/higher-order-functions/bonus.png"
-alt="rocktopus" />{.right width=166 height=190}</p>
+class="right" width="166" height="190" alt="rocktopus" /></p>
 <p>Em primeiro lugar, observe a declaração de tipo. Antes, não
 precisávamos de parênteses porque <code>-&gt;</code> é naturalmente
 associativo à direita. No entanto, aqui, eles são obrigatórios. Eles
@@ -160,18 +186,29 @@ mesmo <code>a</code>. A função também pode ser
 <code>Int -&gt; Int</code> ou <code>String -&gt; String</code> ou
 qualquer outra coisa. Mas então, o segundo parâmetro também deve ser
 desse tipo.</p>
-<p>::: {.hintbox} <strong>Nota:</strong> A partir de agora, diremos que
-as funções aceitam vários parâmetros, apesar de cada função aceitar
-apenas um parâmetro e retornar funções parcialmente aplicadas até
-chegarmos a uma função que retorna um valor sólido. Portanto, por uma
-questão de simplicidade, diremos que <code>a -&gt; a -&gt; a</code>
-aceita dois parâmetros, embora saibamos o que realmente está acontecendo
-nos bastidores. :::</p>
+<div class="hintbox">
+<p><strong>Nota:</strong> A partir de agora, diremos que as funções
+aceitam vários parâmetros, apesar de cada função aceitar apenas um
+parâmetro e retornar funções parcialmente aplicadas até chegarmos a uma
+função que retorna um valor sólido. Portanto, por uma questão de
+simplicidade, diremos que <code>a -&gt; a -&gt; a</code> aceita dois
+parâmetros, embora saibamos o que realmente está acontecendo nos
+bastidores.</p>
+</div>
 <p>O corpo da função é bastante simples. Apenas usamos o parâmetro
 <code>f</code> como uma função, aplicando <code>x</code> a ele
 separando-os com um espaço e depois aplicando o resultado a
 <code>f</code> novamente. De qualquer forma, brincando com a função:</p>
-<p><code>{.haskell:hs} ghci&gt; applyTwice (+3) 10 16 ghci&gt; applyTwice (++ " HAHA") "HEY" "HEY HAHA HAHA" ghci&gt; applyTwice ("HAHA " ++) "HEY" "HAHA HAHA HEY" ghci&gt; applyTwice (multThree 2 2) 9 144 ghci&gt; applyTwice (3:) [1] [3,3,1]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; applyTwice (+3) 10
+16
+ghci&gt; applyTwice (++ &quot; HAHA&quot;) &quot;HEY&quot;
+&quot;HEY HAHA HAHA&quot;
+ghci&gt; applyTwice (&quot;HAHA &quot; ++) &quot;HEY&quot;
+&quot;HAHA HAHA HEY&quot;
+ghci&gt; applyTwice (multThree 2 2) 9
+144
+ghci&gt; applyTwice (3:) [1]
+[3,3,1]</code></pre>
 <p>A grandiosidade e utilidade da aplicação parcial é evidente. Se nossa
 função exigir que passemos a ela uma função que aceita apenas um
 parâmetro, podemos apenas aplicar parcialmente uma função até o ponto em
@@ -181,7 +218,10 @@ função realmente útil que está na biblioteca padrão. É chamada de
 <code>zipWith</code>. Ela pega uma função e duas listas como parâmetros
 e, em seguida, une as duas listas aplicando a função entre os elementos
 correspondentes. Veja como a implementaremos:</p>
-<p><code>{.haskell:hs} zipWith' :: (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c] zipWith' _ [] _ = [] zipWith' _ _ [] = [] zipWith' f (x:xs) (y:ys) = f x y : zipWith' f xs ys</code></p>
+<pre class="haskell:hs"><code>zipWith&#39; :: (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+zipWith&#39; _ [] _ = []
+zipWith&#39; _ _ [] = []
+zipWith&#39; f (x:xs) (y:ys) = f x y : zipWith&#39; f xs ys</code></pre>
 <p>Olhe para a declaração de tipo. O primeiro parâmetro é uma função que
 pega duas coisas e produz uma terceira coisa. Elas não precisam ser do
 mesmo tipo, mas podem ser. O segundo e o terceiro parâmetro são listas.
@@ -206,7 +246,16 @@ padrão também é semelhante ao <code>zip</code>, só que não faz
 ordem pode ser usada para uma infinidade de tarefas diferentes se for
 geral o suficiente. Aqui está uma pequena demonstração de todas as
 coisas diferentes que nossa função <code>zipWith'</code> pode fazer:</p>
-<p><code>{.haskell:ghci} ghci&gt; zipWith' (+) [4,2,5,6] [2,6,2,3] [6,8,7,9] ghci&gt; zipWith' max [6,3,2,1] [7,3,1,5] [7,3,2,5] ghci&gt; zipWith' (++) ["foo ", "bar ", "baz "] ["fighters", "hoppers", "aldrin"] ["foo fighters","bar hoppers","baz aldrin"] ghci&gt; zipWith' (*) (replicate 5 2) [1..] [2,4,6,8,10] ghci&gt; zipWith' (zipWith' (*)) [[1,2,3],[3,5,6],[2,3,4]] [[3,2,2],[3,4,5],[5,4,3]] [[3,4,6],[9,20,30],[10,12,12]]</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; zipWith&#39; (+) [4,2,5,6] [2,6,2,3]
+[6,8,7,9]
+ghci&gt; zipWith&#39; max [6,3,2,1] [7,3,1,5]
+[7,3,2,5]
+ghci&gt; zipWith&#39; (++) [&quot;foo &quot;, &quot;bar &quot;, &quot;baz &quot;] [&quot;fighters&quot;, &quot;hoppers&quot;, &quot;aldrin&quot;]
+[&quot;foo fighters&quot;,&quot;bar hoppers&quot;,&quot;baz aldrin&quot;]
+ghci&gt; zipWith&#39; (*) (replicate 5 2) [1..]
+[2,4,6,8,10]
+ghci&gt; zipWith&#39; (zipWith&#39; (*)) [[1,2,3],[3,5,6],[2,3,4]] [[3,2,2],[3,4,5],[5,4,3]]
+[[3,4,6],[9,20,30],[10,12,12]]</code></pre>
 <p>Como você pode ver, uma única função de alta ordem pode ser usada de
 maneiras muito versáteis. A programação imperativa geralmente usa coisas
 como loops for, loops while, definir algo em uma variável, verificar seu
@@ -219,7 +268,9 @@ eliminar as que você não precisa.</p>
 chamada <code>flip</code>. Flip simplesmente pega uma função e retorna
 uma função que é como nossa função original, apenas os dois primeiros
 argumentos são invertidos. Podemos implementá-la assim:</p>
-<p><code>{.haskell:hs} flip' :: (a -&gt; b -&gt; c) -&gt; (b -&gt; a -&gt; c) flip' f = g     where g x y = f y x</code></p>
+<pre class="haskell:hs"><code>flip&#39; :: (a -&gt; b -&gt; c) -&gt; (b -&gt; a -&gt; c)
+flip&#39; f = g
+    where g x y = f y x</code></pre>
 <p>Lendo a declaração de tipo, dizemos que ela pega uma função que pega
 um <code>a</code> e um <code>b</code> e retorna uma função que pega um
 <code>b</code> e um <code>a</code>. Mas como as funções são curried por
@@ -232,7 +283,8 @@ Escrevemos que <code>g x y = f y x</code>. Se isso for verdade, então
 <code>f y x = g x y</code> deve também ser verdade, certo? Tendo isso em
 mente, podemos definir essa função de uma maneira ainda mais
 simples.</p>
-<p><code>{.haskell:hs} flip' :: (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c flip' f y x = f x y</code></p>
+<pre class="haskell:hs"><code>flip&#39; :: (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c
+flip&#39; f y x = f x y</code></pre>
 <p>Aqui, aproveitamos o fato de que as funções são curried. Quando
 chamamos <code>flip' f</code> sem os parâmetros <code>y</code> e
 <code>x</code>, ele retornará um <code>f</code> que pega esses dois
@@ -241,12 +293,17 @@ geralmente sejam passadas para outras funções, podemos aproveitar o
 currying ao criar funções de alta ordem pensando no futuro e escrevendo
 qual seria o resultado final se fossem chamadas totalmente
 aplicadas.</p>
-<p><code>{.haskell:ghci} ghci&gt; flip' zip [1,2,3,4,5] "hello" [('h',1),('e',2),('l',3),('l',4),('o',5)] ghci&gt; zipWith (flip' div) [2,2..] [10,8,6,4,2] [5,4,3,2,1]</code></p>
-<h2>Maps e filters (Maps and filters) {#maps-and-filters}</h2>
-<p><code>map</code>{.function .label} pega uma função e uma lista e
+<pre class="haskell:ghci"><code>ghci&gt; flip&#39; zip [1,2,3,4,5] &quot;hello&quot;
+[(&#39;h&#39;,1),(&#39;e&#39;,2),(&#39;l&#39;,3),(&#39;l&#39;,4),(&#39;o&#39;,5)]
+ghci&gt; zipWith (flip&#39; div) [2,2..] [10,8,6,4,2]
+[5,4,3,2,1]</code></pre>
+<h2 id="maps-and-filters">Maps e filters (Maps and filters)</h2>
+<p><code class="function label">map</code> pega uma função e uma lista e
 aplica essa função a cada elemento da lista, produzindo uma nova lista.
 Vamos ver qual é a sua assinatura de tipo e como ela é definida.</p>
-<p><code>{.haskell:hs} map :: (a -&gt; b) -&gt; [a] -&gt; [b] map _ [] = [] map f (x:xs) = f x : map f xs</code></p>
+<pre class="haskell:hs"><code>map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+map _ [] = []
+map f (x:xs) = f x : map f xs</code></pre>
 <p>A assinatura de tipo diz que ele pega uma função que pega um
 <code>a</code> e retorna um <code>b</code>, uma lista de <code>a</code>s
 e retorna uma lista de <code>b</code>s. É interessante que apenas
@@ -254,7 +311,16 @@ olhando para a assinatura de tipo de uma função, às vezes você pode
 dizer o que ela faz. <code>map</code> é uma daquelas funções de alta
 ordem realmente versáteis que podem ser usadas de milhões de maneiras
 diferentes. Aqui está em ação:</p>
-<p><code>{.haskell:ghci} ghci&gt; map (+3) [1,5,3,1,6] [4,8,6,4,9] ghci&gt; map (++ "!") ["BIFF", "BANG", "POW"] ["BIFF!","BANG!","POW!"] ghci&gt; map (replicate 3) [3..6] [[3,3,3],[4,4,4],[5,5,5],[6,6,6]] ghci&gt; map (map (^2)) [[1,2],[3,4,5,6],[7,8]] [[1,4],[9,16,25,36],[49,64]] ghci&gt; map fst [(1,2),(3,5),(6,3),(2,6),(2,5)] [1,3,6,2,2]</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; map (+3) [1,5,3,1,6]
+[4,8,6,4,9]
+ghci&gt; map (++ &quot;!&quot;) [&quot;BIFF&quot;, &quot;BANG&quot;, &quot;POW&quot;]
+[&quot;BIFF!&quot;,&quot;BANG!&quot;,&quot;POW!&quot;]
+ghci&gt; map (replicate 3) [3..6]
+[[3,3,3],[4,4,4],[5,5,5],[6,6,6]]
+ghci&gt; map (map (^2)) [[1,2],[3,4,5,6],[7,8]]
+[[1,4],[9,16,25,36],[49,64]]
+ghci&gt; map fst [(1,2),(3,5),(6,3),(2,6),(2,5)]
+[1,3,6,2,2]</code></pre>
 <p>Você provavelmente notou que cada uma delas poderia ser alcançada com
 uma compreensão de lista. <code>map (+3) [1,5,3,1,6]</code> é o mesmo
 que escrever <code>[x+3 | x &lt;- [1,5,3,1,6]]</code>. No entanto, usar
@@ -262,16 +328,31 @@ que escrever <code>[x+3 | x &lt;- [1,5,3,1,6]]</code>. No entanto, usar
 apenas alguma função aos elementos de uma lista, especialmente quando
 você está lidando com maps de maps e então a coisa toda com muitos
 colchetes pode ficar um pouco confusa.</p>
-<p><code>filter</code>{.label .function} é uma função que pega um
+<p><code class="label function">filter</code> é uma função que pega um
 predicado (um predicado é uma função que diz se algo é verdadeiro ou
 não, então, no nosso caso, uma função que retorna um valor booleano) e
 uma lista e retorna a lista de elementos que satisfazem o predicado. A
 assinatura de tipo e implementação são assim:</p>
-<p><code>{.haskell:hs} filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a] filter _ [] = [] filter p (x:xs)     | p x       = x : filter p xs     | otherwise = filter p xs</code></p>
+<pre class="haskell:hs"><code>filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+filter _ [] = []
+filter p (x:xs)
+    | p x       = x : filter p xs
+    | otherwise = filter p xs</code></pre>
 <p>Coisa bem simples. Se <code>p x</code> for avaliado como
 <code>True</code>, o elemento será incluído na nova lista. Se não, fica
 de fora. Alguns exemplos de uso:</p>
-<p><code>{.haskell:hs} ghci&gt; filter (&gt;3) [1,5,3,2,1,6,4,3,2,1] [5,6,4] ghci&gt; filter (==3) [1,2,3,4,5] [3] ghci&gt; filter even [1..10] [2,4,6,8,10] ghci&gt; let notNull x = not (null x) in filter notNull [[1,2,3],[],[3,4,5],[2,2],[],[],[]] [[1,2,3],[3,4,5],[2,2]] ghci&gt; filter (`elem` ['a'..'z']) "u LaUgH aT mE BeCaUsE I aM diFfeRent" "uagameasadifeent" ghci&gt; filter (`elem` ['A'..'Z']) "i Laugh At you Because u R All The Same" "LABRATS"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; filter (&gt;3) [1,5,3,2,1,6,4,3,2,1]
+[5,6,4]
+ghci&gt; filter (==3) [1,2,3,4,5]
+[3]
+ghci&gt; filter even [1..10]
+[2,4,6,8,10]
+ghci&gt; let notNull x = not (null x) in filter notNull [[1,2,3],[],[3,4,5],[2,2],[],[],[]]
+[[1,2,3],[3,4,5],[2,2]]
+ghci&gt; filter (`elem` [&#39;a&#39;..&#39;z&#39;]) &quot;u LaUgH aT mE BeCaUsE I aM diFfeRent&quot;
+&quot;uagameasadifeent&quot;
+ghci&gt; filter (`elem` [&#39;A&#39;..&#39;Z&#39;]) &quot;i Laugh At you Because u R All The Same&quot;
+&quot;LABRATS&quot;</code></pre>
 <p>Tudo isso também poderia ser alcançado com compreensões de lista pelo
 uso de predicados. Não há regra definida para quando usar
 <code>map</code> e <code>filter</code> versus usar compreensão de lista,
@@ -284,9 +365,14 @@ anterior</a>? Usamos compreensões de lista para filtrar os elementos da
 lista que são menores (ou iguais) e maiores que o pivô. Podemos alcançar
 a mesma funcionalidade de uma maneira mais legível usando
 <code>filter</code>:</p>
-<p><code>{.haskell:ghci} quicksort :: (Ord a) =&gt; [a] -&gt; [a] quicksort [] = [] quicksort (x:xs) =     let smallerSorted = quicksort (filter (&lt;=x) xs)         biggerSorted = quicksort (filter (&gt;x) xs)     in  smallerSorted ++ [x] ++ biggerSorted</code></p>
-<p><img src="assets/images/higher-order-functions/map.png"
-alt="map" />{.left width=210 height=115}</p>
+<pre class="haskell:ghci"><code>quicksort :: (Ord a) =&gt; [a] -&gt; [a]
+quicksort [] = []
+quicksort (x:xs) =
+    let smallerSorted = quicksort (filter (&lt;=x) xs)
+        biggerSorted = quicksort (filter (&gt;x) xs)
+    in  smallerSorted ++ [x] ++ biggerSorted</code></pre>
+<p><img src="assets/images/higher-order-functions/map.png" class="left"
+width="210" height="115" alt="map" /></p>
 <p>Mapear e filtrar é o pão com manteiga da caixa de ferramentas de todo
 programador funcional. Uh. Não importa se você faz isso com as funções
 <code>map</code> e <code>filter</code> ou compreensões de lista.
@@ -305,7 +391,9 @@ vez.</p>
 <p>Vamos <strong>encontrar o maior número abaixo de 100.000 divisível
 por 3829</strong>. Para fazer isso, vamos filtrar um conjunto de
 possibilidades nas quais sabemos que a solução está.</p>
-<p><code>{.haskell:hs} largestDivisible :: (Integral a) =&gt; a largestDivisible = head (filter p [100000,99999..])     where p x = x `mod` 3829 == 0</code></p>
+<pre class="haskell:hs"><code>largestDivisible :: (Integral a) =&gt; a
+largestDivisible = head (filter p [100000,99999..])
+    where p x = x `mod` 3829 == 0</code></pre>
 <p>Primeiro fazemos uma lista de todos os números menores que 100.000,
 descendente. Em seguida, filtramos pelo nosso predicado e, como os
 números são classificados de maneira descendente, o maior número que
@@ -317,8 +405,8 @@ infinita. A avaliação para quando a primeira solução adequada é
 encontrada.</p>
 <p>A seguir, vamos <strong>encontrar a soma de todos os quadrados
 ímpares que são menores que 10.000</strong>. Mas primeiro, como vamos
-usá-la em nossa solução, vamos introduzir a função
-<code>takeWhile</code>{.label .function}. Ela pega um predicado e uma
+usá-la em nossa solução, vamos introduzir a função <code
+class="label function">takeWhile</code>. Ela pega um predicado e uma
 lista e depois vai desde o início da lista e retorna seus elementos
 enquanto o predicado for verdadeiro. Uma vez que um elemento é
 encontrado para o qual o predicado não se sustenta, ele para. Se
@@ -332,12 +420,14 @@ seguida, filtramos para obter apenas os ímpares. E então, vamos tirar
 elementos dessa lista enquanto forem menores que 10.000. Finalmente,
 obteremos a soma dessa lista. Nós nem precisamos definir uma função para
 isso, podemos fazê-lo em uma linha no GHCI:</p>
-<p><code>{.haskell:ghci} ghci&gt; sum (takeWhile (&lt;10000) (filter odd (map (^2) [1..]))) 166650</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; sum (takeWhile (&lt;10000) (filter odd (map (^2) [1..])))
+166650</code></pre>
 <p>Incrível! Começamos com alguns dados iniciais (a lista infinita de
 todos os números naturais) e depois mapeamos sobre ela, filtramos e
 cortamos até que atenda às nossas necessidades e depois apenas somamos.
 Também poderíamos ter escrito isso usando compreensões de lista:</p>
-<p><code>{.haskell:ghci} ghci&gt; sum (takeWhile (&lt;10000) [n^2 | n &lt;- [1..], odd (n^2)]) 166650</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; sum (takeWhile (&lt;10000) [n^2 | n &lt;- [1..], odd (n^2)])
+166650</code></pre>
 <p>É uma questão de gosto qual você acha mais bonita. Mais uma vez, a
 propriedade de preguiça de Haskell é o que torna isso possível. Podemos
 mapear e filtrar uma lista infinita, porque ela não mapeará e filtrará
@@ -360,23 +450,36 @@ Vemos que a cadeia tem 10 termos.</p>
 números iniciais entre 1 e 100, quantas cadeias têm um comprimento
 superior a 15?</strong> Primeiro, escreveremos uma função que produz uma
 cadeia:</p>
-<p><code>{.haskell:hs} chain :: (Integral a) =&gt; a -&gt; [a] chain 1 = [1] chain n     | even n =  n:chain (n `div` 2)     | odd n  =  n:chain (n*3 + 1)</code></p>
+<pre class="haskell:hs"><code>chain :: (Integral a) =&gt; a -&gt; [a]
+chain 1 = [1]
+chain n
+    | even n =  n:chain (n `div` 2)
+    | odd n  =  n:chain (n*3 + 1)</code></pre>
 <p>Como as cadeias terminam em 1, esse é o caso de borda. Esta é uma
 função recursiva bastante padrão.</p>
-<p><code>{.haskell:ghci} ghci&gt; chain 10 [10,5,16,8,4,2,1] ghci&gt; chain 1 [1] ghci&gt; chain 30 [30,15,46,23,70,35,106,53,160,80,40,20,10,5,16,8,4,2,1]</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; chain 10
+[10,5,16,8,4,2,1]
+ghci&gt; chain 1
+[1]
+ghci&gt; chain 30
+[30,15,46,23,70,35,106,53,160,80,40,20,10,5,16,8,4,2,1]</code></pre>
 <p>Yay! Parece estar funcionando corretamente. E agora, a função que nos
 diz a resposta para nossa pergunta:</p>
-<p><code>{.haskell:hs} numLongChains :: Int numLongChains = length (filter isLong (map chain [1..100]))     where isLong xs = length xs &gt; 15</code></p>
+<pre class="haskell:hs"><code>numLongChains :: Int
+numLongChains = length (filter isLong (map chain [1..100]))
+    where isLong xs = length xs &gt; 15</code></pre>
 <p>Mapeamos a função <code>chain</code> para <code>[1..100]</code> para
 obter uma lista de cadeias, que são representadas como listas. Em
 seguida, filtramos por um predicado que apenas verifica se o comprimento
 de uma lista é maior que 15. Depois de fazermos a filtragem, vemos
 quantas cadeias restam na lista resultante.</p>
-<p>::: {.hintbox} <strong>Nota:</strong> Esta função tem um tipo de
+<div class="hintbox">
+<p><strong>Nota:</strong> Esta função tem um tipo de
 <code>numLongChains :: Int</code> porque <code>length</code> retorna um
 <code>Int</code> em vez de um <code>Num a</code> por razões históricas.
 Se quiséssemos retornar um <code>Num a</code> mais geral, poderíamos ter
-usado <code>fromIntegral</code> no comprimento resultante. :::</p>
+usado <code>fromIntegral</code> no comprimento resultante.</p>
+</div>
 <p>Usando <code>map</code>, também podemos fazer coisas como
 <code>map (*) [0..]</code>, se não por qualquer outro motivo a não ser
 ilustrar como o currying funciona e como as funções (parcialmente
@@ -394,14 +497,16 @@ aceita um parâmetro. Se mapearmos <code>*</code> sobre a lista
 um parâmetro, então <code>(Num a) =&gt; [a -&gt; a]</code>.
 <code>map (*) [0..]</code> produz uma lista como a que obteríamos
 escrevendo <code>[(0*),(1*),(2*),(3*),(4*),(5*)..</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; let listOfFuncs = map (*) [0..] ghci&gt; (listOfFuncs !! 4) 5 20</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let listOfFuncs = map (*) [0..]
+ghci&gt; (listOfFuncs !! 4) 5
+20</code></pre>
 <p>Obter o elemento com o índice <code>4</code> da nossa lista retorna
 uma função equivalente a <code>(4*)</code>. E então, apenas aplicamos
 <code>5</code> a essa função. Então é como escrever <code>(4*) 5</code>
 ou apenas <code>4 * 5</code>.</p>
-<h2>Lambdas {#lambdas}</h2>
+<h2 id="lambdas">Lambdas</h2>
 <p><img src="assets/images/higher-order-functions/lambda.png"
-alt="lambda" />{.right width=203 height=230}</p>
+class="right" width="203" height="230" alt="lambda" /></p>
 <p>Lambdas são basicamente funções anônimas que são usadas porque
 precisamos de algumas funções apenas uma vez. Normalmente, fazemos um
 lambda com o único objetivo de passá-lo para uma função de alta ordem.
@@ -416,13 +521,14 @@ ligação <em>where</em> em nossa função <code>numLongChains</code> para
 criar a função <code>isLong</code> com o único objetivo de passá-la para
 o <code>filter</code>. Bem, em vez de fazer isso, podemos usar um
 lambda:</p>
-<p><code>{.haskell:hs} numLongChains :: Int numLongChains = length (filter (\xs -&gt; length xs &gt; 15) (map chain [1..100]))</code></p>
+<pre class="haskell:hs"><code>numLongChains :: Int
+numLongChains = length (filter (\xs -&gt; length xs &gt; 15) (map chain [1..100]))</code></pre>
 <p>Lambdas são expressões, é por isso que podemos apenas passá-las
 assim. A expressão <code>(\xs -&gt; length xs &gt; 15)</code> retorna
 uma função que nos diz se o comprimento da lista passada para ela é
 maior que 15.</p>
-<p><img src="assets/images/higher-order-functions/lamb.png"
-alt="lamb" />{.left width=200 height=134}</p>
+<p><img src="assets/images/higher-order-functions/lamb.png" class="left"
+width="200" height="134" alt="lamb" /></p>
 <p>Pessoas que não estão bem familiarizadas com o funcionamento do
 currying e da aplicação parcial costumam usar lambdas onde não precisam.
 Por exemplo, as expressões <code>map (+3) [1,6,3,2]</code> e
@@ -433,7 +539,8 @@ lambda, neste caso, é estúpido, pois o uso de aplicativos parciais é
 muito mais legível.</p>
 <p>Como as funções normais, os lambdas podem receber qualquer número de
 parâmetros:</p>
-<p><code>{.haskell:ghci} ghci&gt; zipWith (\a b -&gt; (a * 30 + 3) / b) [5,4,3,2,1] [1,2,3,4,5] [153.0,61.5,31.0,15.75,6.6]</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; zipWith (\a b -&gt; (a * 30 + 3) / b) [5,4,3,2,1] [1,2,3,4,5]
+[153.0,61.5,31.0,15.75,6.6]</code></pre>
 <p>E, como funções normais, você pode fazer pattern match em lambdas. A
 única diferença é que você não pode definir vários padrões para um
 parâmetro, como criar um padrão <code>[]</code> e um <code>(x:xs)</code>
@@ -441,13 +548,16 @@ para o mesmo parâmetro e depois fazer com que os valores caiam. Se um
 pattern matching falhar em um lambda, ocorrerá um erro de tempo de
 execução, portanto, tenha cuidado ao fazer pattern matching em
 lambdas!</p>
-<p><code>{.haskell:ghci} ghci&gt; map (\(a,b) -&gt; a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)] [3,8,9,8,7]</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; map (\(a,b) -&gt; a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)]
+[3,8,9,8,7]</code></pre>
 <p>Os lambdas são normalmente cercados por parênteses, a menos que
 queiramos que eles se estendam até a direita. Aqui está algo
 interessante: devido à maneira como as funções são curried por padrão,
 essas duas são equivalentes:</p>
-<p><code>{.haskell:ghci} addThree :: (Num a) =&gt; a -&gt; a -&gt; a -&gt; a addThree x y z = x + y + z</code></p>
-<p><code>{.haskell:ghci} addThree :: (Num a) =&gt; a -&gt; a -&gt; a -&gt; a addThree = \x -&gt; \y -&gt; \z -&gt; x + y + z</code></p>
+<pre class="haskell:ghci"><code>addThree :: (Num a) =&gt; a -&gt; a -&gt; a -&gt; a
+addThree x y z = x + y + z</code></pre>
+<pre class="haskell:ghci"><code>addThree :: (Num a) =&gt; a -&gt; a -&gt; a -&gt; a
+addThree = \x -&gt; \y -&gt; \z -&gt; x + y + z</code></pre>
 <p>Se definirmos uma função como essa, é óbvio por que a declaração de
 tipo é o que é. Existem três <code>-&gt;</code> na declaração de tipo e
 na equação. Mas, é claro, a primeira maneira de escrever funções é muito
@@ -455,7 +565,8 @@ mais legível, a segunda é praticamente um truque para ilustrar o
 currying.</p>
 <p>No entanto, há momentos em que o uso dessa notação é legal. Acho que
 a função <code>flip</code> é a mais legível quando definida assim:</p>
-<p><code>{.haskell:ghci} flip' :: (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c flip' f = \x y -&gt; f y x</code></p>
+<pre class="haskell:ghci"><code>flip&#39; :: (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c
+flip&#39; f = \x y -&gt; f y x</code></pre>
 <p>Embora seja o mesmo que escrever <code>flip' f x y = f y x</code>,
 tornamos óbvio que isso será usado para produzir uma nova função na
 maioria das vezes. O caso de uso mais comum com <code>flip</code> é
@@ -463,9 +574,9 @@ chamá-lo apenas com o parâmetro da função e depois passar a função
 resultante para um map ou um filter. Portanto, use lambdas dessa maneira
 quando quiser tornar explícito que sua função se destina principalmente
 a ser parcialmente aplicada e repassada a uma função como parâmetro.</p>
-<h2>Apenas dobras e cavalos (Only folds and horses) {#folds}</h2>
+<h2 id="folds">Apenas dobras e cavalos (Only folds and horses)</h2>
 <p><img src="assets/images/higher-order-functions/origami.png"
-alt="folded bird" />{.right width=220 height=221}</p>
+class="right" width="220" height="221" alt="folded bird" /></p>
 <p>Quando estávamos lidando com a recursão, notamos um tema em muitas
 das funções recursivas que operavam nas listas. Normalmente, teríamos um
 caso de borda para a lista vazia. Introduziríamos o padrão
@@ -483,18 +594,21 @@ acumulador. Em seguida, a função binária é chamada novamente com o novo
 acumulador e o agora novo primeiro (ou último) elemento, e assim por
 diante. Depois de percorrer toda a lista, apenas o acumulador permanece,
 que é o que reduzimos a lista.</p>
-<p>Primeiro, vamos dar uma olhada na função <code>foldl</code>{.label
-.function}, também chamada de dobra esquerda (left fold). Ele dobra a
-lista do lado esquerdo. A função binária é aplicada entre o valor
-inicial e a cabeça da lista. Isso produz um novo valor acumulador e a
-função binária é chamada com esse valor e o próximo elemento, etc.</p>
+<p>Primeiro, vamos dar uma olhada na função <code
+class="label function">foldl</code>, também chamada de dobra esquerda
+(left fold). Ele dobra a lista do lado esquerdo. A função binária é
+aplicada entre o valor inicial e a cabeça da lista. Isso produz um novo
+valor acumulador e a função binária é chamada com esse valor e o próximo
+elemento, etc.</p>
 <p>Vamos implementar <code>sum</code> novamente, apenas desta vez,
 usaremos uma dobra em vez de recursão explícita.</p>
-<p><code>{.haskell:hs} sum' :: (Num a) =&gt; [a] -&gt; a sum' xs = foldl (\acc x -&gt; acc + x) 0 xs</code></p>
+<pre class="haskell:hs"><code>sum&#39; :: (Num a) =&gt; [a] -&gt; a
+sum&#39; xs = foldl (\acc x -&gt; acc + x) 0 xs</code></pre>
 <p>Testando, um dois três:</p>
-<p><code>{.haskell:ghci} ghci&gt; sum' [3,5,2,1] 11</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; sum&#39; [3,5,2,1]
+11</code></pre>
 <p><img src="assets/images/higher-order-functions/foldl.png"
-alt="foldl" />{.left width=172 height=348}</p>
+class="left" width="172" height="348" alt="foldl" /></p>
 <p>Vamos dar uma olhada em profundidade como essa dobra acontece.
 <code>\acc x -&gt; acc + x</code> é a função binária. <code>0</code> é o
 valor inicial e <code>xs</code> é a lista a ser dobrada. Agora,
@@ -515,7 +629,8 @@ valor do acumulador. Você pode ver como a lista é meio consumida do lado
 esquerdo pelo acumulador. Om nom nom nom! Se levarmos em conta que as
 funções são curried, podemos escrever essa implementação cada vez mais
 sucintamente, assim:</p>
-<p><code>{.haskell:hs} sum' :: (Num a) =&gt; [a] -&gt; a sum' = foldl (+) 0</code></p>
+<pre class="haskell:hs"><code>sum&#39; :: (Num a) =&gt; [a] -&gt; a
+sum&#39; = foldl (+) 0</code></pre>
 <p>A função lambda <code>(\acc x -&gt; acc + x)</code> é a mesma que
 <code>(+)</code>. Podemos omitir o <code>xs</code> como parâmetro porque
 chamar <code>foldl (+) 0</code> retornará uma função que recebe uma
@@ -527,7 +642,8 @@ esquerda antes de passar para as dobras direitas. Tenho certeza que
 todos vocês sabem que <code>elem</code> verifica se um valor faz parte
 de uma lista, então não vou entrar nisso novamente (ops, acabei de
 fazer!). Vamos implementá-lo com uma dobra esquerda.</p>
-<p><code>{.haskell:hs} elem' :: (Eq a) =&gt; a -&gt; [a] -&gt; Bool elem' y ys = foldl (\acc x -&gt; if x == y then True else acc) False ys</code></p>
+<pre class="haskell:hs"><code>elem&#39; :: (Eq a) =&gt; a -&gt; [a] -&gt; Bool
+elem&#39; y ys = foldl (\acc x -&gt; if x == y then True else acc) False ys</code></pre>
 <p>Bem, bem, bem, o que temos aqui? O valor inicial e o acumulador aqui
 é um valor booleano. O tipo do valor acumulador e o resultado final são
 sempre os mesmos ao lidar com dobras. Lembre-se de que, se você não
@@ -540,8 +656,8 @@ for, definimos o acumulador como <code>True</code>. Se não for, apenas
 deixamos o acumulador inalterado. Se era <code>False</code> antes,
 permanece assim, porque esse elemento atual não é ele. Se era
 <code>True</code>, deixamos assim.</p>
-<p>A dobra direita, <code>foldr</code>{.function .label} funciona de
-maneira semelhante à dobra esquerda, apenas o acumulador consome os
+<p>A dobra direita, <code class="function label">foldr</code> funciona
+de maneira semelhante à dobra esquerda, apenas o acumulador consome os
 valores da direita. Além disso, a função binária da dobra esquerda tem o
 acumulador como o primeiro parâmetro e o valor atual como o segundo
 (então <code>\acc x -&gt; ...</code>), a função binária da dobra direita
@@ -554,7 +670,8 @@ ser de qualquer tipo. Pode ser um número, um booleano ou até uma nova
 lista. Implementaremos a função map com uma dobra direita. O acumulador
 será uma lista, acumularemos a lista mapeada elemento por elemento. A
 partir disso, é óbvio que o elemento inicial será uma lista vazia.</p>
-<p><code>{.haskell:hs} map' :: (a -&gt; b) -&gt; [a] -&gt; [b] map' f xs = foldr (\x acc -&gt; f x : acc) [] xs</code></p>
+<pre class="haskell:hs"><code>map&#39; :: (a -&gt; b) -&gt; [a] -&gt; [b]
+map&#39; f xs = foldr (\x acc -&gt; f x : acc) [] xs</code></pre>
 <p>Se estamos mapeando <code>(+3)</code> a <code>[1,2,3]</code>,
 abordamos a lista do lado direito. Pegamos o último elemento, que é
 <code>3</code> e aplicamos a função a ele, que acaba sendo
@@ -572,7 +689,7 @@ problema é que a função <code>++</code> é muito mais cara que
 <code>:</code>, então costumamos usar dobras direitas quando estamos
 construindo novas listas a partir de uma lista.</p>
 <p><img src="assets/images/higher-order-functions/washmachine.png"
-alt="fold this up!" />{.right width=250 height=205}</p>
+class="right" width="250" height="205" alt="fold this up!" /></p>
 <p>Se você inverter uma lista, poderá fazer uma dobra direita nela,
 exatamente como teria feito uma dobra esquerda e vice-versa. Às vezes
 você nem precisa fazer isso. A função <code>sum</code> pode ser
@@ -588,8 +705,8 @@ retorne algo com base nisso. Sempre que você quiser percorrer uma lista
 para retornar algo, é provável que você queira uma dobra.</strong> É por
 isso que as dobras são, juntamente com maps e filters, um dos tipos mais
 úteis de funções na programação funcional.</p>
-<p>As funções <code>foldl1</code>{.label .function} e
-<code>foldr1</code>{.label .function} funcionam muito como
+<p>As funções <code class="label function">foldl1</code> e <code
+class="label function">foldr1</code> funcionam muito como
 <code>foldl</code> e <code>foldr</code>, somente você não precisa
 fornecer a elas um valor inicial explícito. Eles assumem o primeiro (ou
 último) elemento da lista como o valor inicial e iniciam a dobra com o
@@ -604,15 +721,23 @@ poderá usar um <code>foldl1</code> ou <code>foldr1</code> para
 implementá-la.</p>
 <p>Apenas para mostrar como as dobras são poderosas, implementaremos um
 monte de funções da biblioteca padrão usando dobras:</p>
-<p>```{.haskell:hs} maximum' :: (Ord a) =&gt; [a] -&gt; a maximum' =
-foldr1 (\x acc -&gt; if x &gt; acc then x else acc)</p>
-<p>reverse' :: [a] -&gt; [a] reverse' = foldl (\acc x -&gt; x : acc)
-[]</p>
-<p>product' :: (Num a) =&gt; [a] -&gt; a product' = foldr1 (*)</p>
-<p>filter' :: (a -&gt; Bool) -&gt; [a] -&gt; [a] filter' p = foldr (\x
-acc -&gt; if p x then x : acc else acc) []</p>
-<p>head' :: [a] -&gt; a head' = foldr1 (\x _ -&gt; x)</p>
-<p>last' :: [a] -&gt; a last' = foldl1 (_ x -&gt; x) ```</p>
+<pre class="haskell:hs"><code>maximum&#39; :: (Ord a) =&gt; [a] -&gt; a
+maximum&#39; = foldr1 (\x acc -&gt; if x &gt; acc then x else acc)
+
+reverse&#39; :: [a] -&gt; [a]
+reverse&#39; = foldl (\acc x -&gt; x : acc) []
+
+product&#39; :: (Num a) =&gt; [a] -&gt; a
+product&#39; = foldr1 (*)
+
+filter&#39; :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+filter&#39; p = foldr (\x acc -&gt; if p x then x : acc else acc) []
+
+head&#39; :: [a] -&gt; a
+head&#39; = foldr1 (\x _ -&gt; x)
+
+last&#39; :: [a] -&gt; a
+last&#39; = foldl1 (\_ x -&gt; x)</code></pre>
 <p><code>head</code> é melhor implementado por pattern matching, mas
 isso apenas mostra, você ainda pode alcançá-lo usando dobras. Nossa
 definição <code>reverse'</code> é bastante inteligente, eu acho. Pegamos
@@ -642,12 +767,20 @@ estamos revertendo a lista), então esse é o equivalente a
 <code>flip (:) (flip (:) (flip (:) (flip (:) [] 3) 4) 5) 6</code>. E com
 certeza, se você avaliar essa expressão, receberá
 <code>[6,5,4,3]</code>.</p>
-<p><code>scanl</code>{.function .label} e <code>scanr</code>{.function
-.label} são como <code>foldl</code> e <code>foldr</code>, apenas relatam
-todos os estados intermediários do acumulador na forma de uma lista.
-Existem também <code>scanl1</code> e <code>scanr1</code>, que são
-análogos a <code>foldl1</code> e <code>foldr1</code>.</p>
-<p><code>{.haskell:ghci} ghci&gt; scanl (+) 0 [3,5,2,1] [0,3,8,10,11] ghci&gt; scanr (+) 0 [3,5,2,1] [11,8,3,1,0] ghci&gt; scanl1 (\acc x -&gt; if x &gt; acc then x else acc) [3,4,5,3,7,9,2,1] [3,4,5,5,7,9,9,9] ghci&gt; scanl (flip (:)) [] [3,2,1] [[],[3],[2,3],[1,2,3]]</code></p>
+<p><code class="function label">scanl</code> e <code
+class="function label">scanr</code> são como <code>foldl</code> e
+<code>foldr</code>, apenas relatam todos os estados intermediários do
+acumulador na forma de uma lista. Existem também <code>scanl1</code> e
+<code>scanr1</code>, que são análogos a <code>foldl1</code> e
+<code>foldr1</code>.</p>
+<pre class="haskell:ghci"><code>ghci&gt; scanl (+) 0 [3,5,2,1]
+[0,3,8,10,11]
+ghci&gt; scanr (+) 0 [3,5,2,1]
+[11,8,3,1,0]
+ghci&gt; scanl1 (\acc x -&gt; if x &gt; acc then x else acc) [3,4,5,3,7,9,2,1]
+[3,4,5,5,7,9,9,9]
+ghci&gt; scanl (flip (:)) [] [3,2,1]
+[[],[3],[2,3],[1,2,3]]</code></pre>
 <p>Ao usar um <code>scanl</code>, o resultado final estará no último
 elemento da lista resultante, enquanto um <code>scanr</code> colocará o
 resultado na cabeça.</p>
@@ -664,20 +797,27 @@ varredura será 1, normalmente. A segunda será 1 mais a raiz quadrada de
 2. A terceira será isso mais a raiz quadrada de 3. Se houver X somas
 abaixo de 1000, serão necessários X+1 elementos para que a soma exceda
 1000.</p>
-<p><code>{.haskell:hs} sqrtSums :: Int sqrtSums = length (takeWhile (&lt;1000) (scanl1 (+) (map sqrt [1..]))) + 1</code></p>
-<p><code>{.haskell:ghci} ghci&gt; sqrtSums 131 ghci&gt; sum (map sqrt [1..131]) 1005.0942035344083 ghci&gt; sum (map sqrt [1..130]) 993.6486803921487</code></p>
+<pre class="haskell:hs"><code>sqrtSums :: Int
+sqrtSums = length (takeWhile (&lt;1000) (scanl1 (+) (map sqrt [1..]))) + 1</code></pre>
+<pre class="haskell:ghci"><code>ghci&gt; sqrtSums
+131
+ghci&gt; sum (map sqrt [1..131])
+1005.0942035344083
+ghci&gt; sum (map sqrt [1..130])
+993.6486803921487</code></pre>
 <p>Usamos <code>takeWhile</code> aqui em vez de <code>filter</code>
 porque <code>filter</code> não funciona em listas infinitas. Embora
 saibamos que a lista é ascendente, <code>filter</code> não sabe, então
 usamos <code>takeWhile</code> para cortar a lista de varredura na
 primeira ocorrência de uma soma superior a 1000.</p>
-<h2>Aplicação de função com $ {#function-application}</h2>
+<h2 id="function-application">Aplicação de função com $</h2>
 <p>Tudo bem, em seguida, daremos uma olhada na função <code>$</code>,
 também chamada de <em>aplicação de função</em>. Antes de tudo, vamos
 verificar como ela é definida:</p>
-<p><code>{.haskell:hs} ($) :: (a -&gt; b) -&gt; a -&gt; b f $ x = f x</code></p>
+<pre class="haskell:hs"><code>($) :: (a -&gt; b) -&gt; a -&gt; b
+f $ x = f x</code></pre>
 <p><img src="assets/images/higher-order-functions/dollar.png"
-alt="dollar" />{.left width=180 height=136}</p>
+class="left" width="180" height="136" alt="dollar" /></p>
 <p>Que diabos? O que é esse operador inútil? É apenas aplicação de
 função! Bem, quase, mas não exatamente! Considerando que a aplicação
 normal da função (colocar um espaço entre duas coisas) tem uma
@@ -709,8 +849,9 @@ igual a <code>f $ g $ z x</code>. E assim, podemos reescrever
 aplicação da função pode ser tratada como outra função. Dessa forma,
 podemos, por exemplo, mapear a aplicação da função sobre uma lista de
 funções.</p>
-<p><code>{.haskell:ghci} ghci&gt; map ($ 3) [(4+), (10*), (^2), sqrt] [7.0,30.0,9.0,1.7320508075688772]</code></p>
-<h2>Composição de função {#composition}</h2>
+<pre class="haskell:ghci"><code>ghci&gt; map ($ 3) [(4+), (10*), (^2), sqrt]
+[7.0,30.0,9.0,1.7320508075688772]</code></pre>
+<h2 id="composition">Composição de função</h2>
 <p>Na matemática, a composição de função é definida assim: <img
 src="assets/images/higher-order-functions/composition.png"
 alt="(f . g)(x) = f(g(x))" />, significando que a composição de duas
@@ -720,9 +861,10 @@ digamos, <em>x</em> é o equivalente a chamar <em>g</em> com o parâmetro
 <p>No Haskell, a composição da função é praticamente a mesma coisa.
 Fazemos a composição da função com a função <code>.</code>, que é
 definida assim:</p>
-<p><code>{.haskell:hs} (.) :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c f . g = \x -&gt; f (g x)</code></p>
+<pre class="haskell:hs"><code>(.) :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+f . g = \x -&gt; f (g x)</code></pre>
 <p><img src="assets/images/higher-order-functions/notes.png"
-alt="notes" />{.left width=230 height=198}</p>
+class="left" width="230" height="198" alt="notes" /></p>
 <p>Cuidado com a declaração de tipo. <code>f</code> deve receber como
 parâmetro um valor que tenha o mesmo tipo que o valor de retorno de
 <code>g</code>. Portanto, a função resultante pega um parâmetro do mesmo
@@ -735,18 +877,22 @@ muitas vezes, a composição da função é mais clara e concisa. Digamos que
 temos uma lista de números e queremos transformar todos eles em números
 negativos. Uma maneira de fazer isso seria obter o valor absoluto de
 cada número e depois negá-lo, assim:</p>
-<p><code>{.haskell:hs} ghci&gt; map (\x -&gt; negate (abs x)) [5,-3,-6,7,-3,2,-19,24] [-5,-3,-6,-7,-3,-2,-19,-24]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; map (\x -&gt; negate (abs x)) [5,-3,-6,7,-3,2,-19,24]
+[-5,-3,-6,-7,-3,-2,-19,-24]</code></pre>
 <p>Observe o lambda e como ele se parece com a composição da função
 resultante. Usando a composição da função, podemos reescrever isso
 como:</p>
-<p><code>{.haskell:hs} ghci&gt; map (negate . abs) [5,-3,-6,7,-3,2,-19,24] [-5,-3,-6,-7,-3,-2,-19,-24]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; map (negate . abs) [5,-3,-6,7,-3,2,-19,24]
+[-5,-3,-6,-7,-3,-2,-19,-24]</code></pre>
 <p>Fabuloso! A composição da função é associativa à direita, para que
 possamos compor muitas funções ao mesmo tempo. A expressão
 <code>f (g (z x))</code> é equivalente a <code>(f . g . z) x</code>. Com
 isso em mente, podemos transformar</p>
-<p><code>{.haskell:ghci} ghci&gt; map (\xs -&gt; negate (sum (tail xs))) [[1..5],[3..6],[1..7]] [-14,-15,-27]</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; map (\xs -&gt; negate (sum (tail xs))) [[1..5],[3..6],[1..7]]
+[-14,-15,-27]</code></pre>
 <p>em</p>
-<p><code>{.haskell:ghci} ghci&gt; map (negate . sum . tail) [[1..5],[3..6],[1..7]] [-14,-15,-27]</code></p>
+<pre class="haskell:ghci"><code>ghci&gt; map (negate . sum . tail) [[1..5],[3..6],[1..7]]
+[-14,-15,-27]</code></pre>
 <p>Mas e as funções que aceitam vários parâmetros? Bem, se quisermos
 usá-las na composição de funções, geralmente temos que aplicá-las
 parcialmente apenas o suficiente para que cada função aceite apenas um
@@ -773,20 +919,21 @@ composição.</p>
 <p>Outro uso comum da composição de funções é definir funções no chamado
 estilo point free (também chamado de estilo point<em>less</em>). Tomemos
 por exemplo esta função que escrevemos anteriormente:</p>
-<p><code>{.haskell:hs} sum' :: (Num a) =&gt; [a] -&gt; a sum' xs = foldl (+) 0 xs</code></p>
+<pre class="haskell:hs"><code>sum&#39; :: (Num a) =&gt; [a] -&gt; a
+sum&#39; xs = foldl (+) 0 xs</code></pre>
 <p>O <code>xs</code> é exposto em ambos os lados, certo? Por causa do
 currying, podemos omitir o <code>xs</code> em ambos os lados, porque
 chamar <code>foldl (+) 0</code> cria uma função que aceita uma lista.
 Escrever a função como <code>sum' = foldl (+) 0</code> é chamado de
 escrevê-la no estilo point free. Como escreveríamos isso no estilo point
 free?</p>
-<p><code>{.haskell:hs} fn x = ceiling (negate (tan (cos (max 50 x))))</code></p>
+<pre class="haskell:hs"><code>fn x = ceiling (negate (tan (cos (max 50 x))))</code></pre>
 <p>Não podemos simplesmente nos livrar do <code>x</code> nos dois lados
 direitos. O <code>x</code> no corpo da função tem parênteses depois
 dele. <code>cos (max 50)</code> não faria sentido. Você não pode obter o
 cosseno de uma função. O que podemos fazer é expressar <code>fn</code>
 como uma composição de funções.</p>
-<p><code>{.haskell:hs} fn = ceiling . negate . tan . cos . max 50</code></p>
+<pre class="haskell:hs"><code>fn = ceiling . negate . tan . cos . max 50</code></pre>
 <p>Excelente!</p>
 <p>Muitas vezes, um estilo point free é mais legível e conciso, porque
 faz você pensar em funções e em que tipo de funções compô-las resulta,
@@ -804,22 +951,34 @@ composição.</p>
 <p>Na seção sobre maps e filters, resolvemos um problema de encontrar a
 soma de todos os quadrados ímpares menores que 10.000. Aqui está a
 aparência da solução quando colocada em uma função.</p>
-<p><code>{.haskell:hs} oddSquareSum :: Integer oddSquareSum = sum (takeWhile (&lt;10000) (filter odd (map (^2) [1..])))</code></p>
+<pre class="haskell:hs"><code>oddSquareSum :: Integer
+oddSquareSum = sum (takeWhile (&lt;10000) (filter odd (map (^2) [1..])))</code></pre>
 <p>Sendo um fã de composição de funções, eu provavelmente teria escrito
 assim:</p>
-<p><code>{.haskell:hs} oddSquareSum :: Integer oddSquareSum = sum . takeWhile (&lt;10000) . filter odd . map (^2) $ [1..]</code></p>
+<pre class="haskell:hs"><code>oddSquareSum :: Integer
+oddSquareSum = sum . takeWhile (&lt;10000) . filter odd . map (^2) $ [1..]</code></pre>
 <p>No entanto, se houvesse uma chance de outra pessoa ler esse código,
 eu o teria escrito assim:</p>
-<p><code>{.haskell:hs} oddSquareSum :: Integer oddSquareSum =     let oddSquares = filter odd $ map (^2) [1..]         belowLimit = takeWhile (&lt;10000) oddSquares     in  sum belowLimit</code></p>
-<p>Não ganharia nenhuma competição de "code golf", mas alguém lendo a
+<pre class="haskell:hs"><code>oddSquareSum :: Integer
+oddSquareSum =
+    let oddSquares = filter odd $ map (^2) [1..]
+        belowLimit = takeWhile (&lt;10000) oddSquares
+    in  sum belowLimit</code></pre>
+<p>Não ganharia nenhuma competição de “code golf”, mas alguém lendo a
 função provavelmente achará mais fácil de ler do que uma cadeia de
 composição.</p>
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="recursion.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="modules.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="recursion.html">Anterior (Recursão)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="modules.html" class="nxtlink">Próximo (Módulos)</a>
+        </li>
     </ul>
 </div>
 

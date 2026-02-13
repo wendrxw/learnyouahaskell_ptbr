@@ -9,31 +9,39 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="modules.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="input-and-output.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="modules.html">Anterior (Módulos)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="input-and-output.html" class="nxtlink">Próximo (Entrada e Saída)</a>
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Criando Nossos Próprios Tipos e Typeclasses (Making Our Own Types
-and Typeclasses)</h1>
+<h1
+id="criando-nossos-próprios-tipos-e-typeclasses-making-our-own-types-and-typeclasses">Criando
+Nossos Próprios Tipos e Typeclasses (Making Our Own Types and
+Typeclasses)</h1>
 <p>Nos capítulos anteriores, cobrimos alguns tipos e typeclasses
 existentes em Haskell. Neste capítulo, aprenderemos como criar os nossos
 e como colocá-los para trabalhar!</p>
-<h2>Introdução a tipos de dados algébricos (Algebraic data types intro)
-{#algebraic-data-types}</h2>
+<h2 id="algebraic-data-types">Introdução a tipos de dados algébricos
+(Algebraic data types intro)</h2>
 <p>Até agora, encontramos muitos tipos de dados. <code>Bool</code>,
 <code>Int</code>, <code>Char</code>, <code>Maybe</code>, etc. Mas como
 fazemos o nosso? Bem, uma maneira é usar a palavra-chave
 <strong>data</strong> para definir um tipo. Vamos ver como o tipo
 <code>Bool</code> é definido na biblioteca padrão.</p>
-<p><code>{.haskell:hs} data Bool = False | True</code></p>
+<pre class="haskell:hs"><code>data Bool = False | True</code></pre>
 <p><code>data</code> significa que estamos definindo um novo tipo de
 dados. A parte antes do <code>=</code> denota o tipo, que é
 <code>Bool</code>. As partes após o <code>=</code> são
@@ -45,10 +53,10 @@ tipo <code>Bool</code> pode ter um valor de <code>True</code> ou
 devem ser iniciados com letra maiúscula.</p>
 <p>De maneira semelhante, podemos pensar no tipo <code>Int</code> sendo
 definido assim:</p>
-<p><code>{.haskell:hs} data Int = -2147483648 | -2147483647 | ... | -1 | 0 | 1 | 2 | ... | 2147483647</code></p>
+<pre class="haskell:hs"><code>data Int = -2147483648 | -2147483647 | ... | -1 | 0 | 1 | 2 | ... | 2147483647</code></pre>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/caveman.png"
-alt="caveman" />{.left width=220 height=215}</p>
+class="left" width="220" height="215" alt="caveman" /></p>
 <p>O primeiro e o último valor de construtores são os valores mínimos e
 máximos possíveis de <code>Int</code>. Na verdade, não é definido assim,
 as reticências estão aqui porque omitimos uma carga de números, então
@@ -61,7 +69,7 @@ bom, mas isso também pode representar um vetor 3D ou qualquer outra
 coisa. Uma solução melhor seria criar nosso próprio tipo para
 representar uma forma. Digamos que uma forma pode ser um círculo ou um
 retângulo. Aqui está:</p>
-<p><code>{.haskell:hs} data Shape = Circle Float Float Float | Rectangle Float Float Float Float</code></p>
+<pre class="haskell:hs"><code>data Shape = Circle Float Float Float | Rectangle Float Float Float Float</code></pre>
 <p>Agora o que é isso? Pense assim. O construtor de valor
 <code>Circle</code> possui três campos, que recebem floats. Portanto,
 quando escrevemos um construtor de valor, podemos, opcionalmente,
@@ -75,11 +83,16 @@ segundos são coordenadas para o canto inferior direito.</p>
 Construtores de valor são na verdade funções que, em última análise,
 retornam um valor de um tipo de dados. Vamos dar uma olhada nas
 assinaturas de tipo para esses dois construtores de valor.</p>
-<p><code>{.haskell:hs} ghci&gt; :t Circle Circle :: Float -&gt; Float -&gt; Float -&gt; Shape ghci&gt; :t Rectangle Rectangle :: Float -&gt; Float -&gt; Float -&gt; Float -&gt; Shape</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t Circle
+Circle :: Float -&gt; Float -&gt; Float -&gt; Shape
+ghci&gt; :t Rectangle
+Rectangle :: Float -&gt; Float -&gt; Float -&gt; Float -&gt; Shape</code></pre>
 <p>Legal, então construtores de valor são funções como todo o resto.
 Quem teria pensado? Vamos fazer uma função que pega uma forma e retorna
 sua superfície.</p>
-<p><code>{.haskell:hs} surface :: Shape -&gt; Float surface (Circle _ _ r) = pi * r ^ 2 surface (Rectangle x1 y1 x2 y2) = (abs $ x2 - x1) * (abs $ y2 - y1)</code></p>
+<pre class="haskell:hs"><code>surface :: Shape -&gt; Float
+surface (Circle _ _ r) = pi * r ^ 2
+surface (Rectangle x1 y1 x2 y2) = (abs $ x2 - x1) * (abs $ y2 - y1)</code></pre>
 <p>A primeira coisa notável aqui é a declaração de tipo. Diz que a
 função assume uma forma e retorna um float. Não poderíamos escrever uma
 declaração de tipo de <code>Circle -&gt; Float</code> porque
@@ -94,7 +107,10 @@ campos. Apenas escrevemos um construtor e depois vinculamos seus campos
 a nomes. Como estamos interessados no raio, na verdade não nos
 importamos com os dois primeiros campos, que nos dizem onde está o
 círculo.</p>
-<p><code>{.haskell:hs} ghci&gt; surface $ Circle 10 20 10 314.15927 ghci&gt; surface $ Rectangle 0 0 100 100 10000.0</code></p>
+<pre class="haskell:hs"><code>ghci&gt; surface $ Circle 10 20 10
+314.15927
+ghci&gt; surface $ Rectangle 0 0 100 100
+10000.0</code></pre>
 <p>Yay, funciona! Mas se tentarmos apenas imprimir
 <code>Circle 10 20 5</code> no prompt, receberemos um erro. Isso ocorre
 porque o Haskell não sabe como exibir nosso tipo de dados como uma
@@ -103,22 +119,27 @@ Haskell primeiro executa a função <code>show</code> para obter a
 representação de string do nosso valor e depois imprime isso no
 terminal. Para tornar nosso tipo <code>Shape</code> parte da typeclass
 <code>Show</code>, nós o modificamos assim:</p>
-<p><code>{.haskell:hs} data Shape = Circle Float Float Float | Rectangle Float Float Float Float deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Shape = Circle Float Float Float | Rectangle Float Float Float Float deriving (Show)</code></pre>
 <p>Não vamos nos preocupar muito com a derivação por enquanto. Vamos
 apenas dizer que, se adicionarmos <code>deriving (Show)</code> no final
 de uma declaração <em>data</em>, o Haskell torna automagicamente esse
 tipo parte da typeclass <code>Show</code>. Então agora, podemos fazer
 isso:</p>
-<p><code>{.haskell:hs} ghci&gt; Circle 10 20 5 Circle 10.0 20.0 5.0 ghci&gt; Rectangle 50 230 60 90 Rectangle 50.0 230.0 60.0 90.0</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Circle 10 20 5
+Circle 10.0 20.0 5.0
+ghci&gt; Rectangle 50 230 60 90
+Rectangle 50.0 230.0 60.0 90.0</code></pre>
 <p>Os construtores de valor são funções, para que possamos mapeá-los e
 aplicá-los parcialmente e tudo mais. Se queremos uma lista de círculos
 concêntricos com raios diferentes, podemos fazer isso.</p>
-<p><code>{.haskell:hs} ghci&gt; map (Circle 10 20) [4,5,6,6] [Circle 10.0 20.0 4.0,Circle 10.0 20.0 5.0,Circle 10.0 20.0 6.0,Circle 10.0 20.0 6.0]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; map (Circle 10 20) [4,5,6,6]
+[Circle 10.0 20.0 4.0,Circle 10.0 20.0 5.0,Circle 10.0 20.0 6.0,Circle 10.0 20.0 6.0]</code></pre>
 <p>Nosso tipo de dados é bom, embora possa ser melhor. Vamos criar um
 tipo de dados intermediário que defina um ponto no espaço bidimensional.
 Então podemos usar isso para tornar nossas formas mais
 compreensíveis.</p>
-<p><code>{.haskell:hs} data Point = Point Float Float deriving (Show) data Shape = Circle Point Float | Rectangle Point Point deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Point = Point Float Float deriving (Show)
+data Shape = Circle Point Float | Rectangle Point Point deriving (Show)</code></pre>
 <p>Observe que, ao definir um ponto, usamos o mesmo nome para o tipo de
 dados e o construtor de valor. Isso não tem significado especial, embora
 seja comum usar o mesmo nome que o tipo se houver apenas um construtor
@@ -127,29 +148,39 @@ tipo <code>Point</code> e o outro do tipo <code>Float</code>. Isso
 facilita a compreensão do que é o quê. O mesmo vale para o retângulo.
 Temos que ajustar nossa função <code>surface</code> para refletir essas
 mudanças.</p>
-<p><code>{.haskell:hs} surface :: Shape -&gt; Float surface (Circle _ r) = pi * r ^ 2 surface (Rectangle (Point x1 y1) (Point x2 y2)) = (abs $ x2 - x1) * (abs $ y2 - y1)</code></p>
+<pre class="haskell:hs"><code>surface :: Shape -&gt; Float
+surface (Circle _ r) = pi * r ^ 2
+surface (Rectangle (Point x1 y1) (Point x2 y2)) = (abs $ x2 - x1) * (abs $ y2 - y1)</code></pre>
 <p>A única coisa que tivemos que mudar foram os padrões. Desconsideramos
 o ponto inteiro no padrão do círculo. No padrão do retângulo, acabamos
 de usar uma correspondência de padrão aninhada para obter os campos dos
 pontos. Se quiséssemos referenciar os pontos para algum motivo,
 poderíamos ter usado as-patterns.</p>
-<p><code>{.haskell:hs} ghci&gt; surface (Rectangle (Point 0 0) (Point 100 100)) 10000.0 ghci&gt; surface (Circle (Point 0 0) 24) 1809.5574</code></p>
+<pre class="haskell:hs"><code>ghci&gt; surface (Rectangle (Point 0 0) (Point 100 100))
+10000.0
+ghci&gt; surface (Circle (Point 0 0) 24)
+1809.5574</code></pre>
 <p>Que tal uma função que empurra uma forma? Pega uma forma, a
 quantidade para movê-la no eixo x e a quantidade para movê-la no eixo y
 e depois retorna uma nova forma que tem as mesmas dimensões, apenas está
 localizado em outro lugar.</p>
-<p><code>{.haskell:hs} nudge :: Shape -&gt; Float -&gt; Float -&gt; Shape nudge (Circle (Point x y) r) a b = Circle (Point (x+a) (y+b)) r nudge (Rectangle (Point x1 y1) (Point x2 y2)) a b = Rectangle (Point (x1+a) (y1+b)) (Point (x2+a) (y2+b))</code></p>
+<pre class="haskell:hs"><code>nudge :: Shape -&gt; Float -&gt; Float -&gt; Shape
+nudge (Circle (Point x y) r) a b = Circle (Point (x+a) (y+b)) r
+nudge (Rectangle (Point x1 y1) (Point x2 y2)) a b = Rectangle (Point (x1+a) (y1+b)) (Point (x2+a) (y2+b))</code></pre>
 <p>Bastante simples. Adicionamos as quantidades de empurrão aos pontos
 que denotam a posição da forma.</p>
-<p><code>{.haskell:hs} ghci&gt; nudge (Circle (Point 34 34) 10) 5 10 Circle (Point 39.0 44.0) 10.0</code></p>
+<pre class="haskell:hs"><code>ghci&gt; nudge (Circle (Point 34 34) 10) 5 10
+Circle (Point 39.0 44.0) 10.0</code></pre>
 <p>Se não queremos lidar diretamente com pontos, podemos criar algumas
 funções auxiliares que criam formas de algum tamanho nas coordenadas
 zero e depois empurram elas.</p>
-<p>```{.haskell:hs} baseCircle :: Float -&gt; Shape baseCircle r =
-Circle (Point 0 0) r</p>
-<p>baseRect :: Float -&gt; Float -&gt; Shape baseRect width height =
-Rectangle (Point 0 0) (Point width height) ```</p>
-<p><code>{.haskell:hs} ghci&gt; nudge (baseRect 40 100) 60 23 Rectangle (Point 60.0 23.0) (Point 100.0 123.0)</code></p>
+<pre class="haskell:hs"><code>baseCircle :: Float -&gt; Shape
+baseCircle r = Circle (Point 0 0) r
+
+baseRect :: Float -&gt; Float -&gt; Shape
+baseRect width height = Rectangle (Point 0 0) (Point width height)</code></pre>
+<pre class="haskell:hs"><code>ghci&gt; nudge (baseRect 40 100) 60 23
+Rectangle (Point 60.0 23.0) (Point 100.0 123.0)</code></pre>
 <p>Você pode, é claro, exportar seus tipos de dados em seus módulos.
 Para fazer isso, basta escrever seu tipo junto com as funções que você
 está exportando e adicionar alguns parênteses e, neles, especificar os
@@ -158,7 +189,14 @@ vírgulas. Se você deseja exportar todos os construtores de valor para um
 determinado tipo, basta escrever <code>..</code>.</p>
 <p>Se quiséssemos exportar as funções e tipos que definimos aqui em um
 módulo, poderíamos começar assim:</p>
-<p><code>{.haskell:hs} module Shapes ( Point(..) , Shape(..) , surface , nudge , baseCircle , baseRect ) where</code></p>
+<pre class="haskell:hs"><code>module Shapes
+( Point(..)
+, Shape(..)
+, surface
+, nudge
+, baseCircle
+, baseRect
+) where</code></pre>
 <p>Ao fazer <code>Shape(..)</code>, exportamos todos os construtores de
 valor para <code>Shape</code>, o que significa que quem importa nosso
 módulo pode fazer formas usando os construtores de valor
@@ -184,45 +222,65 @@ personalizados.</p>
 mais abstratos de tal maneira que ocultamos a implementação deles. Além
 disso, quem usa nosso módulo não pode fazer pattern matching contra os
 construtores de valor.</p>
-<h2>Sintaxe de registro (Record syntax) {#record-syntax}</h2>
+<h2 id="record-syntax">Sintaxe de registro (Record syntax)</h2>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/record.png"
-alt="record" />{.right width=208 height=97}</p>
+class="right" width="208" height="97" alt="record" /></p>
 <p>OK, fomos encarregados de criar um tipo de dados que descreva uma
 pessoa. As informações que queremos armazenar sobre essa pessoa são:
 primeiro nome, sobrenome, idade, altura, número de telefone e sabor de
 sorvete favorito. Não sei sobre você, mas isso é tudo que eu quero saber
 sobre uma pessoa. Vamos tentar!</p>
-<p><code>{.haskell:hs} data Person = Person String String Int Float String String deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Person = Person String String Int Float String String deriving (Show)</code></pre>
 <p>O-kay. O primeiro campo é o primeiro nome, o segundo é o sobrenome, o
 terceiro é a idade e assim por diante. Vamos criar uma pessoa.</p>
-<p><code>{.haskell:hs} ghci&gt; let guy = Person "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate" ghci&gt; guy Person "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let guy = Person &quot;Buddy&quot; &quot;Finklestein&quot; 43 184.2 &quot;526-2928&quot; &quot;Chocolate&quot;
+ghci&gt; guy
+Person &quot;Buddy&quot; &quot;Finklestein&quot; 43 184.2 &quot;526-2928&quot; &quot;Chocolate&quot;</code></pre>
 <p>Isso é meio legal, embora um pouco ilegível. E se quisermos criar uma
 função para obter informações separadas de uma pessoa? Uma função que
 recebe o primeiro nome de uma pessoa, uma função que recebe o sobrenome
 de uma pessoa, etc. Bem, teríamos que defini-las mais ou menos
 assim.</p>
-<p>```{.haskell:hs} firstName :: Person -&gt; String firstName (Person
-firstname _ _ _ _ _) = firstname</p>
-<p>lastName :: Person -&gt; String lastName (Person _ lastname _ _ _ _)
-= lastname</p>
-<p>age :: Person -&gt; Int age (Person _ _ age _ _ _) = age</p>
-<p>height :: Person -&gt; Float height (Person _ _ _ height _ _) =
-height</p>
-<p>phoneNumber :: Person -&gt; String phoneNumber (Person _ _ _ _ number
-_) = number</p>
-<p>flavor :: Person -&gt; String flavor (Person _ _ _ _ _ flavor) =
-flavor ```</p>
+<pre class="haskell:hs"><code>firstName :: Person -&gt; String
+firstName (Person firstname _ _ _ _ _) = firstname
+
+lastName :: Person -&gt; String
+lastName (Person _ lastname _ _ _ _) = lastname
+
+age :: Person -&gt; Int
+age (Person _ _ age _ _ _) = age
+
+height :: Person -&gt; Float
+height (Person _ _ _ height _ _) = height
+
+phoneNumber :: Person -&gt; String
+phoneNumber (Person _ _ _ _ number _) = number
+
+flavor :: Person -&gt; String
+flavor (Person _ _ _ _ _ flavor) = flavor</code></pre>
 <p>Ufa! Eu certamente não gostei de escrever isso! Apesar de ser muito
 complicado e CHATO de escrever, esse método funciona.</p>
-<p><code>{.haskell:hs} ghci&gt; let guy = Person "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate" ghci&gt; firstName guy "Buddy" ghci&gt; height guy 184.2 ghci&gt; flavor guy "Chocolate"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let guy = Person &quot;Buddy&quot; &quot;Finklestein&quot; 43 184.2 &quot;526-2928&quot; &quot;Chocolate&quot;
+ghci&gt; firstName guy
+&quot;Buddy&quot;
+ghci&gt; height guy
+184.2
+ghci&gt; flavor guy
+&quot;Chocolate&quot;</code></pre>
 <p>Deve haver uma maneira melhor, você diz! Bem não, não há,
 desculpe.</p>
 <p>Brincadeirinha, existe. Hahaha! Os criadores de Haskell eram muito
 inteligentes e anteciparam esse cenário. Eles incluíram uma maneira
 alternativa de escrever tipos de dados. Veja como poderíamos alcançar a
 funcionalidade acima com a sintaxe de registro.</p>
-<p><code>{.haskell:hs} data Person = Person { firstName :: String                      , lastName :: String                      , age :: Int                      , height :: Float                      , phoneNumber :: String                      , flavor :: String                      } deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Person = Person { firstName :: String
+                     , lastName :: String
+                     , age :: Int
+                     , height :: Float
+                     , phoneNumber :: String
+                     , flavor :: String
+                     } deriving (Show)</code></pre>
 <p>Portanto, em vez de apenas nomear os tipos de campo um após o outro e
 separá-los com espaços, usamos colchetes. Primeiro, escrevemos o nome do
 campo, por exemplo, <code>firstName</code> e depois escrevemos dois
@@ -233,18 +291,23 @@ que procuram campos no tipo de dados. Ao usar sintaxe de registro para
 criar esse tipo de dados, o Haskell criou automaticamente estas funções:
 <code>firstName</code>, <code>lastName</code>, <code>age</code>,
 <code>height</code>, <code>phoneNumber</code> e <code>flavor</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; :t flavor flavor :: Person -&gt; String ghci&gt; :t firstName firstName :: Person -&gt; String</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t flavor
+flavor :: Person -&gt; String
+ghci&gt; :t firstName
+firstName :: Person -&gt; String</code></pre>
 <p>Há outro benefício em usar a sintaxe de registro. Quando derivamos
 <code>Show</code> para o tipo, ele o exibe de maneira diferente se
 usarmos a sintaxe de registro para definir e instanciar o tipo. Digamos
 que temos um tipo que representa um carro. Queremos acompanhar a empresa
 que o fez, o nome do modelo e seu ano de produção. Veja.</p>
-<p><code>{.haskell:hs} data Car = Car String String Int deriving (Show)</code></p>
-<p><code>{.haskell:hs} ghci&gt; Car "Ford" "Mustang" 1967 Car "Ford" "Mustang" 1967</code></p>
+<pre class="haskell:hs"><code>data Car = Car String String Int deriving (Show)</code></pre>
+<pre class="haskell:hs"><code>ghci&gt; Car &quot;Ford&quot; &quot;Mustang&quot; 1967
+Car &quot;Ford&quot; &quot;Mustang&quot; 1967</code></pre>
 <p>Se o definirmos usando a sintaxe de registro, podemos fazer um carro
 novo como este.</p>
-<p><code>{.haskell:hs} data Car = Car {company :: String, model :: String, year :: Int} deriving (Show)</code></p>
-<p><code>{.haskell:hs} ghci&gt; Car {company="Ford", model="Mustang", year=1967} Car {company = "Ford", model = "Mustang", year = 1967}</code></p>
+<pre class="haskell:hs"><code>data Car = Car {company :: String, model :: String, year :: Int} deriving (Show)</code></pre>
+<pre class="haskell:hs"><code>ghci&gt; Car {company=&quot;Ford&quot;, model=&quot;Mustang&quot;, year=1967}
+Car {company = &quot;Ford&quot;, model = &quot;Mustang&quot;, year = 1967}</code></pre>
 <p>Ao fazer um carro novo, não precisamos necessariamente colocar os
 campos na ordem adequada, desde que listemos todos eles. Mas se não
 usarmos a sintaxe de registro, temos que especificá-los em ordem.</p>
@@ -254,7 +317,7 @@ em 3D fazendo <code>data Vector = Vector Int Int Int</code>, é bastante
 óbvio que os campos são os componentes de um vetor. No entanto, em
 nossos tipos <code>Person</code> e <code>Car</code>, não era tão óbvio e
 nos beneficiamos muito do uso da sintaxe de registro.</p>
-<h2>Parâmetros de tipo (Type parameters) {#type-parameters}</h2>
+<h2 id="type-parameters">Parâmetros de tipo (Type parameters)</h2>
 <p>Um construtor de valor pode receber alguns parâmetros de valores e
 produzir um novo valor. Por exemplo, o construtor <code>Car</code>
 recebe três valores e produz um valor de carro. De maneira semelhante,
@@ -264,10 +327,10 @@ demais no começo, mas não é tão complicado. Se você estiver
 familiarizado com templates em C++, verá alguns paralelos. Para obter
 uma imagem clara de como os parâmetros de tipo funcionam em ação, vamos
 dar uma olhada em como um tipo que já conhecemos é implementado.</p>
-<p><code>{.haskell:hs} data Maybe a = Nothing | Just a</code></p>
+<pre class="haskell:hs"><code>data Maybe a = Nothing | Just a</code></pre>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/yeti.png"
-alt="yeti" />{.left width=209 height=260}</p>
+class="left" width="209" height="260" alt="yeti" /></p>
 <p>O <code>a</code> aqui é o parâmetro de tipo. E como há um parâmetro
 de tipo envolvido, chamamos <code>Maybe</code> de construtor de tipos.
 Dependendo do que queremos que esse tipo de dados mantenha quando não
@@ -289,7 +352,18 @@ parâmetro para produzir um tipo concreto. Os valores podem ter um tipo
 <code>[[String]]</code>, mas você não pode ter um valor que apenas tenha
 um tipo de <code>[]</code>.</p>
 <p>Vamos brincar com o tipo <code>Maybe</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; Just "Haha" Just "Haha" ghci&gt; Just 84 Just 84 ghci&gt; :t Just "Haha" Just "Haha" :: Maybe [Char] ghci&gt; :t Just 84 Just 84 :: (Num t) =&gt; Maybe t ghci&gt; :t Nothing Nothing :: Maybe a ghci&gt; Just 10 :: Maybe Double Just 10.0</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Just &quot;Haha&quot;
+Just &quot;Haha&quot;
+ghci&gt; Just 84
+Just 84
+ghci&gt; :t Just &quot;Haha&quot;
+Just &quot;Haha&quot; :: Maybe [Char]
+ghci&gt; :t Just 84
+Just 84 :: (Num t) =&gt; Maybe t
+ghci&gt; :t Nothing
+Nothing :: Maybe a
+ghci&gt; Just 10 :: Maybe Double
+Just 10.0</code></pre>
 <p>Parâmetros de tipo são úteis porque podemos criar tipos diferentes
 com eles, dependendo do tipo de tipos que queremos contidos em nosso
 tipo de dados. Quando fazemos <code>:t Just "Haha"</code>, o mecanismo
@@ -313,29 +387,46 @@ funcionaria independentemente do tipo de valor que ele mantém dentro
 dele, como com nosso tipo <code>Maybe a</code>. Se o nosso tipo age como
 algum tipo de caixa, é bom usá-los. Poderíamos mudar nosso tipo de dados
 <code>Car</code> disso:</p>
-<p><code>{.haskell:hs} data Car = Car { company :: String                , model :: String                , year :: Int                } deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Car = Car { company :: String
+               , model :: String
+               , year :: Int
+               } deriving (Show)</code></pre>
 <p>Para isso:</p>
-<p><code>{.haskell:hs} data Car a b c = Car { company :: a                      , model :: b                      , year :: c                      } deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Car a b c = Car { company :: a
+                     , model :: b
+                     , year :: c
+                     } deriving (Show)</code></pre>
 <p>Mas nós realmente nos beneficiaríamos? A resposta é: provavelmente
 não, porque acabaríamos definindo funções que funcionam apenas no tipo
 <code>Car String String Int</code>. Por exemplo, dada nossa primeira
 definição de <code>Car</code>, poderíamos fazer uma função que exibe as
 propriedades do carro em um pequeno texto agradável.</p>
-<p><code>{.haskell:hs} tellCar :: Car -&gt; String tellCar (Car {company = c, model = m, year = y}) = "This " ++ c ++ " " ++ m ++ " was made in " ++ show y</code></p>
-<p><code>{.haskell:hs} ghci&gt; let stang = Car {company="Ford", model="Mustang", year=1967} ghci&gt; tellCar stang "This Ford Mustang was made in 1967"</code></p>
+<pre class="haskell:hs"><code>tellCar :: Car -&gt; String
+tellCar (Car {company = c, model = m, year = y}) = &quot;This &quot; ++ c ++ &quot; &quot; ++ m ++ &quot; was made in &quot; ++ show y</code></pre>
+<pre class="haskell:hs"><code>ghci&gt; let stang = Car {company=&quot;Ford&quot;, model=&quot;Mustang&quot;, year=1967}
+ghci&gt; tellCar stang
+&quot;This Ford Mustang was made in 1967&quot;</code></pre>
 <p>Uma pequena função fofa! A declaração de tipo é fofa e funciona muito
 bem. Agora, se <code>Car</code> fosse <code>Car a b c</code>?</p>
-<p><code>{.haskell:hs} tellCar :: (Show a) =&gt; Car String String a -&gt; String tellCar (Car {company = c, model = m, year = y}) = "This " ++ c ++ " " ++ m ++ " was made in " ++ show y</code></p>
+<pre class="haskell:hs"><code>tellCar :: (Show a) =&gt; Car String String a -&gt; String
+tellCar (Car {company = c, model = m, year = y}) = &quot;This &quot; ++ c ++ &quot; &quot; ++ m ++ &quot; was made in &quot; ++ show y</code></pre>
 <p>Teríamos que forçar essa função a pegar um tipo <code>Car</code> de
 <code>(Show a) =&gt; Car String String a</code>.</p>
 <p>Você pode ver que a assinatura do tipo é mais complicada e o único
 benefício que realmente obteríamos seria que podemos usar qualquer tipo
 que seja uma instância da typeclass <code>Show</code> como o tipo para
 <code>c</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; tellCar (Car "Ford" "Mustang" 1967) "This Ford Mustang was made in 1967" ghci&gt; tellCar (Car "Ford" "Mustang" "nineteen sixty seven") "This Ford Mustang was made in \"nineteen sixty seven\"" ghci&gt; :t Car "Ford" "Mustang" 1967 Car "Ford" "Mustang" 1967 :: (Num t) =&gt; Car [Char] [Char] t ghci&gt; :t Car "Ford" "Mustang" "nineteen sixty seven" Car "Ford" "Mustang" "nineteen sixty seven" :: Car [Char] [Char] [Char]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; tellCar (Car &quot;Ford&quot; &quot;Mustang&quot; 1967)
+&quot;This Ford Mustang was made in 1967&quot;
+ghci&gt; tellCar (Car &quot;Ford&quot; &quot;Mustang&quot; &quot;nineteen sixty seven&quot;)
+&quot;This Ford Mustang was made in \&quot;nineteen sixty seven\&quot;&quot;
+ghci&gt; :t Car &quot;Ford&quot; &quot;Mustang&quot; 1967
+Car &quot;Ford&quot; &quot;Mustang&quot; 1967 :: (Num t) =&gt; Car [Char] [Char] t
+ghci&gt; :t Car &quot;Ford&quot; &quot;Mustang&quot; &quot;nineteen sixty seven&quot;
+Car &quot;Ford&quot; &quot;Mustang&quot; &quot;nineteen sixty seven&quot; :: Car [Char] [Char] [Char]</code></pre>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/meekrat.png"
-alt="meekrat" />{.right width=150 height=267}</p>
+class="right" width="150" height="267" alt="meekrat" /></p>
 <p>Na vida real, porém, acabaríamos usando
 <code>Car String String Int</code> na maioria das vezes e, portanto,
 pareceria que parametrizar o tipo <code>Car</code> não vale realmente a
@@ -357,7 +448,7 @@ qualquer outro tipo, desde que o tipo da chave faça parte da typeclass
 <code>Ord</code>. Se estivéssemos definindo um tipo de mapeamento,
 poderíamos adicionar uma restrição de typeclass na declaração
 <em>data</em>:</p>
-<p><code>{.haskell:hs} data (Ord k) =&gt; Map k v = ...</code></p>
+<pre class="haskell:hs"><code>data (Ord k) =&gt; Map k v = ...</code></pre>
 <p>No entanto, é uma convenção muito forte em Haskell <strong>nunca
 adicionar restrições de typeclass nas declarações de dados.</strong> Por
 quê? Bem, porque não nos beneficiamos muito, mas acabamos escrevendo
@@ -381,14 +472,16 @@ colocá-las nas declarações de tipo de função de qualquer maneira.</p>
 <p>Vamos implementar um tipo de vetor 3D e adicionar algumas operações
 para ele. Usaremos um tipo parametrizado porque, embora geralmente
 contenha tipos numéricos, ele ainda suportará vários deles.</p>
-<p>```{.haskell:hs} data Vector a = Vector a a a deriving (Show)</p>
-<p>vplus :: (Num t) =&gt; Vector t -&gt; Vector t -&gt; Vector t (Vector
-i j k) <code>vplus</code> (Vector l m n) = Vector (i+l) (j+m) (k+n)</p>
-<p>vectMult :: (Num t) =&gt; Vector t -&gt; t -&gt; Vector t (Vector i j
-k) <code>vectMult</code> m = Vector (i<em>m) (j</em>m) (k*m)</p>
-<p>scalarMult :: (Num t) =&gt; Vector t -&gt; Vector t -&gt; t (Vector i
-j k) <code>scalarMult</code> (Vector l m n) = i<em>l + j</em>m + k*n
-```</p>
+<pre class="haskell:hs"><code>data Vector a = Vector a a a deriving (Show)
+
+vplus :: (Num t) =&gt; Vector t -&gt; Vector t -&gt; Vector t
+(Vector i j k) `vplus` (Vector l m n) = Vector (i+l) (j+m) (k+n)
+
+vectMult :: (Num t) =&gt; Vector t -&gt; t -&gt; Vector t
+(Vector i j k) `vectMult` m = Vector (i*m) (j*m) (k*m)
+
+scalarMult :: (Num t) =&gt; Vector t -&gt; Vector t -&gt; t
+(Vector i j k) `scalarMult` (Vector l m n) = i*l + j*m + k*n</code></pre>
 <p><code>vplus</code> é para adicionar dois vetores juntos. Dois vetores
 são adicionados apenas adicionando seus componentes correspondentes.
 <code>scalarMult</code> é para o produto escalar de dois vetores e
@@ -411,10 +504,19 @@ valor. Dar a uma função um tipo de
 porque temos que colocar tipos na declaração de tipo e o construtor de
 <strong>tipo</strong> vetorial leva apenas um parâmetro, enquanto o
 construtor de valor leva três. Vamos brincar com nossos vetores.</p>
-<p><code>{.haskell:hs} ghci&gt; Vector 3 5 8 `vplus` Vector 9 2 8 Vector 12 7 16 ghci&gt; Vector 3 5 8 `vplus` Vector 9 2 8 `vplus` Vector 0 2 3 Vector 12 9 19 ghci&gt; Vector 3 9 7 `vectMult` 10 Vector 30 90 70 ghci&gt; Vector 4 9 5 `scalarMult` Vector 9.0 2.0 4.0 74.0 ghci&gt; Vector 2 9 3 `vectMult` (Vector 4 9 5 `scalarMult` Vector 9 2 4) Vector 148 666 222</code></p>
-<h2>Instâncias derivadas (Derived instances) {#derived-instances}</h2>
+<pre class="haskell:hs"><code>ghci&gt; Vector 3 5 8 `vplus` Vector 9 2 8
+Vector 12 7 16
+ghci&gt; Vector 3 5 8 `vplus` Vector 9 2 8 `vplus` Vector 0 2 3
+Vector 12 9 19
+ghci&gt; Vector 3 9 7 `vectMult` 10
+Vector 30 90 70
+ghci&gt; Vector 4 9 5 `scalarMult` Vector 9.0 2.0 4.0
+74.0
+ghci&gt; Vector 2 9 3 `vectMult` (Vector 4 9 5 `scalarMult` Vector 9 2 4)
+Vector 148 666 222</code></pre>
+<h2 id="derived-instances">Instâncias derivadas (Derived instances)</h2>
 <p><img src="assets/images/making-our-own-types-and-typeclasses/gob.png"
-alt="gob" />{.right width=112 height=350}</p>
+class="right" width="112" height="350" alt="gob" /></p>
 <p>Na seção <a
 href="types-and-typeclasses.html#typeclasses-101">Typeclasses 101</a>,
 explicamos o básico das typeclasses. Explicamos que uma typeclass é uma
@@ -449,14 +551,20 @@ typeclasses: <code>Eq</code>, <code>Ord</code>, <code>Enum</code>,
 derivar o comportamento de nossos tipos nesses contextos se usarmos a
 palavra-chave <em>deriving</em> ao criar nosso tipo de dados.</p>
 <p>Considere este tipo de dados:</p>
-<p><code>{.haskell:hs} data Person = Person { firstName :: String                      , lastName :: String                      , age :: Int                      }</code></p>
+<pre class="haskell:hs"><code>data Person = Person { firstName :: String
+                     , lastName :: String
+                     , age :: Int
+                     }</code></pre>
 <p>Descreve uma pessoa. Vamos supor que duas pessoas não tenham a mesma
 combinação de nome, sobrenome e idade. Agora, se tivermos registros para
 duas pessoas, faz sentido ver se elas representam a mesma pessoa? Claro
 que sim. Podemos tentar compará-las e ver se são iguais ou não. É por
 isso que faria sentido para esse tipo fazer parte da typeclass
 <code>Eq</code>. Vamos derivar a instância.</p>
-<p><code>{.haskell:hs} data Person = Person { firstName :: String                      , lastName :: String                      , age :: Int                      } deriving (Eq)</code></p>
+<pre class="haskell:hs"><code>data Person = Person { firstName :: String
+                     , lastName :: String
+                     , age :: Int
+                     } deriving (Eq)</code></pre>
 <p>Quando derivamos a instância <code>Eq</code> para um tipo e depois
 tentamos comparar dois valores desse tipo com <code>==</code> ou
 <code>/=</code>, o Haskell verá se os construtores de valor correspondem
@@ -466,12 +574,24 @@ dados contidos no interior correspondem testando cada par de campos com
 campos também devem fazer parte da typeclass <code>Eq</code>. Mas como
 <code>String</code> e <code>Int</code> são, estamos bem. Vamos testar
 nossa instância de <code>Eq</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; let mikeD = Person {firstName = "Michael", lastName = "Diamond", age = 43} ghci&gt; let adRock = Person {firstName = "Adam", lastName = "Horovitz", age = 41} ghci&gt; let mca = Person {firstName = "Adam", lastName = "Yauch", age = 44} ghci&gt; mca == adRock False ghci&gt; mikeD == adRock False ghci&gt; mikeD == mikeD True ghci&gt; mikeD == Person {firstName = "Michael", lastName = "Diamond", age = 43} True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let mikeD = Person {firstName = &quot;Michael&quot;, lastName = &quot;Diamond&quot;, age = 43}
+ghci&gt; let adRock = Person {firstName = &quot;Adam&quot;, lastName = &quot;Horovitz&quot;, age = 41}
+ghci&gt; let mca = Person {firstName = &quot;Adam&quot;, lastName = &quot;Yauch&quot;, age = 44}
+ghci&gt; mca == adRock
+False
+ghci&gt; mikeD == adRock
+False
+ghci&gt; mikeD == mikeD
+True
+ghci&gt; mikeD == Person {firstName = &quot;Michael&quot;, lastName = &quot;Diamond&quot;, age = 43}
+True</code></pre>
 <p>Obviamente, como <code>Person</code> está agora em <code>Eq</code>,
 podemos usá-lo como o <code>a</code> para todas as funções que possuem
 uma restrição de classe de <code>Eq a</code> em sua assinatura de tipo,
 como <code>elem</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; let beastieBoys = [mca, adRock, mikeD] ghci&gt; mikeD `elem` beastieBoys True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let beastieBoys = [mca, adRock, mikeD]
+ghci&gt; mikeD `elem` beastieBoys
+True</code></pre>
 <p>As typeclasses <code>Show</code> e <code>Read</code> são para coisas
 que podem ser convertidas para ou de strings, respectivamente. Como com
 <code>Eq</code>, se os construtores de um tipo tiverem campos, seu tipo
@@ -479,9 +599,16 @@ deve ser parte de <code>Show</code> ou <code>Read</code> se queremos
 tornar nosso tipo uma instância deles. Vamos fazer do nosso tipo de
 dados <code>Person</code> uma parte de <code>Show</code> e
 <code>Read</code> também.</p>
-<p><code>{.haskell:hs} data Person = Person { firstName :: String                      , lastName :: String                      , age :: Int                      } deriving (Eq, Show, Read)</code></p>
+<pre class="haskell:hs"><code>data Person = Person { firstName :: String
+                     , lastName :: String
+                     , age :: Int
+                     } deriving (Eq, Show, Read)</code></pre>
 <p>Agora podemos imprimir uma pessoa no terminal.</p>
-<p><code>{.haskell:hs} ghci&gt; let mikeD = Person {firstName = "Michael", lastName = "Diamond", age = 43} ghci&gt; mikeD Person {firstName = "Michael", lastName = "Diamond", age = 43} ghci&gt; "mikeD is: " ++ show mikeD "mikeD is: Person {firstName = \"Michael\", lastName = \"Diamond\", age = 43}"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let mikeD = Person {firstName = &quot;Michael&quot;, lastName = &quot;Diamond&quot;, age = 43}
+ghci&gt; mikeD
+Person {firstName = &quot;Michael&quot;, lastName = &quot;Diamond&quot;, age = 43}
+ghci&gt; &quot;mikeD is: &quot; ++ show mikeD
+&quot;mikeD is: Person {firstName = \&quot;Michael\&quot;, lastName = \&quot;Diamond\&quot;, age = 43}&quot;</code></pre>
 <p>Se tentássemos imprimir uma pessoa no terminal antes de tornar o tipo
 de dados <code>Person</code> da typeclass <code>Show</code>, Haskell
 teria reclamado conosco, alegando que não sabe como representar uma
@@ -495,11 +622,13 @@ precisamos usar uma anotação de tipo explícita para dizer ao Haskell
 qual tipo queremos obter como resultado. Se não tornarmos o tipo que
 queremos como resultado explícito, Haskell não sabe qual tipo
 queremos.</p>
-<p><code>{.haskell:hs} ghci&gt; read "Person {firstName =\"Michael\", lastName =\"Diamond\", age = 43}" :: Person Person {firstName = "Michael", lastName = "Diamond", age = 43}</code></p>
+<pre class="haskell:hs"><code>ghci&gt; read &quot;Person {firstName =\&quot;Michael\&quot;, lastName =\&quot;Diamond\&quot;, age = 43}&quot; :: Person
+Person {firstName = &quot;Michael&quot;, lastName = &quot;Diamond&quot;, age = 43}</code></pre>
 <p>Se usarmos o resultado de nossa leitura <code>read</code> mais tarde,
 de uma maneira que Haskell possa inferir que ele deve lê-lo como uma
 pessoa, não precisamos usar a anotação do tipo.</p>
-<p><code>{.haskell:hs} ghci&gt; read "Person {firstName =\"Michael\", lastName =\"Diamond\", age = 43}" == mikeD True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; read &quot;Person {firstName =\&quot;Michael\&quot;, lastName =\&quot;Diamond\&quot;, age = 43}&quot; == mikeD
+True</code></pre>
 <p>Também podemos ler tipos parametrizados, mas temos que preencher os
 parâmetros do tipo. Portanto, não podemos fazer
 <code>read "Just 't'" :: Maybe a</code>, mas podemos fazer
@@ -512,19 +641,31 @@ considerado menor. Por exemplo, considere o tipo <code>Bool</code>, que
 pode ter um valor de <code>False</code> ou <code>True</code>. Com o
 objetivo de ver como ele se comporta quando comparado, podemos pensar
 nele como sendo implementado assim:</p>
-<p><code>{.haskell:hs} data Bool = False | True deriving (Ord)</code></p>
+<pre class="haskell:hs"><code>data Bool = False | True deriving (Ord)</code></pre>
 <p>Como o construtor de valor <code>False</code> é especificado primeiro
 e o construtor de valor <code>True</code> é especificado depois dele,
 podemos considerar <code>True</code> como maior que
 <code>False</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; True `compare` False GT ghci&gt; True &gt; False True ghci&gt; True &lt; False False</code></p>
+<pre class="haskell:hs"><code>ghci&gt; True `compare` False
+GT
+ghci&gt; True &gt; False
+True
+ghci&gt; True &lt; False
+False</code></pre>
 <p>No tipo de dados <code>Maybe a</code>, o construtor de valor
 <code>Nothing</code> é especificado antes do construtor de valor
 <code>Just</code>, portanto, um valor de <code>Nothing</code> é sempre
 menor que um valor de <code>Just something</code>, mesmo que esse algo
 seja menos um bilhão de trilhões. Mas se compararmos dois valores
 <code>Just</code>, então ele compara o que está dentro deles.</p>
-<p><code>{.haskell:hs} ghci&gt; Nothing &lt; Just 100 True ghci&gt; Nothing &gt; Just (-49999) False ghci&gt; Just 3 `compare` Just 2 GT ghci&gt; Just 100 &gt; Just 50 True</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Nothing &lt; Just 100
+True
+ghci&gt; Nothing &gt; Just (-49999)
+False
+ghci&gt; Just 3 `compare` Just 2
+GT
+ghci&gt; Just 100 &gt; Just 50
+True</code></pre>
 <p>Mas não podemos fazer algo como
 <code>Just (*3) &gt; Just (*2)</code>, porque <code>(*3)</code> e
 <code>(*2)</code> são funções, que não são instâncias de
@@ -532,7 +673,7 @@ seja menos um bilhão de trilhões. Mas se compararmos dois valores
 <p>Podemos usar facilmente tipos de dados algébricos para fazer
 enumerações e as typeclasses <code>Enum</code> e <code>Bounded</code>
 nos ajudam com isso. Considere o seguinte tipo de dados:</p>
-<p><code>{.haskell:hs} data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday</code></p>
+<pre class="haskell:hs"><code>data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday</code></pre>
 <p>Como todos os construtores de valor são nullary (não aceitam
 parâmetros, ou seja, campos), podemos torná-lo parte da typeclass
 <code>Enum</code>. A typeclass <code>Enum</code> é para coisas que têm
@@ -541,22 +682,45 @@ predecessores e sucessores. Também podemos torná-lo parte da typeclass
 o valor mais alto possível. E enquanto estamos nisso, vamos torná-lo
 também uma instância de todos as outras typeclasses deriváveis e ver o
 que podemos fazer com isso.</p>
-<p><code>{.haskell:hs} data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday            deriving (Eq, Ord, Show, Read, Bounded, Enum)</code></p>
+<pre class="haskell:hs"><code>data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
+           deriving (Eq, Ord, Show, Read, Bounded, Enum)</code></pre>
 <p>Como faz parte das typeclasses <code>Show</code> e <code>Read</code>,
 podemos converter valores desse tipo para e de strings.</p>
-<p><code>{.haskell:hs} ghci&gt; Wednesday Wednesday ghci&gt; show Wednesday "Wednesday" ghci&gt; read "Saturday" :: Day Saturday</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Wednesday
+Wednesday
+ghci&gt; show Wednesday
+&quot;Wednesday&quot;
+ghci&gt; read &quot;Saturday&quot; :: Day
+Saturday</code></pre>
 <p>Como faz parte das typeclasses <code>Eq</code> e <code>Ord</code>,
 podemos comparar ou igualar dias.</p>
-<p><code>{.haskell:hs} ghci&gt; Saturday == Sunday False ghci&gt; Saturday == Saturday True ghci&gt; Saturday &gt; Friday True ghci&gt; Monday `compare` Wednesday LT</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Saturday == Sunday
+False
+ghci&gt; Saturday == Saturday
+True
+ghci&gt; Saturday &gt; Friday
+True
+ghci&gt; Monday `compare` Wednesday
+LT</code></pre>
 <p>Também faz parte de <code>Bounded</code>, para que possamos obter o
 dia mais baixo e o mais alto.</p>
-<p><code>{.haskell:hs} ghci&gt; minBound :: Day Monday ghci&gt; maxBound :: Day Sunday</code></p>
+<pre class="haskell:hs"><code>ghci&gt; minBound :: Day
+Monday
+ghci&gt; maxBound :: Day
+Sunday</code></pre>
 <p>Também é uma instância de <code>Enum</code>. Podemos obter
 predecessores e sucessores de dias e podemos fazer faixas de lista a
 partir deles!</p>
-<p><code>{.haskell:hs} ghci&gt; succ Monday Tuesday ghci&gt; pred Saturday Friday ghci&gt; [Thursday .. Sunday] [Thursday,Friday,Saturday,Sunday] ghci&gt; [minBound .. maxBound] :: [Day] [Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; succ Monday
+Tuesday
+ghci&gt; pred Saturday
+Friday
+ghci&gt; [Thursday .. Sunday]
+[Thursday,Friday,Saturday,Sunday]
+ghci&gt; [minBound .. maxBound] :: [Day]
+[Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday]</code></pre>
 <p>Isso é incrível.</p>
-<h2>Sinônimos de tipo (Type synonyms) {#type-synonyms}</h2>
+<h2 id="type-synonyms">Sinônimos de tipo (Type synonyms)</h2>
 <p>Anteriormente, mencionamos que, ao escrever tipos, os tipos
 <code>[Char]</code> e <code>String</code> são equivalentes e
 intercambiáveis. Isso é implementado com <strong>sinônimos de
@@ -565,10 +729,10 @@ apenas para dar a alguns tipos nomes diferentes, para que façam mais
 sentido para alguém lendo nosso código e documentação. Veja como a
 biblioteca padrão define <code>String</code> como sinônimo de
 <code>[Char]</code>.</p>
-<p><code>{.haskell:hs} type String = [Char]</code></p>
+<pre class="haskell:hs"><code>type String = [Char]</code></pre>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/chicken.png"
-alt="chicken" />{.left width=169 height=225}</p>
+class="left" width="169" height="225" alt="chicken" /></p>
 <p>Introduzimos a palavra-chave <em>type</em>. A palavra-chave pode ser
 enganosa para alguns, porque não estamos realmente criando nada novo
 (fizemos isso com a palavra-chave <em>data</em>), mas estamos apenas
@@ -584,17 +748,27 @@ representamos uma lista telefônica com uma lista de associação antes de
 convertê-la em um mapa. Como já descobrimos, uma lista de associação é
 uma lista de pares de valores-chave. Vamos ver uma lista telefônica que
 tínhamos.</p>
-<p><code>{.haskell:hs} phoneBook :: [(String,String)] phoneBook =     [("amelia","555-2938")     ,("freya","452-2928")     ,("isabella","493-2928")     ,("neil","205-2928")     ,("roald","939-8282")     ,("tenzing","853-2492")     ]</code></p>
+<pre class="haskell:hs"><code>phoneBook :: [(String,String)]
+phoneBook =
+    [(&quot;amelia&quot;,&quot;555-2938&quot;)
+    ,(&quot;freya&quot;,&quot;452-2928&quot;)
+    ,(&quot;isabella&quot;,&quot;493-2928&quot;)
+    ,(&quot;neil&quot;,&quot;205-2928&quot;)
+    ,(&quot;roald&quot;,&quot;939-8282&quot;)
+    ,(&quot;tenzing&quot;,&quot;853-2492&quot;)
+    ]</code></pre>
 <p>Vemos que o tipo de <code>phoneBook</code> é
 <code>[(String,String)]</code>. Isso nos diz que é uma lista de
 associação que mapeia de strings para strings, mas não muito mais. Vamos
 criar um sinônimo de tipo para transmitir mais informações na declaração
 de tipo.</p>
-<p><code>{.haskell:hs} type PhoneBook = [(String,String)]</code></p>
+<pre class="haskell:hs"><code>type PhoneBook = [(String,String)]</code></pre>
 <p>Agora, a declaração de tipo para nossa lista telefônica pode ser
 <code>phoneBook :: PhoneBook</code>. Vamos criar um sinônimo de tipo
 para <code>String</code> também.</p>
-<p><code>{.haskell:hs} type PhoneNumber = String type Name = String type PhoneBook = [(Name,PhoneNumber)]</code></p>
+<pre class="haskell:hs"><code>type PhoneNumber = String
+type Name = String
+type PhoneBook = [(Name,PhoneNumber)]</code></pre>
 <p>Dar sinônimos de tipo para <code>String</code> é algo que os
 programadores de Haskell fazem quando querem transmitir mais informações
 sobre o que as strings em suas funções devem ser usadas e o que elas
@@ -603,7 +777,8 @@ representam.</p>
 número e vê se essa combinação de nome e número está em nossa lista
 telefônica, podemos dar uma declaração de tipo muito bonita e
 descritiva.</p>
-<p><code>{.haskell:hs} inPhoneBook :: Name -&gt; PhoneNumber -&gt; PhoneBook -&gt; Bool inPhoneBook name pnumber pbook = (name,pnumber) `elem` pbook</code></p>
+<pre class="haskell:hs"><code>inPhoneBook :: Name -&gt; PhoneNumber -&gt; PhoneBook -&gt; Bool
+inPhoneBook name pnumber pbook = (name,pnumber) `elem` pbook</code></pre>
 <p>Se decidíssemos não usar sinônimos de tipo, nossa função teria um
 tipo de
 <code>String -&gt; String -&gt; [(String,String)] -&gt; Bool</code>.
@@ -618,15 +793,16 @@ algo mais específico no contexto de nossas funções.</p>
 tipo que represente um tipo de lista de associação, mas ainda queremos
 que seja geral para que possa usar qualquer tipo como chaves e valores,
 podemos fazer isso:</p>
-<p><code>{.haskell:hs} type AssocList k v = [(k,v)]</code></p>
+<pre class="haskell:hs"><code>type AssocList k v = [(k,v)]</code></pre>
 <p>Agora, uma função que obtém o valor por uma chave em uma lista de
 associação pode ter um tipo de
 <code>(Eq k) =&gt; k -&gt; AssocList k v -&gt; Maybe v</code>.
 <code>AssocList</code> é um construtor de tipos que recebe dois tipos e
 produz um tipo concreto, como <code>AssocList Int String</code>, por
 exemplo.</p>
-<p>::: {.hintbox} <strong>Fonzie diz:</strong> Aaay! Quando falo em
-<em>tipos concretos</em>, quero dizer tipos totalmente aplicados, como
+<div class="hintbox">
+<p><strong>Fonzie diz:</strong> Aaay! Quando falo em <em>tipos
+concretos</em>, quero dizer tipos totalmente aplicados, como
 <code>Map Int String</code> ou se estamos lidando com uma delas funções
 polimórficas, <code>[a]</code> ou <code>(Ord a) =&gt; Maybe a</code> e
 outras coisas. E tipo, às vezes eu e meus amigos dizemos que
@@ -635,7 +811,8 @@ idiota sabe que <code>Maybe</code> é um construtor de tipos. Quando
 aplico um tipo extra a <code>Maybe</code>, como
 <code>Maybe String</code>, tenho um tipo concreto. Você sabe, valores só
 podem ter tipos que são tipos concretos! Portanto, em conclusão, viva
-rápido, ame intensamente e não deixe ninguém usar seu pente! :::</p>
+rápido, ame intensamente e não deixe ninguém usar seu pente!</p>
+</div>
 <p>Assim como podemos aplicar parcialmente funções para obter novas
 funções, podemos aplicar parcialmente parâmetros de tipo e obter novos
 construtores de tipos a partir deles.</p>
@@ -644,16 +821,18 @@ nova função, podemos especificar um construtor de tipos com poucos
 parâmetros de tipo e obter um construtor de tipos parcialmente aplicado.
 Se quiséssemos um tipo que representasse um mapa (de
 <code>Data.Map</code>) de inteiros para algo, poderíamos fazer isso:</p>
-<p><code>{.haskell:hs} type IntMap v = Map Int v</code></p>
+<pre class="haskell:hs"><code>type IntMap v = Map Int v</code></pre>
 <p>Ou poderíamos fazer assim:</p>
-<p><code>{.haskell:hs} type IntMap = Map Int</code></p>
+<pre class="haskell:hs"><code>type IntMap = Map Int</code></pre>
 <p>De qualquer maneira, o construtor de tipos <code>IntMap</code> recebe
 um parâmetro e esse é o tipo do que os inteiros apontarão.</p>
-<p>::: {.hintbox} <strong>Ah sim</strong>. Se você tentar implementar
-isso, provavelmente precisará fazer uma importação qualificada de
+<div class="hintbox">
+<p><strong>Ah sim</strong>. Se você tentar implementar isso,
+provavelmente precisará fazer uma importação qualificada de
 <code>Data.Map</code>. Quando você faz uma importação qualificada, os
 construtores de tipos também devem ser precedidos por um nome de módulo.
-Então você escreveria <code>type IntMap = Map.Map Int</code>. :::</p>
+Então você escreveria <code>type IntMap = Map.Map Int</code>.</p>
+</div>
 <p>Certifique-se de realmente entender a distinção entre construtores de
 tipos e construtores de valor. Só porque criamos um sinônimo de tipo
 chamado <code>IntMap</code> ou <code>AssocList</code> não significa que
@@ -672,7 +851,7 @@ anotações de tipo.</p>
 <p>Outro tipo de dados muito legal que leva dois tipos como parâmetros é
 o tipo <code>Either a b</code>. É mais ou menos assim que ele é
 definido:</p>
-<p><code>{.haskell:hs} data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show)</code></p>
+<pre class="haskell:hs"><code>data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show)</code></pre>
 <p>Tem dois construtores de valor. Se o <code>Left</code> for usado, seu
 conteúdo será do tipo <code>a</code> e se o <code>Right</code> for
 usado, seu conteúdo será do tipo <code>b</code>. Portanto, podemos usar
@@ -680,7 +859,14 @@ esse tipo para encapsular um valor de um tipo ou outro e, quando obtemos
 um valor do tipo <code>Either a b</code>, geralmente fazemos pattern
 matching em <code>Left</code> e <code>Right</code> e fazemos coisas
 diferentes com base em qual deles era.</p>
-<p><code>{.haskell:hs} ghci&gt; Right 20 Right 20 ghci&gt; Left "w00t" Left "w00t" ghci&gt; :t Right 'a' Right 'a' :: Either a Char ghci&gt; :t Left True Left True :: Either Bool b</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Right 20
+Right 20
+ghci&gt; Left &quot;w00t&quot;
+Left &quot;w00t&quot;
+ghci&gt; :t Right &#39;a&#39;
+Right &#39;a&#39; :: Either a Char
+ghci&gt; :t Left True
+Left True :: Either Bool b</code></pre>
 <p>Até agora, vimos que <code>Maybe a</code> era usado principalmente
 para representar os resultados de cálculos que poderiam ter falhado ou
 não. Mas às vezes, <code>Maybe a</code> não é bom o suficiente porque
@@ -696,7 +882,7 @@ pode nos dizer algo sobre a possível falha e <code>b</code> é o tipo de
 um cálculo bem-sucedido. Portanto, os erros usam o construtor de valor
 <code>Left</code>, enquanto os resultados usam <code>Right</code>.</p>
 <p>Um exemplo: uma escola secundária tem armários para que os alunos
-tenham algum lugar para colocar seus pôsteres do Guns'n'Roses. Cada
+tenham algum lugar para colocar seus pôsteres do Guns’n’Roses. Cada
 armário tem uma combinação de código. Quando um aluno deseja um novo
 armário, ele diz ao supervisor do armário qual número de armário deseja
 e ele lhes dá o código. No entanto, se alguém já estiver usando esse
@@ -704,10 +890,13 @@ armário, ele não poderá dizer o código do armário e eles terão que
 escolher um diferente. Usaremos um mapa de <code>Data.Map</code> para
 representar os armários. Ele mapeará dos números de armários para um par
 de se o armário está em uso ou não e o código do armário.</p>
-<p>```{.haskell:hs} import qualified Data.Map as Map</p>
-<p>data LockerState = Taken | Free deriving (Show, Eq)</p>
-<p>type Code = String</p>
-<p>type LockerMap = Map.Map Int (LockerState, Code) ```</p>
+<pre class="haskell:hs"><code>import qualified Data.Map as Map
+
+data LockerState = Taken | Free deriving (Show, Eq)
+
+type Code = String
+
+type LockerMap = Map.Map Int (LockerState, Code)</code></pre>
 <p>Coisas simples. Introduzimos um novo tipo de dados para representar
 se um armário é tomado ou gratuito e fazemos um sinônimo de tipo para o
 código do armário. Também criamos um sinônimo de tipo para o tipo que
@@ -715,11 +904,17 @@ mapeia de números inteiros para pares de estado e código de armário. E
 agora, vamos criar uma função que procure o código em um mapa de
 armário. Vamos usar um tipo <code>Either String Code</code> para
 representar nosso resultado, porque nossa pesquisa pode falhar de duas
-maneiras --- o armário pode ser tomado, caso em que não podemos contar o
+maneiras — o armário pode ser tomado, caso em que não podemos contar o
 código ou o número do armário pode não existir.</p>
 <p>Se a pesquisa falhar, vamos usar uma <code>String</code> para contar
 o que aconteceu.</p>
-<p><code>{.haskell:hs} lockerLookup :: Int -&gt; LockerMap -&gt; Either String Code lockerLookup lockerNumber map =     case Map.lookup lockerNumber map of         Nothing -&gt; Left $ "Locker number " ++ show lockerNumber ++ " doesn't exist!"         Just (state, code) -&gt; if state /= Taken                                 then Right code                                 else Left $ "Locker " ++ show lockerNumber ++ " is already taken!"</code></p>
+<pre class="haskell:hs"><code>lockerLookup :: Int -&gt; LockerMap -&gt; Either String Code
+lockerLookup lockerNumber map =
+    case Map.lookup lockerNumber map of
+        Nothing -&gt; Left $ &quot;Locker number &quot; ++ show lockerNumber ++ &quot; doesn&#39;t exist!&quot;
+        Just (state, code) -&gt; if state /= Taken
+                                then Right code
+                                else Left $ &quot;Locker &quot; ++ show lockerNumber ++ &quot; is already taken!&quot;</code></pre>
 <p>Fazemos uma pesquisa normal no mapa. Se recebermos um
 <code>Nothing</code>, retornaremos um valor do tipo
 <code>Left String</code>, dizendo que o armário não existe. Se o
@@ -730,17 +925,34 @@ qual damos ao aluno o código correto para o armário. Na verdade, é um
 <code>Right String</code>, mas introduzimos esse sinônimo de tipo para
 introduzir alguma documentação adicional na declaração do tipo. Aqui
 está um mapa de exemplo:</p>
-<p><code>{.haskell:hs} lockers :: LockerMap lockers = Map.fromList     [(100,(Taken,"ZD39I"))     ,(101,(Free,"JAH3I"))     ,(103,(Free,"IQSA9"))     ,(105,(Free,"QOTSA"))     ,(109,(Taken,"893JJ"))     ,(110,(Taken,"99292"))     ]</code></p>
+<pre class="haskell:hs"><code>lockers :: LockerMap
+lockers = Map.fromList
+    [(100,(Taken,&quot;ZD39I&quot;))
+    ,(101,(Free,&quot;JAH3I&quot;))
+    ,(103,(Free,&quot;IQSA9&quot;))
+    ,(105,(Free,&quot;QOTSA&quot;))
+    ,(109,(Taken,&quot;893JJ&quot;))
+    ,(110,(Taken,&quot;99292&quot;))
+    ]</code></pre>
 <p>Agora vamos tentar procurar alguns códigos de armário.</p>
-<p><code>{.haskell:hs} ghci&gt; lockerLookup 101 lockers Right "JAH3I" ghci&gt; lockerLookup 100 lockers Left "Locker 100 is already taken!" ghci&gt; lockerLookup 102 lockers Left "Locker number 102 doesn't exist!" ghci&gt; lockerLookup 110 lockers Left "Locker 110 is already taken!" ghci&gt; lockerLookup 105 lockers Right "QOTSA"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; lockerLookup 101 lockers
+Right &quot;JAH3I&quot;
+ghci&gt; lockerLookup 100 lockers
+Left &quot;Locker 100 is already taken!&quot;
+ghci&gt; lockerLookup 102 lockers
+Left &quot;Locker number 102 doesn&#39;t exist!&quot;
+ghci&gt; lockerLookup 110 lockers
+Left &quot;Locker 110 is already taken!&quot;
+ghci&gt; lockerLookup 105 lockers
+Right &quot;QOTSA&quot;</code></pre>
 <p>Poderíamos ter usado um <code>Maybe a</code> para representar o
 resultado, mas não saberíamos por que não conseguimos o código. Mas
 agora temos informações sobre a falha no nosso tipo de resultado.</p>
-<h2>Estruturas de dados recursivas (Recursive data structures)
-{#recursive-data-structures}</h2>
+<h2 id="recursive-data-structures">Estruturas de dados recursivas
+(Recursive data structures)</h2>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/thefonz.png"
-alt="the fonz" />{.right width=168 height=301}</p>
+class="right" width="168" height="301" alt="the fonz" /></p>
 <p>Como vimos, um construtor em um tipo de dado algébrico pode ter
 vários campos (ou nenhum) e cada campo deve ser de algum tipo concreto.
 Com isso em mente, podemos criar tipos cujos construtores têm campos do
@@ -762,19 +974,26 @@ um elemento unido a um <code>:</code> com outra lista (que pode ser a
 lista vazia ou não).</p>
 <p>Vamos usar tipos de dados algébricos para implementar nossa própria
 lista então!</p>
-<p><code>{.haskell:hs} data List a = Empty | Cons a (List a) deriving (Show, Read, Eq, Ord)</code></p>
+<pre class="haskell:hs"><code>data List a = Empty | Cons a (List a) deriving (Show, Read, Eq, Ord)</code></pre>
 <p>Isso soa exatamente como a nossa definição de listas de um dos
 parágrafos anteriores. É uma lista vazia ou uma combinação de uma cabeça
 com algum valor e uma lista. Se você está confuso sobre isso, pode achar
 mais fácil entender na sintaxe de registro.</p>
-<p><code>{.haskell:hs} data List a = Empty | Cons { listHead :: a, listTail :: List a} deriving (Show, Read, Eq, Ord)</code></p>
+<pre class="haskell:hs"><code>data List a = Empty | Cons { listHead :: a, listTail :: List a} deriving (Show, Read, Eq, Ord)</code></pre>
 <p>Você também pode estar confuso sobre o construtor <code>Cons</code>
 aqui. <em>cons</em> é outra palavra para <code>:</code>. Você vê, em
 listas, <code>:</code> é na verdade um construtor que assume um valor e
 outra lista e retorna uma lista. Já podemos usar nosso novo tipo de
 lista! Em outras palavras, possui dois campos. Um campo é do tipo de
 <code>a</code> e o outro é do tipo <code>[a]</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; Empty Empty ghci&gt; 5 `Cons` Empty Cons 5 Empty ghci&gt; 4 `Cons` (5 `Cons` Empty) Cons 4 (Cons 5 Empty) ghci&gt; 3 `Cons` (4 `Cons` (5 `Cons` Empty)) Cons 3 (Cons 4 (Cons 5 Empty))</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Empty
+Empty
+ghci&gt; 5 `Cons` Empty
+Cons 5 Empty
+ghci&gt; 4 `Cons` (5 `Cons` Empty)
+Cons 4 (Cons 5 Empty)
+ghci&gt; 3 `Cons` (4 `Cons` (5 `Cons` Empty))
+Cons 3 (Cons 4 (Cons 5 Empty))</code></pre>
 <p>Chamamos nosso construtor <code>Cons</code> de maneira infixa para
 que você possa ver como é exatamente como <code>:</code>.
 <code>Empty</code> é como <code>[]</code> e
@@ -783,7 +1002,8 @@ que você possa ver como é exatamente como <code>:</code>.
 com que consistam apenas em caracteres especiais. Também podemos fazer o
 mesmo com construtores, pois são apenas funções que retornam um tipo de
 dados. Então confira isso.</p>
-<p><code>{.haskell:hs} infixr 5 :-: data List a = Empty | a :-: (List a) deriving (Show, Read, Eq, Ord)</code></p>
+<pre class="haskell:hs"><code>infixr 5 :-:
+data List a = Empty | a :-: (List a) deriving (Show, Read, Eq, Ord)</code></pre>
 <p>Primeiro de tudo, notamos uma nova construção sintática, as
 declarações de fixidade. Quando definimos funções como operadores,
 podemos usar isso para dar a elas uma fixidade (mas não precisamos). Uma
@@ -798,19 +1018,32 @@ fixidade maior, então <code>5 * 4 + 3</code> é
 <p>Caso contrário, acabamos de escrever <code>a :-: (List a)</code> em
 vez de <code>Cons a (List a)</code>. Agora, podemos escrever listas em
 nosso tipo de lista assim:</p>
-<p><code>{.haskell:hs} ghci&gt; 3 :-: 4 :-: 5 :-: Empty (:-:) 3 ((:-:) 4 ((:-:) 5 Empty)) ghci&gt; let a = 3 :-: 4 :-: 5 :-: Empty ghci&gt; 100 :-: a (:-:) 100 ((:-:) 3 ((:-:) 4 ((:-:) 5 Empty)))</code></p>
+<pre class="haskell:hs"><code>ghci&gt; 3 :-: 4 :-: 5 :-: Empty
+(:-:) 3 ((:-:) 4 ((:-:) 5 Empty))
+ghci&gt; let a = 3 :-: 4 :-: 5 :-: Empty
+ghci&gt; 100 :-: a
+(:-:) 100 ((:-:) 3 ((:-:) 4 ((:-:) 5 Empty)))</code></pre>
 <p>Ao derivar <code>Show</code> para o nosso tipo, o Haskell ainda o
 exibirá como se o construtor fosse uma função de prefixo, daí os
 parênteses ao redor do operador (lembre-se, <code>4 + 3</code> é
 <code>(+) 4 3</code>).</p>
 <p>Vamos fazer uma função que adicione duas de nossas listas juntas. É
 assim que <code>++</code> é definido para listas normais:</p>
-<p><code>{.haskell:hs} infixr 5  ++ (++) :: [a] -&gt; [a] -&gt; [a] []     ++ ys = ys (x:xs) ++ ys = x : (xs ++ ys)</code></p>
+<pre class="haskell:hs"><code>infixr 5  ++
+(++) :: [a] -&gt; [a] -&gt; [a]
+[]     ++ ys = ys
+(x:xs) ++ ys = x : (xs ++ ys)</code></pre>
 <p>Então, vamos roubar isso para nossa própria lista. Nomearemos a
 função <code>.++</code>.</p>
-<p><code>{.haskell:hs} infixr 5  .++ (.++) :: List a -&gt; List a -&gt; List a Empty .++ ys = ys (x :-: xs) .++ ys = x :-: (xs .++ ys)</code></p>
-<p>E vamos ver se funciona ...</p>
-<p><code>{.haskell:hs} ghci&gt; let a = 3 :-: 4 :-: 5 :-: Empty ghci&gt; let b = 6 :-: 7 :-: Empty ghci&gt; a .++ b (:-:) 3 ((:-:) 4 ((:-:) 5 ((:-:) 6 ((:-:) 7 Empty))))</code></p>
+<pre class="haskell:hs"><code>infixr 5  .++
+(.++) :: List a -&gt; List a -&gt; List a
+Empty .++ ys = ys
+(x :-: xs) .++ ys = x :-: (xs .++ ys)</code></pre>
+<p>E vamos ver se funciona …</p>
+<pre class="haskell:hs"><code>ghci&gt; let a = 3 :-: 4 :-: 5 :-: Empty
+ghci&gt; let b = 6 :-: 7 :-: Empty
+ghci&gt; a .++ b
+(:-:) 3 ((:-:) 4 ((:-:) 5 ((:-:) 6 ((:-:) 7 Empty))))</code></pre>
 <p>Legal.</p>
 <p>Se quiséssemos, poderíamos implementar todas as funções que operam em
 listas em nosso próprio tipo de lista.</p>
@@ -827,7 +1060,7 @@ construtores para os tipos numéricos e de caracteres,
 respectivamente.</p>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/binarytree.png"
-alt="binary search tree" />{.left width=323 height=225}</p>
+class="left" width="323" height="225" alt="binary search tree" /></p>
 <p>Agora, vamos implementar uma <strong>árvore de busca
 binária</strong>. Se você não está familiarizado com as árvores de busca
 binária de idiomas como C, aqui está o que elas são: um elemento aponta
@@ -852,7 +1085,7 @@ são sempre equilibradas. Mas agora, estaremos apenas implementando
 <p>Aqui está o que vamos dizer: uma árvore é uma árvore vazia ou é um
 elemento que contém algum valor e duas árvores. Parece um ajuste
 perfeito para um tipo de dados algébrico!</p>
-<p><code>{.haskell:hs} data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)</code></p>
+<pre class="haskell:hs"><code>data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)</code></pre>
 <p>Ok, bom, isso é bom. Em vez de construir manualmente uma árvore,
 faremos uma função que pega uma árvore e um elemento e insere um
 elemento. Fazemos isso comparando o valor que queremos inserir no nó
@@ -873,12 +1106,15 @@ parecer ineficiente, mas a preguiça cuida desse problema.</p>
 <p>Então, aqui estão duas funções. Uma é uma função de utilidade para
 criar uma árvore singleton (uma árvore com apenas um nó) e uma função
 para inserir um elemento em uma árvore.</p>
-<p>```{.haskell:hs} singleton :: a -&gt; Tree a singleton x = Node x
-EmptyTree EmptyTree</p>
-<p>treeInsert :: (Ord a) =&gt; a -&gt; Tree a -&gt; Tree a treeInsert x
-EmptyTree = singleton x treeInsert x (Node a left right) | x == a = Node
-x left right | x &lt; a = Node a (treeInsert x left) right | x &gt; a =
-Node a left (treeInsert x right) ```</p>
+<pre class="haskell:hs"><code>singleton :: a -&gt; Tree a
+singleton x = Node x EmptyTree EmptyTree
+
+treeInsert :: (Ord a) =&gt; a -&gt; Tree a -&gt; Tree a
+treeInsert x EmptyTree = singleton x
+treeInsert x (Node a left right)
+    | x == a = Node x left right
+    | x &lt; a  = Node a (treeInsert x left) right
+    | x &gt; a  = Node a left (treeInsert x right)</code></pre>
 <p>A função <code>singleton</code> é apenas um atalho para criar um nó
 que tenha algo e depois duas subárvores vazias. Na função de inserção,
 primeiro temos a condição de borda como um padrão. Se chegamos a uma
@@ -904,7 +1140,12 @@ Bem, podemos tirar proveito de saber que todos os elementos esquerdos
 são menores que o nó raiz. Portanto, se o elemento que estamos
 procurando é menor que o nó raiz, verifique se está na subárvore
 esquerda. Se for maior, verifique se está na subárvore direita.</p>
-<p><code>{.haskell:hs} treeElem :: (Ord a) =&gt; a -&gt; Tree a -&gt; Bool treeElem x EmptyTree = False treeElem x (Node a left right)     | x == a = True     | x &lt; a  = treeElem x left     | x &gt; a  = treeElem x right</code></p>
+<pre class="haskell:hs"><code>treeElem :: (Ord a) =&gt; a -&gt; Tree a -&gt; Bool
+treeElem x EmptyTree = False
+treeElem x (Node a left right)
+    | x == a = True
+    | x &lt; a  = treeElem x left
+    | x &gt; a  = treeElem x right</code></pre>
 <p>Tudo o que tínhamos que fazer era escrever o parágrafo anterior em
 código. Vamos nos divertir com nossas árvores! Em vez de construir
 manualmente uma (embora pudéssemos), usaremos uma dobra (fold) para
@@ -913,7 +1154,10 @@ o que atravessa uma lista um por um e depois retorna algum tipo de valor
 pode ser implementado com uma dobra! Vamos começar com a árvore vazia e
 depois abordar uma lista da direita e apenas inserir elemento após
 elemento em nossa árvore acumuladora.</p>
-<p><code>{.haskell:hs} ghci&gt; let nums = [8,6,4,1,7,3,5] ghci&gt; let numsTree = foldr treeInsert EmptyTree nums ghci&gt; numsTree Node 5 (Node 3 (Node 1 EmptyTree EmptyTree) (Node 4 EmptyTree EmptyTree)) (Node 7 (Node 6 EmptyTree EmptyTree) (Node 8 EmptyTree EmptyTree))</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let nums = [8,6,4,1,7,3,5]
+ghci&gt; let numsTree = foldr treeInsert EmptyTree nums
+ghci&gt; numsTree
+Node 5 (Node 3 (Node 1 EmptyTree EmptyTree) (Node 4 EmptyTree EmptyTree)) (Node 7 (Node 6 EmptyTree EmptyTree) (Node 8 EmptyTree EmptyTree))</code></pre>
 <p>Nesse <code>foldr</code>, <code>treeInsert</code> era a função de
 dobra (leva uma árvore e um elemento de lista e produz uma nova árvore)
 e <code>EmptyTree</code> era o acumulador inicial. <code>nums</code>, é
@@ -922,16 +1166,23 @@ claro, era a lista sobre a qual estávamos dobrando.</p>
 se tentarmos, podemos distinguir sua estrutura. Vemos que o nó raiz é 5
 e, em seguida, possui duas subárvores, uma das quais tem o nó raiz de 3
 e a outra a 7, etc.</p>
-<p><code>{.haskell:hs} ghci&gt; 8 `treeElem` numsTree True ghci&gt; 100 `treeElem` numsTree False ghci&gt; 1 `treeElem` numsTree True ghci&gt; 10 `treeElem` numsTree False</code></p>
+<pre class="haskell:hs"><code>ghci&gt; 8 `treeElem` numsTree
+True
+ghci&gt; 100 `treeElem` numsTree
+False
+ghci&gt; 1 `treeElem` numsTree
+True
+ghci&gt; 10 `treeElem` numsTree
+False</code></pre>
 <p>A verificação de associação também funciona muito bem. Legal.</p>
 <p>Como você pode ver, as estruturas de dados algébricos são um conceito
 muito legal e poderoso em Haskell. Podemos usá-las para fazer qualquer
 coisa, desde valores booleanos e enumerações durante a semana até
 árvores de busca binária e muito mais!</p>
-<h2>Typeclasses 102 {#typeclasses-102}</h2>
+<h2 id="typeclasses-102">Typeclasses 102</h2>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/trafficlight.png"
-alt="tweet" />{.right width=175 height=480}</p>
+class="right" width="175" height="480" alt="tweet" /></p>
 <p>Até agora, aprendemos sobre algumas das typeclasses padrão de Haskell
 e vimos quais tipos estão nelas. Também aprendemos como tornar
 automaticamente nossos próprios tipos instâncias das typeclasses padrão,
@@ -957,7 +1208,11 @@ a função da igualdade <code>==</code> faz sentido, faz sentido que
 <code>Car</code> seja uma instância de <code>Eq</code>.</p>
 <p>É assim que a classe <code>Eq</code> é definida no prelude
 padrão:</p>
-<p><code>{.haskell:hs} class Eq a where     (==) :: a -&gt; a -&gt; Bool     (/=) :: a -&gt; a -&gt; Bool     x == y = not (x /= y)     x /= y = not (x == y)</code></p>
+<pre class="haskell:hs"><code>class Eq a where
+    (==) :: a -&gt; a -&gt; Bool
+    (/=) :: a -&gt; a -&gt; Bool
+    x == y = not (x /= y)
+    x /= y = not (x == y)</code></pre>
 <p>Woah, woah, woah! Alguma sintaxe e palavras-chave estranhas novas lá!
 Não se preocupe, tudo isso ficará claro em um segundo. Primeiro, quando
 escrevemos <code>class Eq a where</code>, isso significa que estamos
@@ -969,32 +1224,40 @@ nem precisa ser uma letra, apenas precisa ser uma palavra minúscula. Em
 seguida, definimos várias funções. Não é obrigatório implementar os
 próprios corpos de função, apenas precisamos especificar as declarações
 de tipo para as funções.</p>
-<p>::: {.hintbox} Algumas pessoas podem entender isso melhor se
-escrevêssemos <code>class Eq equatable where</code> e depois
-especifiquemos as declarações de tipo como
-<code>(==) :: equatable -&gt; equatable -&gt; Bool</code>. :::</p>
+<div class="hintbox">
+<p>Algumas pessoas podem entender isso melhor se escrevêssemos
+<code>class Eq equatable where</code> e depois especifiquemos as
+declarações de tipo como
+<code>(==) :: equatable -&gt; equatable -&gt; Bool</code>.</p>
+</div>
 <p>De qualquer forma, <em>implementamos</em> os corpos de função para as
 funções que definem <code>Eq</code>, apenas as definimos em termos de
 recursão mútua. Dissemos que duas instâncias de <code>Eq</code> são
 iguais se não forem diferentes e são diferentes se não forem iguais. Nós
 não precisávamos fazer isso, na verdade, mas fizemos e veremos como isso
 nos ajuda em breve.</p>
-<p>::: {.hintbox} Se dissermos <code>class Eq a where</code> e, em
-seguida, definirmos uma declaração de tipo dentro dessa classe como
+<div class="hintbox">
+<p>Se dissermos <code>class Eq a where</code> e, em seguida, definirmos
+uma declaração de tipo dentro dessa classe como
 <code>(==) :: a -&gt; a -&gt; Bool</code>, então, quando examinarmos o
 tipo dessa função mais tarde, ele terá o tipo de
-<code>(Eq a) =&gt; a -&gt; a -&gt; Bool</code>. :::</p>
+<code>(Eq a) =&gt; a -&gt; a -&gt; Bool</code>.</p>
+</div>
 <p>Então, uma vez que temos uma classe, o que podemos fazer com ela?
 Bem, não muito, realmente. Mas assim que começamos a fazer instâncias de
 tipos dessa classe, começamos a obter alguma funcionalidade agradável.
 Então confira esse tipo:</p>
-<p><code>{.haskell:hs} data TrafficLight = Red | Yellow | Green</code></p>
+<pre class="haskell:hs"><code>data TrafficLight = Red | Yellow | Green</code></pre>
 <p>Ele define os estados de um semáforo. Observe como não derivamos
 nenhuma instância de classe para ela. Isso porque vamos escrever algumas
 instâncias manualmente, mesmo que pudéssemos derivá-las para tipos como
 <code>Eq</code> e <code>Show</code>. Veja como tornamos isso uma
 instância de <code>Eq</code>.</p>
-<p><code>{.haskell:hs} instance Eq TrafficLight where     Red == Red = True     Green == Green = True     Yellow == Yellow = True     _ == _ = False</code></p>
+<pre class="haskell:hs"><code>instance Eq TrafficLight where
+    Red == Red = True
+    Green == Green = True
+    Yellow == Yellow = True
+    _ == _ = False</code></pre>
 <p>Fizemos isso usando a palavra-chave <em>instance</em>. Portanto,
 <em>class</em> é para definir novas typeclasses e <em>instance</em> é
 para tornar nossos tipos instâncias de typeclasses. Quando estávamos
@@ -1007,13 +1270,15 @@ quando estamos fazendo uma instância, escrevemos
 <p>Como <code>==</code> foi definido em termos de <code>/=</code> e
 vice-versa na declaração de <em>class</em>, apenas tivemos que
 substituir um deles na declaração da instância. Isso é chamado de
-definição completa mínima para a typeclass --- o mínimo de funções que
+definição completa mínima para a typeclass — o mínimo de funções que
 temos que implementar para que nosso tipo possa se comportar como a
 classe anuncia. Para cumprir a definição completa mínima para
 <code>Eq</code>, temos que substituir um de <code>==</code> ou
 <code>/=</code>. Se <code>Eq</code> fosse definido simplesmente
 assim:</p>
-<p><code>{.haskell:hs} class Eq a where     (==) :: a -&gt; a -&gt; Bool     (/=) :: a -&gt; a -&gt; Bool</code></p>
+<pre class="haskell:hs"><code>class Eq a where
+    (==) :: a -&gt; a -&gt; Bool
+    (/=) :: a -&gt; a -&gt; Bool</code></pre>
 <p>teríamos que implementar ambas as funções ao tornar um tipo uma
 instância dela, porque Haskell não saberia como essas duas funções estão
 relacionadas. A definição completa mínima seria então: <code>==</code> e
@@ -1027,10 +1292,20 @@ anteriores, duas luzes não serão iguais.</p>
 Para satisfazer a definição completa mínima de <code>Show</code>, só
 precisamos implementar sua função <code>show</code>, que assume um valor
 e o transforma em uma string.</p>
-<p><code>{.haskell:hs} instance Show TrafficLight where     show Red = "Red light"     show Yellow = "Yellow light"     show Green = "Green light"</code></p>
+<pre class="haskell:hs"><code>instance Show TrafficLight where
+    show Red = &quot;Red light&quot;
+    show Yellow = &quot;Yellow light&quot;
+    show Green = &quot;Green light&quot;</code></pre>
 <p>Mais uma vez, usamos a correspondência de padrões para alcançar
 nossos objetivos. Vamos ver como funciona em ação:</p>
-<p><code>{.haskell:hs} ghci&gt; Red == Red True ghci&gt; Red == Yellow False ghci&gt; Red `elem` [Red, Yellow, Green] True ghci&gt; [Red, Yellow, Green] [Red light,Yellow light,Green light]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; Red == Red
+True
+ghci&gt; Red == Yellow
+False
+ghci&gt; Red `elem` [Red, Yellow, Green]
+True
+ghci&gt; [Red, Yellow, Green]
+[Red light,Yellow light,Green light]</code></pre>
 <p>Legal. Poderíamos ter acabado de derivar <code>Eq</code> e isso teria
 o mesmo efeito (mas não o fizemos para fins educacionais). No entanto,
 derivar <code>Show</code> teria traduzido diretamente os construtores de
@@ -1040,7 +1315,8 @@ manualmente.</p>
 <p>Você também pode criar typeclasses que são subclasses de outras
 typeclasses. A declaração de <em>class</em> para <code>Num</code> é um
 pouco longa, mas aqui está a primeira parte:</p>
-<p><code>{.haskell:hs} class (Eq a) =&gt; Num a where    ...</code></p>
+<pre class="haskell:hs"><code>class (Eq a) =&gt; Num a where
+   ...</code></pre>
 <p>Como mencionamos anteriormente, existem muitos lugares onde podemos
 agrupar restrições de classe. Portanto, isso é exatamente como escrever
 <code>class Num a where</code>, apenas afirmamos que nosso tipo
@@ -1062,7 +1338,11 @@ não é um tipo concreto, é um construtor de tipos que leva um parâmetro
 de tipo (como <code>Char</code> ou algo assim) para produzir um tipo
 concreto (como <code>Maybe Char</code>). Vamos dar uma olhada na
 typeclass <code>Eq</code> novamente:</p>
-<p><code>{.haskell:hs} class Eq a where     (==) :: a -&gt; a -&gt; Bool     (/=) :: a -&gt; a -&gt; Bool     x == y = not (x /= y)     x /= y = not (x == y)</code></p>
+<pre class="haskell:hs"><code>class Eq a where
+    (==) :: a -&gt; a -&gt; Bool
+    (/=) :: a -&gt; a -&gt; Bool
+    x == y = not (x /= y)
+    x /= y = not (x == y)</code></pre>
 <p>Das declarações de tipo, vemos que o <code>a</code> é usado como um
 tipo concreto porque todos os tipos em funções precisam ser concretos
 (lembre-se, você não pode ter uma função do tipo
@@ -1070,14 +1350,18 @@ tipo concreto porque todos os tipos em funções precisam ser concretos
 <code>a -&gt; Maybe a</code> ou
 <code>Maybe Int -&gt; Maybe String</code>). É por isso que não podemos
 fazer algo como</p>
-<p><code>{.haskell:hs} instance Eq Maybe where     ...</code></p>
+<pre class="haskell:hs"><code>instance Eq Maybe where
+    ...</code></pre>
 <p>Porque, como vimos, o <code>a</code> tem que ser um tipo concreto,
 mas <code>Maybe</code> não é um tipo concreto. É um construtor de tipos
 que recebe um parâmetro e depois produz um tipo concreto. Também seria
 tedioso escrever <code>instance Eq (Maybe Int) where</code>,
 <code>instance Eq (Maybe Char) where</code>, etc. para todos os tipos de
 todos. Então, poderíamos escrever assim:</p>
-<p><code>{.haskell:hs} instance Eq (Maybe m) where     Just x == Just y = x == y     Nothing == Nothing = True     _ == _ = False</code></p>
+<pre class="haskell:hs"><code>instance Eq (Maybe m) where
+    Just x == Just y = x == y
+    Nothing == Nothing = True
+    _ == _ = False</code></pre>
 <p>Isso é como dizer que queremos tornar todos os tipos do formulário
 <code>Maybe something</code> uma instância de <code>Eq</code>. Na
 verdade, poderíamos ter escrito <code>(Maybe something)</code>, mas
@@ -1094,7 +1378,10 @@ seja uma instância de <code>Eq</code>.</p>
 garantia de que o que o <code>Maybe</code> contém pode ser usado com
 <code>Eq</code>! É por isso que temos que modificar nossa declaração
 <em>instance</em> assim:</p>
-<p><code>{.haskell:hs} instance (Eq m) =&gt; Eq (Maybe m) where     Just x == Just y = x == y     Nothing == Nothing = True     _ == _ = False</code></p>
+<pre class="haskell:hs"><code>instance (Eq m) =&gt; Eq (Maybe m) where
+    Just x == Just y = x == y
+    Nothing == Nothing = True
+    _ == _ = False</code></pre>
 <p>Tivemos que adicionar uma restrição de classe! Com esta declaração
 <em>instance</em>, dizemos o seguinte: queremos que todos os tipos da
 forma <code>Maybe m</code> façam parte da typeclass <code>Eq</code>, mas
@@ -1112,17 +1399,19 @@ concreto nas declarações de tipo (como o <code>a</code> em
 <code>a -&gt; a -&gt; Bool</code>), você deve fornecer parâmetros de
 tipo e adicionar parênteses para que você acabe com um tipo
 concreto.</p>
-<p>::: {.hintbox} Leve em consideração que o tipo que você está tentando
-criar uma instância substituirá o parâmetro na declaração
-<em>class</em>. O <code>a</code> de <code>class Eq a where</code> será
-substituído por um tipo real quando você fizer uma instância; portanto,
-tente colocar mentalmente seu tipo nas declarações de tipo de função
-também. <code>(==) :: Maybe -&gt; Maybe -&gt; Bool</code> não faz muito
-sentido, mas
-<code>(==) :: (Eq m) =&gt; Maybe m -&gt; Maybe m -&gt; Bool</code> faz.
-Mas isso é apenas algo para se pensar, porque <code>==</code> sempre
-terá um tipo de <code>(==) :: (Eq a) =&gt; a -&gt; a -&gt; Bool</code>,
-não importa quais instâncias façamos. :::</p>
+<div class="hintbox">
+<p>Leve em consideração que o tipo que você está tentando criar uma
+instância substituirá o parâmetro na declaração <em>class</em>. O
+<code>a</code> de <code>class Eq a where</code> será substituído por um
+tipo real quando você fizer uma instância; portanto, tente colocar
+mentalmente seu tipo nas declarações de tipo de função também.
+<code>(==) :: Maybe -&gt; Maybe -&gt; Bool</code> não faz muito sentido,
+mas <code>(==) :: (Eq m) =&gt; Maybe m -&gt; Maybe m -&gt; Bool</code>
+faz. Mas isso é apenas algo para se pensar, porque <code>==</code>
+sempre terá um tipo de
+<code>(==) :: (Eq a) =&gt; a -&gt; a -&gt; Bool</code>, não importa
+quais instâncias façamos.</p>
+</div>
 <p>Ooh, mais uma coisa, confira isso! Se você quiser ver quais são as
 instâncias de uma typeclass, basta fazer
 <code>:info YourTypeClass</code> no GHCI. Portanto, digitar
@@ -1133,11 +1422,11 @@ para tipos e construtores de tipos também. Se você fizer
 <code>Maybe</code> é uma instância. Também <code>:info</code> pode
 mostrar a declaração de tipo de uma função. Eu acho isso muito
 legal.</p>
-<h2>Uma typeclass sim-não (A yes-no typeclass)
-{#a-yes-no-typeclass}</h2>
+<h2 id="a-yes-no-typeclass">Uma typeclass sim-não (A yes-no
+typeclass)</h2>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/yesno.png"
-alt="yesno" />{.left width=201 height=111}</p>
+class="left" width="201" height="111" alt="yesno" /></p>
 <p>Em JavaScript e algumas outras linguagens de tipo fraco, você pode
 colocar quase tudo dentro de uma expressão <code>if</code>. Por exemplo,
 você pode fazer todas as seguintes opções:
@@ -1152,7 +1441,8 @@ vazias são uma espécie de valor verdadeiro.</p>
 booleana funcione melhor em Haskell, vamos tentar implementar esse
 comportamento JavaScript-ish de qualquer maneira. Por diversão! Vamos
 começar com uma declaração de <em>class</em>.</p>
-<p><code>{.haskell:hs} class YesNo a where     yesno :: a -&gt; Bool</code></p>
+<pre class="haskell:hs"><code>class YesNo a where
+    yesno :: a -&gt; Bool</code></pre>
 <p>Muito simples. A typeclass <code>YesNo</code> define uma função. Essa
 função assume um valor de um tipo que pode ser considerado para manter
 algum conceito de veracidade e nos diz com certeza se é verdade ou não.
@@ -1161,21 +1451,28 @@ Observe que, da maneira como usamos o <code>a</code> na função,
 <p>Em seguida, vamos definir algumas instâncias. Para números,
 assumiremos que (como em JavaScript) qualquer número que não seja 0 é
 verdadeiro e 0 é falso.</p>
-<p><code>{.haskell:hs} instance YesNo Int where     yesno 0 = False     yesno _ = True</code></p>
+<pre class="haskell:hs"><code>instance YesNo Int where
+    yesno 0 = False
+    yesno _ = True</code></pre>
 <p>Listas vazias (e, por extensões, strings) são um valor não-ish,
 enquanto listas não vazias são um valor yes-ish.</p>
-<p><code>{.haskell:hs} instance YesNo [a] where     yesno [] = False     yesno _ = True</code></p>
+<pre class="haskell:hs"><code>instance YesNo [a] where
+    yesno [] = False
+    yesno _ = True</code></pre>
 <p>Observe como apenas colocamos um parâmetro de tipo <code>a</code> lá
 para tornar a lista um tipo concreto, mesmo que não façamos suposições
-sobre o tipo contido na lista. O que mais, hmm ... Eu sei,
+sobre o tipo contido na lista. O que mais, hmm … Eu sei,
 <code>Bool</code> em si também mantém a verdade e a falsidade e é
 bastante óbvio qual é qual.</p>
-<p><code>{.haskell:hs} instance YesNo Bool where     yesno = id</code></p>
+<pre class="haskell:hs"><code>instance YesNo Bool where
+    yesno = id</code></pre>
 <p>Hã? O que é <code>id</code>? É apenas uma função da biblioteca padrão
 que aceita um parâmetro e retorna a mesma coisa, que é o que estaríamos
 escrevendo aqui de qualquer maneira.</p>
 <p>Vamos fazer de <code>Maybe a</code> uma instância também.</p>
-<p><code>{.haskell:hs} instance YesNo (Maybe a) where     yesno (Just _) = True     yesno Nothing = False</code></p>
+<pre class="haskell:hs"><code>instance YesNo (Maybe a) where
+    yesno (Just _) = True
+    yesno Nothing = False</code></pre>
 <p>Não precisávamos de uma restrição de classe porque não fizemos
 suposições sobre o conteúdo do <code>Maybe</code>. Acabamos de dizer que
 é verdadeiro se for um valor <code>Just</code> e falso se for um
@@ -1191,22 +1488,53 @@ importa o que seja <code>something</code>.</p>
 representava uma árvore de busca binária. Podemos dizer que uma árvore
 vazia é falsa e qualquer coisa que não seja uma árvore vazia é
 verdadeira.</p>
-<p><code>{.haskell:hs} instance YesNo (Tree a) where     yesno EmptyTree = False     yesno _ = True</code></p>
+<pre class="haskell:hs"><code>instance YesNo (Tree a) where
+    yesno EmptyTree = False
+    yesno _ = True</code></pre>
 <p>Um semáforo pode ser um valor sim ou não? Certo. Se estiver vermelho,
 pare. Se estiver verde, vá. Se for amarelo? Eh, eu costumo correr nos
 amarelos porque vivo pela adrenalina.</p>
-<p><code>{.haskell:hs} instance YesNo TrafficLight where     yesno Red = False     yesno _ = True</code></p>
+<pre class="haskell:hs"><code>instance YesNo TrafficLight where
+    yesno Red = False
+    yesno _ = True</code></pre>
 <p>Legal, agora que temos alguns exemplos, vamos brincar!</p>
-<p><code>{.haskell:hs} ghci&gt; yesno $ length [] False ghci&gt; yesno "haha" True ghci&gt; yesno "" False ghci&gt; yesno $ Just 0 True ghci&gt; yesno True True ghci&gt; yesno EmptyTree False ghci&gt; yesno [] False ghci&gt; yesno [0,0,0] True ghci&gt; :t yesno yesno :: (YesNo a) =&gt; a -&gt; Bool</code></p>
+<pre class="haskell:hs"><code>ghci&gt; yesno $ length []
+False
+ghci&gt; yesno &quot;haha&quot;
+True
+ghci&gt; yesno &quot;&quot;
+False
+ghci&gt; yesno $ Just 0
+True
+ghci&gt; yesno True
+True
+ghci&gt; yesno EmptyTree
+False
+ghci&gt; yesno []
+False
+ghci&gt; yesno [0,0,0]
+True
+ghci&gt; :t yesno
+yesno :: (YesNo a) =&gt; a -&gt; Bool</code></pre>
 <p>Certo, funciona! Vamos criar uma função que imite a instrução
 <code>if</code>, mas funciona com valores <code>YesNo</code>.</p>
-<p><code>{.haskell:hs} yesnoIf :: (YesNo y) =&gt; y -&gt; a -&gt; a -&gt; a yesnoIf yesnoVal yesResult noResult = if yesno yesnoVal then yesResult else noResult</code></p>
+<pre class="haskell:hs"><code>yesnoIf :: (YesNo y) =&gt; y -&gt; a -&gt; a -&gt; a
+yesnoIf yesnoVal yesResult noResult = if yesno yesnoVal then yesResult else noResult</code></pre>
 <p>Bastante simples. Pega um valor sim-não-ish e duas coisas. Se o valor
 sim-não-ish for mais um sim, ele retornará a primeira das duas coisas,
 caso contrário, retornará a segunda delas.</p>
-<p><code>{.haskell:hs} ghci&gt; yesnoIf [] "YEAH!" "NO!" "NO!" ghci&gt; yesnoIf [2,3,4] "YEAH!" "NO!" "YEAH!" ghci&gt; yesnoIf True "YEAH!" "NO!" "YEAH!" ghci&gt; yesnoIf (Just 500) "YEAH!" "NO!" "YEAH!" ghci&gt; yesnoIf Nothing "YEAH!" "NO!" "NO!"</code></p>
-<h2>A typeclass Functor (The Functor typeclass)
-{#the-functor-typeclass}</h2>
+<pre class="haskell:hs"><code>ghci&gt; yesnoIf [] &quot;YEAH!&quot; &quot;NO!&quot;
+&quot;NO!&quot;
+ghci&gt; yesnoIf [2,3,4] &quot;YEAH!&quot; &quot;NO!&quot;
+&quot;YEAH!&quot;
+ghci&gt; yesnoIf True &quot;YEAH!&quot; &quot;NO!&quot;
+&quot;YEAH!&quot;
+ghci&gt; yesnoIf (Just 500) &quot;YEAH!&quot; &quot;NO!&quot;
+&quot;YEAH!&quot;
+ghci&gt; yesnoIf Nothing &quot;YEAH!&quot; &quot;NO!&quot;
+&quot;NO!&quot;</code></pre>
+<h2 id="the-functor-typeclass">A typeclass Functor (The Functor
+typeclass)</h2>
 <p>Até agora, encontramos muitas das typeclasses na biblioteca padrão.
 Brincamos com <code>Ord</code>, que é para coisas que podem ser
 encomendadas. Conversamos com <code>Eq</code>, que é para coisas que
@@ -1214,17 +1542,18 @@ podem ser equiparadas. Vimos <code>Show</code>, que apresenta uma
 interface para tipos cujos valores podem ser exibidos como strings.
 Nosso bom amigo <code>Read</code> está lá sempre que precisamos
 converter uma string em um valor de algum tipo. E agora, vamos dar uma
-olhada na typeclass <code>Functor</code>{.label .class}, que é
+olhada na typeclass <code class="label class">Functor</code>, que é
 basicamente para coisas que podem ser mapeadas. Você provavelmente está
 pensando em listas agora, já que o mapeamento sobre listas é um idioma
 dominante em Haskell. E você está certo, o tipo de lista faz parte da
 typeclass <code>Functor</code>.</p>
 <p>Qual a melhor maneira de conhecer a typeclass <code>Functor</code> do
 que ver como é implementada? Vamos dar uma espiada.</p>
-<p><code>{.haskell:hs} class Functor f where     fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>class Functor f where
+    fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/functor.png"
-alt="I AM FUNCTOOOOR!!!" />{.right width=220 height=441}</p>
+class="right" width="220" height="441" alt="I AM FUNCTOOOOR!!!" /></p>
 <p>Bem. Vemos que ele define uma função, <code>fmap</code>, e não
 fornece nenhuma implementação padrão para ela. O tipo de
 <code>fmap</code> é interessante. Nas definições de typeclasses até
@@ -1249,7 +1578,8 @@ lista de um tipo e retorna uma lista de outro tipo. Meus amigos, acho
 que temos um functor! De fato, <code>map</code> é apenas um
 <code>fmap</code> que funciona apenas em listas. Veja como a lista é uma
 instância da typeclass <code>Functor</code>.</p>
-<p><code>{.haskell:hs} instance Functor [] where     fmap = map</code></p>
+<pre class="haskell:hs"><code>instance Functor [] where
+    fmap = map</code></pre>
 <p>É isso! Observe como não escrevemos
 <code>instance Functor [a] where</code>, porque a partir de
 <code>fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code>, vemos que o
@@ -1260,7 +1590,11 @@ um tipo e pode produzir tipos como <code>[Int]</code>,
 <code>[String]</code> ou até <code>[[String]]</code>.</p>
 <p>Como para as listas, <code>fmap</code> é apenas <code>map</code>,
 obtemos os mesmos resultados ao usá-los nas listas.</p>
-<p><code>{.haskell:hs} map :: (a -&gt; b) -&gt; [a] -&gt; [b] ghci&gt; fmap (*2) [1..3] [2,4,6] ghci&gt; map (*2) [1..3] [2,4,6]</code></p>
+<pre class="haskell:hs"><code>map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+ghci&gt; fmap (*2) [1..3]
+[2,4,6]
+ghci&gt; map (*2) [1..3]
+[2,4,6]</code></pre>
 <p>O que acontece quando fazemos <code>map</code> ou <code>fmap</code>
 sobre uma lista vazia? Bem, é claro, recebemos uma lista vazia. Apenas
 transforma uma lista vazia do tipo <code>[a]</code> em uma lista vazia
@@ -1274,7 +1608,9 @@ que mais tem as propriedades de ser como uma caixa? Por um lado, o tipo
 nada, em cujo caso tem o valor de <code>Nothing</code>, ou pode conter
 um item, como <code>"HAHA"</code>, caso em que ele tem um valor de
 <code>Just "HAHA"</code>. Veja como <code>Maybe</code> é um functor.</p>
-<p><code>{.haskell:hs} instance Functor Maybe where     fmap f (Just x) = Just (f x)     fmap f Nothing = Nothing</code></p>
+<pre class="haskell:hs"><code>instance Functor Maybe where
+    fmap f (Just x) = Just (f x)
+    fmap f Nothing = Nothing</code></pre>
 <p>Mais uma vez, observe como escrevemos
 <code>instance Functor Maybe where</code> em vez de
 <code>instance Functor (Maybe m) where</code>, como fizemos quando
@@ -1296,7 +1632,14 @@ uma caixa vazia. Faz sentido. Assim como se mapearmos sobre uma lista
 vazia, recebemos uma lista vazia. Se não é um valor vazio, mas um único
 valor acumulado em um <code>Just</code>, aplicamos a função no conteúdo
 do <code>Just</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; fmap (++ " HEY GUYS IM INSIDE THE JUST") (Just "Something serious.") Just "Something serious. HEY GUYS IM INSIDE THE JUST" ghci&gt; fmap (++ " HEY GUYS IM INSIDE THE JUST") Nothing Nothing ghci&gt; fmap (*2) (Just 200) Just 400 ghci&gt; fmap (*2) Nothing Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fmap (++ &quot; HEY GUYS IM INSIDE THE JUST&quot;) (Just &quot;Something serious.&quot;)
+Just &quot;Something serious. HEY GUYS IM INSIDE THE JUST&quot;
+ghci&gt; fmap (++ &quot; HEY GUYS IM INSIDE THE JUST&quot;) Nothing
+Nothing
+ghci&gt; fmap (*2) (Just 200)
+Just 400
+ghci&gt; fmap (*2) Nothing
+Nothing</code></pre>
 <p>Outra coisa que pode ser mapeada e feita uma instância de
 <code>Functor</code> é o nosso tipo <code>Tree a</code>. Pode ser
 pensado como uma caixa (contém vários ou nenhum valor) e o construtor de
@@ -1309,15 +1652,22 @@ vazia. O mapeamento sobre uma árvore não vazia será uma árvore que
 consiste em nossa função aplicada ao valor da raiz e suas subárvores
 esquerda e direita serão as subárvores anteriores, apenas nossa função
 será mapeada sobre elas.</p>
-<p><code>{.haskell:hs} instance Functor Tree where     fmap f EmptyTree = EmptyTree     fmap f (Node x leftsub rightsub) = Node (f x) (fmap f leftsub) (fmap f rightsub)</code></p>
-<p><code>{.haskell:hs} ghci&gt; fmap (*2) EmptyTree EmptyTree ghci&gt; fmap (*4) (foldr treeInsert EmptyTree [5,7,3,2,1,7]) Node 28 (Node 4 EmptyTree (Node 8 EmptyTree (Node 12 EmptyTree (Node 20 EmptyTree EmptyTree)))) EmptyTree</code></p>
+<pre class="haskell:hs"><code>instance Functor Tree where
+    fmap f EmptyTree = EmptyTree
+    fmap f (Node x leftsub rightsub) = Node (f x) (fmap f leftsub) (fmap f rightsub)</code></pre>
+<pre class="haskell:hs"><code>ghci&gt; fmap (*2) EmptyTree
+EmptyTree
+ghci&gt; fmap (*4) (foldr treeInsert EmptyTree [5,7,3,2,1,7])
+Node 28 (Node 4 EmptyTree (Node 8 EmptyTree (Node 12 EmptyTree (Node 20 EmptyTree EmptyTree)))) EmptyTree</code></pre>
 <p>Legal! Agora, e o <code>Either a b</code>? Isso pode ser feito um
 functor? A typeclass <code>Functor</code> deseja um construtor de tipos
 que leve apenas um parâmetro de tipo, mas <code>Either</code> leva dois.
 Hmmm! Eu sei, aplicaremos parcialmente o <code>Either</code>,
 alimentando apenas um parâmetro, para que ele tenha um parâmetro livre.
 Veja como <code>Either a</code> é um functor nas bibliotecas padrão:</p>
-<p><code>{.haskell:hs} instance Functor (Either a) where     fmap f (Right x) = Right (f x)     fmap f (Left x) = Left x</code></p>
+<pre class="haskell:hs"><code>instance Functor (Either a) where
+    fmap f (Right x) = Right (f x)
+    fmap f (Left x) = Left x</code></pre>
 <p>Bem, o que fizemos aqui? Você pode ver como fizemos
 <code>Either a</code> uma instância em vez de apenas
 <code>Either</code>. Isso ocorre porque <code>Either a</code> é um
@@ -1331,7 +1681,7 @@ implementação, mapeamos no caso de um construtor de valor
 <code>Right</code>, mas não no caso de um <code>Left</code>. Por que é
 que? Bem, se olharmos para trás como o tipo <code>Either a b</code> é
 definido, é como:</p>
-<p><code>{.haskell:hs} data Either a b = Left a | Right b</code></p>
+<pre class="haskell:hs"><code>data Either a b = Left a | Right b</code></pre>
 <p>Bem, se quiséssemos mapear uma função sobre os dois, <code>a</code> e
 <code>b</code> teriam que ser do mesmo tipo. Quero dizer, se tentássemos
 mapear uma função que pega uma string e retorna uma string e o
@@ -1349,10 +1699,12 @@ porque possuem valores (ou não!). No caso de <code>Map k v</code>,
 <code>fmap</code> mapeará uma função <code>v -&gt; v'</code> sobre um
 mapa do tipo <code>Map k v</code> e retornará um mapa do tipo
 <code>Map k v'</code>.</p>
-<p>::: {.hintbox} Observe que o <code>'</code> não tem um significado
-especial em tipos, assim como não tem significado especial ao nomear
-valores. É usado para denotar coisas semelhantes, apenas ligeiramente
-alteradas. :::</p>
+<div class="hintbox">
+<p>Observe que o <code>'</code> não tem um significado especial em
+tipos, assim como não tem significado especial ao nomear valores. É
+usado para denotar coisas semelhantes, apenas ligeiramente
+alteradas.</p>
+</div>
 <p>Tente descobrir como <code>Map k</code> é feito uma instância de
 <code>Functor</code> por si mesmo!</p>
 <p>Com a typeclass <code>Functor</code>, vimos como as typeclasses podem
@@ -1360,25 +1712,26 @@ representar conceitos de ordem superior muito legais. Também tivemos um
 pouco mais de prática aplicando parcialmente tipos e fazendo instâncias.
 Em um dos próximos capítulos, também daremos uma olhada em algumas leis
 que se aplicam aos functors.</p>
-<p>::: {.hintbox} <strong>Apenas mais uma coisa!</strong> Functors devem
-obedecer a algumas leis para que possam ter algumas propriedades das
-quais possamos depender e não pensar muito. Se usarmos
-<code>fmap (+1)</code> sobre a lista <code>[1,2,3,4]</code>, esperamos
-que o resultado seja <code>[2,3,4,5]</code> e não o inverso,
-<code>[5,4,3,2]</code>. Se usarmos <code>fmap (\a -&gt; a)</code> (a
-função identidade, que apenas retorna seu parâmetro) em alguma lista,
-esperamos recuperar a mesma lista como resultado. Por exemplo, se dermos
-a instância incorreta do functor aos nosso tipo <code>Tree</code>,
-usando <code>fmap</code> sobre uma árvore onde a subárvore esquerda de
-um nó possui apenas elementos menores que o nó e a subárvore direita
-possui apenas nós que são maiores que o nó pode produzir uma árvore onde
-esse não é o caso. Vamos repassar as leis de functor com mais detalhes
-em um dos próximos capítulos. :::</p>
-<h2>Kinds e um pouco de type-foo (Kinds and some type-foo)
-{#kinds-and-some-type-foo}</h2>
+<div class="hintbox">
+<p><strong>Apenas mais uma coisa!</strong> Functors devem obedecer a
+algumas leis para que possam ter algumas propriedades das quais possamos
+depender e não pensar muito. Se usarmos <code>fmap (+1)</code> sobre a
+lista <code>[1,2,3,4]</code>, esperamos que o resultado seja
+<code>[2,3,4,5]</code> e não o inverso, <code>[5,4,3,2]</code>. Se
+usarmos <code>fmap (\a -&gt; a)</code> (a função identidade, que apenas
+retorna seu parâmetro) em alguma lista, esperamos recuperar a mesma
+lista como resultado. Por exemplo, se dermos a instância incorreta do
+functor aos nosso tipo <code>Tree</code>, usando <code>fmap</code> sobre
+uma árvore onde a subárvore esquerda de um nó possui apenas elementos
+menores que o nó e a subárvore direita possui apenas nós que são maiores
+que o nó pode produzir uma árvore onde esse não é o caso. Vamos repassar
+as leis de functor com mais detalhes em um dos próximos capítulos.</p>
+</div>
+<h2 id="kinds-and-some-type-foo">Kinds e um pouco de type-foo (Kinds and
+some type-foo)</h2>
 <p><img
 src="assets/images/making-our-own-types-and-typeclasses/typefoo.png"
-alt="TYPE FOO MASTER" />{.right width=287 height=400}</p>
+class="right" width="287" height="400" alt="TYPE FOO MASTER" /></p>
 <p>Construtores de tipos usam outros tipos como parâmetros para,
 eventualmente, produzir tipos concretos. Isso me lembra as funções, que
 tomam valores como parâmetros para produzir valores. Vimos que os
@@ -1403,7 +1756,8 @@ pode parecer um pouco estranho e confuso, mas na verdade é um conceito
 muito legal.</p>
 <p>O que são kinds e para que servem? Bem, vamos examinar o tipo de um
 tipo usando o comando <code>:k</code> no GHCI.</p>
-<p><code>{.haskell:hs} ghci&gt; :k Int Int :: *</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :k Int
+Int :: *</code></pre>
 <p>Uma estrela? Que pitoresco. O que isso significa? Um <code>*</code>
 significa que o tipo é um tipo concreto. Um tipo concreto é um tipo que
 não aceita parâmetros de tipo e os valores só podem ter tipos que são
@@ -1411,7 +1765,8 @@ tipos concretos. Se eu tivesse que ler <code>*</code> em voz alta (não
 tive que fazer isso até agora), eu diria <em>star</em> ou apenas
 <em>type</em>.</p>
 <p>Ok, agora vamos ver qual é o kind de <code>Maybe</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; :k Maybe Maybe :: * -&gt; *</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :k Maybe
+Maybe :: * -&gt; *</code></pre>
 <p>O construtor de tipos <code>Maybe</code> usa um tipo concreto (como
 <code>Int</code>) e depois retorna um tipo concreto como
 <code>Maybe Int</code>. E é isso que esse kind nos diz. Assim como
@@ -1420,7 +1775,8 @@ tive que fazer isso até agora), eu diria <em>star</em> ou apenas
 significa que o construtor de tipos pega um tipo concreto e retorna um
 tipo concreto. Vamos aplicar o parâmetro de tipo para <code>Maybe</code>
 e ver qual é o kind desse tipo.</p>
-<p><code>{.haskell:hs} ghci&gt; :k Maybe Int Maybe Int :: *</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :k Maybe Int
+Maybe Int :: *</code></pre>
 <p>Assim como eu esperava! Aplicamos o parâmetro de tipo em
 <code>Maybe</code> e recebemos um tipo concreto (é isso que
 <code>* -&gt; *</code> significa). Um paralelo (embora não equivalente,
@@ -1435,13 +1791,17 @@ podemos usar <code>:t</code> em um valor para obter seu tipo. Como
 dissemos, os tipos são os rótulos de valores e kinds são os rótulos de
 tipos e existem paralelos entre os dois.</p>
 <p>Vamos ver outro kind.</p>
-<p><code>{.haskell:hs} ghci&gt; :k Either Either :: * -&gt; * -&gt; *</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :k Either
+Either :: * -&gt; * -&gt; *</code></pre>
 <p>Aha, isso nos diz que <code>Either</code> requer dois tipos concretos
 como parâmetros de tipo para produzir um tipo concreto. Também se parece
 com uma declaração de tipo de uma função que assume dois valores e
 retorna algo. Os construtores de tipos são curried (assim como as
 funções), para que possamos aplicá-los parcialmente.</p>
-<p><code>{.haskell:hs} ghci&gt; :k Either String Either String :: * -&gt; * ghci&gt; :k Either String Int Either String Int :: *</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :k Either String
+Either String :: * -&gt; *
+ghci&gt; :k Either String Int
+Either String Int :: *</code></pre>
 <p>Quando queríamos fazer de <code>Either</code> uma parte da typeclass
 <code>Functor</code>, tivemos que aplicá-lo parcialmente, porque
 <code>Functor</code> quer tipos que aceitem apenas um parâmetro enquanto
@@ -1451,7 +1811,8 @@ portanto, tivemos que aplicar parcialmente o <code>Either</code> para
 obter um tipo de kind <code>* -&gt; *</code> em vez de seu kind original
 <code>* -&gt; * -&gt; *</code>. Se olharmos para a definição de
 <code>Functor</code> novamente</p>
-<p><code>{.haskell:hs} class Functor f where     fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></p>
+<pre class="haskell:hs"><code>class Functor f where
+    fmap :: (a -&gt; b) -&gt; f a -&gt; f b</code></pre>
 <p>vemos que a variável de tipo <code>f</code> é usada como um tipo que
 usa um tipo concreto para produzir um tipo concreto. Sabemos que ele
 deve produzir um tipo concreto porque é usado como o tipo de valor em
@@ -1460,7 +1821,8 @@ ser amigos de <code>Functor</code> devem ser do tipo
 <code>* -&gt; *</code>.</p>
 <p>Agora, vamos fazer um pouco de type-foo. Dê uma olhada nesta
 typeclass que vou inventar agora:</p>
-<p><code>{.haskell:hs} class Tofu t where     tofu :: j a -&gt; t a j</code></p>
+<pre class="haskell:hs"><code>class Tofu t where
+    tofu :: j a -&gt; t a j</code></pre>
 <p>Cara, isso parece estranho. Como faríamos um tipo que poderia ser uma
 instância dessa estranha typeclass? Bem, vamos ver o que teria que ser
 seu kind. Como <code>j a</code> é usado como o tipo de valor que a
@@ -1477,7 +1839,7 @@ tipo concreto (<code>j</code>) e produz um tipo concreto. Uau.</p>
 <p>OK, então vamos criar um tipo com um kind de
 <code>* -&gt; (* -&gt; *) -&gt; *</code>. Aqui está uma maneira de fazer
 isso.</p>
-<p><code>{.haskell:hs} data Frank a b  = Frank {frankField :: b a} deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Frank a b  = Frank {frankField :: b a} deriving (Show)</code></pre>
 <p>Como sabemos que esse tipo tem um kind de
 <code>* -&gt; (* -&gt; *) -&gt; *</code>? Bem, os campos nos ADTs são
 feitos para manter valores, por isso devem ser do kind <code>*</code>,
@@ -1490,7 +1852,12 @@ kind é <code>* -&gt; *</code>. Agora conhecemos os kinds de
 representa <code>a</code> e o <code>(* -&gt; *)</code> representa
 <code>b</code>. Vamos criar alguns valores <code>Frank</code> e
 verificar seus tipos.</p>
-<p><code>{.haskell:hs} ghci&gt; :t Frank {frankField = Just "HAHA"} Frank {frankField = Just "HAHA"} :: Frank [Char] Maybe ghci&gt; :t Frank {frankField = Node 'a' EmptyTree EmptyTree} Frank {frankField = Node 'a' EmptyTree EmptyTree} :: Frank Char Tree ghci&gt; :t Frank {frankField = "YES"} Frank {frankField = "YES"} :: Frank Char []</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t Frank {frankField = Just &quot;HAHA&quot;}
+Frank {frankField = Just &quot;HAHA&quot;} :: Frank [Char] Maybe
+ghci&gt; :t Frank {frankField = Node &#39;a&#39; EmptyTree EmptyTree}
+Frank {frankField = Node &#39;a&#39; EmptyTree EmptyTree} :: Frank Char Tree
+ghci&gt; :t Frank {frankField = &quot;YES&quot;}
+Frank {frankField = &quot;YES&quot;} :: Frank Char []</code></pre>
 <p>Hmm. Como <code>frankField</code> tem um tipo de formulário
 <code>a b</code>, seus valores devem ter tipos de uma forma semelhante
 também. Portanto, eles podem ser <code>Just "HAHA"</code>, que tem um
@@ -1510,11 +1877,15 @@ bastante simples. Vemos que <code>tofu</code> recebe um <code>j a</code>
 <code>Maybe Int</code>) e retorna um <code>t a j</code>. Portanto, se
 substituirmos <code>Frank</code> por <code>j</code>, o tipo de resultado
 seria <code>Frank Int Maybe</code>.</p>
-<p><code>{.haskell:hs} instance Tofu Frank where     tofu x = Frank x</code></p>
-<p><code>{.haskell:hs} ghci&gt; tofu (Just 'a') :: Frank Char Maybe Frank {frankField = Just 'a'} ghci&gt; tofu ["HELLO"] :: Frank [Char] [] Frank {frankField = ["HELLO"]}</code></p>
+<pre class="haskell:hs"><code>instance Tofu Frank where
+    tofu x = Frank x</code></pre>
+<pre class="haskell:hs"><code>ghci&gt; tofu (Just &#39;a&#39;) :: Frank Char Maybe
+Frank {frankField = Just &#39;a&#39;}
+ghci&gt; tofu [&quot;HELLO&quot;] :: Frank [Char] []
+Frank {frankField = [&quot;HELLO&quot;]}</code></pre>
 <p>Não é muito útil, mas flexionamos nossos músculos de tipo. Vamos
 fazer mais type-foo. Temos este tipo de dados:</p>
-<p><code>{.haskell:hs} data Barry t k p = Barry { yabba :: p, dabba :: t k }</code></p>
+<pre class="haskell:hs"><code>data Barry t k p = Barry { yabba :: p, dabba :: t k }</code></pre>
 <p>E agora queremos torná-lo uma instância de <code>Functor</code>.
 <code>Functor</code> quer tipos de kind <code>* -&gt; *</code> mas
 <code>Barry</code> não parece ter esse kind. Qual é o kind de
@@ -1528,7 +1899,8 @@ vamos substituir esses kinds pelos <em>somethings</em> que usamos como
 espaços reservados e vemos que ele tem um kind de
 <code>(* -&gt; *) -&gt; * -&gt; * -&gt; *</code>. Vamos verificar isso
 com o GHCI.</p>
-<p><code>{.haskell:hs} ghci&gt; :k Barry Barry :: (* -&gt; *) -&gt; * -&gt; * -&gt; *</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :k Barry
+Barry :: (* -&gt; *) -&gt; * -&gt; * -&gt; *</code></pre>
 <p>Ah, nós estávamos certos. Que satisfatório. Agora, para tornar esse
 tipo uma parte de <code>Functor</code>, temos que aplicar parcialmente
 os dois primeiros parâmetros de tipo para ficarmos com
@@ -1541,7 +1913,8 @@ porque apenas substituímos o <code>f</code> do <code>Functor</code> por
 <code>Barry c d</code>. O terceiro parâmetro de tipo de
 <code>Barry</code> terá que mudar e vemos que está convenientemente em
 seu próprio campo.</p>
-<p><code>{.haskell:hs} instance Functor (Barry a b) where     fmap f (Barry {yabba = x, dabba = y}) = Barry {yabba = f x, dabba = y}</code></p>
+<pre class="haskell:hs"><code>instance Functor (Barry a b) where
+    fmap f (Barry {yabba = x, dabba = y}) = Barry {yabba = f x, dabba = y}</code></pre>
 <p>Aí vamos nós! Acabamos de mapear o <code>f</code> sobre o primeiro
 campo.</p>
 <p>Nesta seção, examinamos bem como os parâmetros de tipo funcionam e os
@@ -1561,9 +1934,15 @@ sistema de tipos de Haskell.</p>
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="modules.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="input-and-output.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="modules.html">Anterior (Módulos)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="input-and-output.html" class="nxtlink">Próximo (Entrada e Saída)</a>
+        </li>
     </ul>
 </div>
 

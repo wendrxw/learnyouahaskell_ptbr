@@ -9,21 +9,27 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="for-a-few-monads-more.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"></li>
+        <li style="text-align:left">
+<a href="for-a-few-monads-more.html">Anterior (Por mais Alguns Monads)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Zippers</h1>
-<p><img src="assets/images/zippers/60sdude.png"
-alt="oi, eu sou o chet" />{.right width=122 height=407}</p>
+<h1 id="zippers">Zippers</h1>
+<p><img src="assets/images/zippers/60sdude.png" class="right"
+width="122" height="407" alt="oi, eu sou o chet" /></p>
 <p>Embora a pureza do Haskell traga um monte de benefícios, ela nos faz
 abordar alguns problemas de forma diferente do que faríamos em
 linguagens impuras. Por causa da transparência referencial, um valor é
@@ -49,25 +55,47 @@ caminho desde a raiz da árvore até o nosso elemento novamente!</p>
 <p>Neste capítulo, veremos como podemos pegar alguma estrutura de dados
 e focar em uma parte dela de uma maneira que torne a mudança de seus
 elementos fácil e o caminhar por ela eficiente. Legal!</p>
-<h2>Dando um passeio {#taking-a-walk}</h2>
+<h2 id="taking-a-walk">Dando um passeio</h2>
 <p>Como aprendemos na aula de biologia, existem muitos tipos diferentes
 de árvores, então vamos escolher uma semente que usaremos para plantar a
 nossa. Aqui está:</p>
-<p><code>{.haskell:hs} data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Show)</code></pre>
 <p>Então a nossa árvore ou está vazia ou é um nó que tem um elemento e
 duas subárvores. Aqui está um belo exemplo de tal árvore, que eu dou a
 você, leitor, de graça!</p>
-<p><code>{.haskell:hs} freeTree :: Tree Char freeTree =     Node 'P'         (Node 'O'             (Node 'L'                 (Node 'N' Empty Empty)                 (Node 'T' Empty Empty)             )             (Node 'Y'                 (Node 'S' Empty Empty)                 (Node 'A' Empty Empty)             )         )         (Node 'L'             (Node 'W'                 (Node 'C' Empty Empty)                 (Node 'R' Empty Empty)             )             (Node 'A'                 (Node 'A' Empty Empty)                 (Node 'C' Empty Empty)             )         )</code></p>
+<pre class="haskell:hs"><code>freeTree :: Tree Char
+freeTree =
+    Node &#39;P&#39;
+        (Node &#39;O&#39;
+            (Node &#39;L&#39;
+                (Node &#39;N&#39; Empty Empty)
+                (Node &#39;T&#39; Empty Empty)
+            )
+            (Node &#39;Y&#39;
+                (Node &#39;S&#39; Empty Empty)
+                (Node &#39;A&#39; Empty Empty)
+            )
+        )
+        (Node &#39;L&#39;
+            (Node &#39;W&#39;
+                (Node &#39;C&#39; Empty Empty)
+                (Node &#39;R&#39; Empty Empty)
+            )
+            (Node &#39;A&#39;
+                (Node &#39;A&#39; Empty Empty)
+                (Node &#39;C&#39; Empty Empty)
+            )
+        )</code></pre>
 <p>E aqui está esta árvore representada graficamente:</p>
-<p><img src="assets/images/zippers/pollywantsa.png"
-alt="polly diz que suas costas doem" />{.center width=780
-height=504}</p>
+<p><img src="assets/images/zippers/pollywantsa.png" class="center"
+width="780" height="504" alt="polly diz que suas costas doem" /></p>
 <p>Notou aquele <code>W</code> na árvore ali? Digamos que queiramos
 mudá-lo para um <code>P</code>. Como faríamos isso? Bem, uma maneira
 seria fazer pattern matching na nossa árvore até encontrarmos o elemento
 localizado indo primeiro para a direita e depois para a esquerda e
 mudando o dito elemento. Aqui está o código para isso:</p>
-<p><code>{.haskell:hs} changeToP :: Tree Char -&gt; Tree Char changeToP (Node x l (Node y (Node _ m n) r)) = Node x l (Node y (Node 'P' m n) r)</code></p>
+<pre class="haskell:hs"><code>changeToP :: Tree Char -&gt; Tree Char
+changeToP (Node x l (Node y (Node _ m n) r)) = Node x l (Node y (Node &#39;P&#39; m n) r)</code></pre>
 <p>Eca! Não só isso é bastante feio, como também é meio confuso. O que
 acontece aqui? Bem, fazemos pattern matching na nossa árvore e nomeamos
 seu elemento raiz como <code>x</code> (que se torna o <code>'P'</code>
@@ -82,12 +110,13 @@ função receber uma árvore junto com uma lista de direções. As direções
 serão <code>L</code> ou <code>R</code>, representando esquerda (left) e
 direita (right) respectivamente, e mudaremos o elemento em que chegarmos
 se seguirmos as direções fornecidas. Aqui está:</p>
-<p>```{.haskell:hs} data Direction = L | R deriving (Show) type
-Directions = [Direction]</p>
-<p>changeToP :: Directions -&gt; Tree Char -&gt; Tree Char changeToP
-(L:ds) (Node x l r) = Node x (changeToP ds l) r changeToP (R:ds) (Node x
-l r) = Node x l (changeToP ds r) changeToP [] (Node _ l r) = Node 'P' l
-r ```</p>
+<pre class="haskell:hs"><code>data Direction = L | R deriving (Show)
+type Directions = [Direction]
+
+changeToP :: Directions -&gt; Tree Char -&gt; Tree Char
+changeToP (L:ds) (Node x l r) = Node x (changeToP ds l) r
+changeToP (R:ds) (Node x l r) = Node x l (changeToP ds r)
+changeToP [] (Node _ l r) = Node &#39;P&#39; l r</code></pre>
 <p>Se o primeiro elemento na nossa lista de direções for <code>L</code>,
 construímos uma nova árvore que é como a árvore antiga, só que sua
 subárvore esquerda tem um elemento alterado para <code>'P'</code>.
@@ -99,13 +128,18 @@ vazia, isso significa que estamos no nosso destino, então retornamos uma
 elemento raiz.</p>
 <p>Para evitar imprimir a árvore toda, vamos fazer uma função que receba
 uma lista de direções e nos diga qual é o elemento no destino:</p>
-<p><code>{.haskell:hs} elemAt :: Directions -&gt; Tree a -&gt; a elemAt (L:ds) (Node _ l _) = elemAt ds l elemAt (R:ds) (Node _ _ r) = elemAt ds r elemAt [] (Node x _ _) = x</code></p>
+<pre class="haskell:hs"><code>elemAt :: Directions -&gt; Tree a -&gt; a
+elemAt (L:ds) (Node _ l _) = elemAt ds l
+elemAt (R:ds) (Node _ _ r) = elemAt ds r
+elemAt [] (Node x _ _) = x</code></pre>
 <p>Esta função é na verdade bastante semelhante à
 <code>changeToP</code>, só que em vez de lembrar as coisas ao longo do
 caminho e reconstruir a árvore, ela ignora tudo exceto seu destino. Aqui
 mudamos o <code>'W'</code> para um <code>'P'</code> e vemos se a mudança
 na nossa nova árvore permanece:</p>
-<p><code>{.haskell:hs} ghci&gt; let newTree = changeToP [R,L] freeTree ghci&gt; elemAt [R,L] newTree 'P'</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newTree = changeToP [R,L] freeTree
+ghci&gt; elemAt [R,L] newTree
+&#39;P&#39;</code></pre>
 <p>Legal, isso parece funcionar. Nestas funções, a lista de direções
 atua como uma espécie de <em>foco</em>, porque aponta para uma subárvore
 exata da nossa árvore. Uma lista de direções <code>[R]</code> foca na
@@ -122,9 +156,9 @@ todo o caminho até ao fundo novamente! Que chato.</p>
 <p>Na próxima seção, encontraremos uma maneira melhor de focar em uma
 subárvore, uma que nos permita mudar o foco eficientemente para
 subárvores que estejam próximas.</p>
-<h2>Um rastro de migalhas {#a-trail-of-breadcrumbs}</h2>
-<p><img src="assets/images/zippers/bread.png"
-alt="whoop dee doo" />{.right width=321 height=250}</p>
+<h2 id="a-trail-of-breadcrumbs">Um rastro de migalhas</h2>
+<p><img src="assets/images/zippers/bread.png" class="right" width="321"
+height="250" alt="whoop dee doo" /></p>
 <p>Certo, então para focar em uma subárvore, queremos algo melhor do que
 apenas uma lista de direções que sempre seguimos a partir da raiz da
 nossa árvore. Ajudaria se começássemos na raiz da árvore e nos
@@ -139,22 +173,25 @@ em vez de chamá-la de <code>Directions</code>, vamos chamá-la de
 <code>Breadcrumbs</code> (migalhas), porque as nossas direções agora
 estarão invertidas, já que as estamos deixando à medida que descemos
 pela nossa árvore:</p>
-<p><code>{.haskell:hs} type Breadcrumbs = [Direction]</code></p>
+<pre class="haskell:hs"><code>type Breadcrumbs = [Direction]</code></pre>
 <p>Aqui está uma função que recebe uma árvore e algumas migalhas e se
 move para a subárvore esquerda enquanto adiciona <code>L</code> ao
 início da lista que representa nossas migalhas:</p>
-<p><code>{.haskell:hs} goLeft :: (Tree a, Breadcrumbs) -&gt; (Tree a, Breadcrumbs) goLeft (Node _ l _, bs) = (l, L:bs)</code></p>
+<pre class="haskell:hs"><code>goLeft :: (Tree a, Breadcrumbs) -&gt; (Tree a, Breadcrumbs)
+goLeft (Node _ l _, bs) = (l, L:bs)</code></pre>
 <p>Ignoramos o elemento na raiz e a subárvore direita e apenas
 retornamos a subárvore esquerda junto com as migalhas antigas com
 <code>L</code> no início. Aqui está uma função para ir para a
 direita:</p>
-<p><code>{.haskell:hs} goRight :: (Tree a, Breadcrumbs) -&gt; (Tree a, Breadcrumbs) goRight (Node _ _ r, bs) = (r, R:bs)</code></p>
+<pre class="haskell:hs"><code>goRight :: (Tree a, Breadcrumbs) -&gt; (Tree a, Breadcrumbs)
+goRight (Node _ _ r, bs) = (r, R:bs)</code></pre>
 <p>Ela funciona da mesma maneira. Vamos usar essas funções para pegar a
 nossa <code>freeTree</code> e ir para a direita e depois para a
 esquerda:</p>
-<p><code>{.haskell:hs} ghci&gt; goLeft (goRight (freeTree, [])) (Node 'W' (Node 'C' Empty Empty) (Node 'R' Empty Empty),[L,R])</code></p>
-<p><img src="assets/images/zippers/almostzipper.png"
-alt="almostthere" />{.left width=399 height=224}</p>
+<pre class="haskell:hs"><code>ghci&gt; goLeft (goRight (freeTree, []))
+(Node &#39;W&#39; (Node &#39;C&#39; Empty Empty) (Node &#39;R&#39; Empty Empty),[L,R])</code></pre>
+<p><img src="assets/images/zippers/almostzipper.png" class="left"
+width="399" height="224" alt="almostthere" /></p>
 <p>Certo, então agora temos uma árvore que tem <code>'W'</code> na sua
 raiz e <code>'C'</code> na raiz da sua subárvore esquerda e
 <code>'R'</code> na raiz da sua subárvore direita. As migalhas são
@@ -162,15 +199,16 @@ raiz e <code>'C'</code> na raiz da sua subárvore esquerda e
 esquerda.</p>
 <p>Para tornar o caminhar pela nossa árvore mais claro, podemos usar a
 função <code>-:</code> que definimos assim:</p>
-<p><code>{.haskell:hs} x -: f = f x</code></p>
+<pre class="haskell:hs"><code>x -: f = f x</code></pre>
 <p>O que nos permite aplicar funções a valores escrevendo primeiro o
 valor, depois um <code>-:</code> e então a função. Então, em vez de
 <code>goRight (freeTree, [])</code>, podemos escrever
 <code>(freeTree, []) -: goRight</code>. Usando isso, podemos reescrever
 o exemplo acima para que fique mais aparente que primeiro estamos indo
 para a direita e depois para a esquerda:</p>
-<p><code>{.haskell:hs} ghci&gt; (freeTree, []) -: goRight -: goLeft (Node 'W' (Node 'C' Empty Empty) (Node 'R' Empty Empty),[L,R])</code></p>
-<h3>Voltando para cima</h3>
+<pre class="haskell:hs"><code>ghci&gt; (freeTree, []) -: goRight -: goLeft
+(Node &#39;W&#39; (Node &#39;C&#39; Empty Empty) (Node &#39;R&#39; Empty Empty),[L,R])</code></pre>
+<h3 id="voltando-para-cima">Voltando para cima</h3>
 <p>E se quisermos agora voltar para cima na nossa árvore? Pelas nossas
 migalhas de pão, sabemos que a árvore atual é a subárvore esquerda do
 seu pai e que ela é a subárvore direita do seu pai, mas é só isso. Elas
@@ -190,7 +228,7 @@ informação duplicada.</p>
 informações sobre tudo o que ignoramos anteriormente ao nos movermos
 para a esquerda e para a direita. Em vez de <code>Direction</code>,
 criaremos um novo tipo de dado:</p>
-<p><code>{.haskell:hs} data Crumb a = LeftCrumb a (Tree a) | RightCrumb a (Tree a) deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data Crumb a = LeftCrumb a (Tree a) | RightCrumb a (Tree a) deriving (Show)</code></pre>
 <p>Agora, em vez de apenas <code>L</code>, temos um
 <code>LeftCrumb</code> que também contém o elemento no nó do qual nos
 movemos e a árvore direita que não visitamos. Em vez de <code>R</code>,
@@ -210,12 +248,13 @@ que nos movemos para a esquerda, então a subárvore que falta é a da
 esquerda.</p>
 <p>Vamos também mudar o nosso sinônimo de tipo <code>Breadcrumbs</code>
 para refletir isso:</p>
-<p><code>{.haskell:hs} type Breadcrumbs a = [Crumb a]</code></p>
+<pre class="haskell:hs"><code>type Breadcrumbs a = [Crumb a]</code></pre>
 <p>Em seguida, temos que modificar as funções <code>goLeft</code> e
 <code>goRight</code> para armazenar informações sobre os caminhos que
 não tomamos nas nossas migalhas de pão, em vez de ignorar essa
 informação como faziam antes. Aqui está a <code>goLeft</code>:</p>
-<p><code>{.haskell:hs} goLeft :: (Tree a, Breadcrumbs a) -&gt; (Tree a, Breadcrumbs a) goLeft (Node x l r, bs) = (l, LeftCrumb x r:bs)</code></p>
+<pre class="haskell:hs"><code>goLeft :: (Tree a, Breadcrumbs a) -&gt; (Tree a, Breadcrumbs a)
+goLeft (Node x l r, bs) = (l, LeftCrumb x r:bs)</code></pre>
 <p>Você pode ver que ela é muito semelhante à nossa <code>goLeft</code>
 anterior, só que em vez de apenas adicionar um <code>L</code> ao início
 da nossa lista de migalhas, adicionamos um <code>LeftCrumb</code> para
@@ -228,14 +267,17 @@ tentarmos ir para a esquerda a partir de uma árvore vazia, ocorrerá um
 erro porque o pattern match em <code>Node</code> não terá sucesso e não
 há nenhum padrão que cuide de <code>Empty</code>.</p>
 <p>A <code>goRight</code> é semelhante:</p>
-<p><code>{.haskell:hs} goRight :: (Tree a, Breadcrumbs a) -&gt; (Tree a, Breadcrumbs a) goRight (Node x l r, bs) = (r, RightCrumb x l:bs)</code></p>
+<pre class="haskell:hs"><code>goRight :: (Tree a, Breadcrumbs a) -&gt; (Tree a, Breadcrumbs a)
+goRight (Node x l r, bs) = (r, RightCrumb x l:bs)</code></pre>
 <p>Anteriormente fomos capazes de ir para a esquerda e para a direita. O
 que conseguimos agora é a habilidade de realmente voltar para cima
 lembrando coisas sobre os nós pais e os caminhos que não visitamos. Aqui
 está a função <code>goUp</code>:</p>
-<p><code>{.haskell:hs} goUp :: (Tree a, Breadcrumbs a) -&gt; (Tree a, Breadcrumbs a) goUp (t, LeftCrumb x r:bs) = (Node x t r, bs) goUp (t, RightCrumb x l:bs) = (Node x l t, bs)</code></p>
-<p><img src="assets/images/zippers/asstronaut.png"
-alt="asstronaut" />{.left width=511 height=433}</p>
+<pre class="haskell:hs"><code>goUp :: (Tree a, Breadcrumbs a) -&gt; (Tree a, Breadcrumbs a)
+goUp (t, LeftCrumb x r:bs) = (Node x t r, bs)
+goUp (t, RightCrumb x l:bs) = (Node x l t, bs)</code></pre>
+<p><img src="assets/images/zippers/asstronaut.png" class="left"
+width="511" height="433" alt="asstronaut" /></p>
 <p>Estamos focando na árvore <code>t</code> e verificamos qual é a
 última <code>Crumb</code>. Se for uma <code>LeftCrumb</code>, então
 construímos uma nova árvore onde a nossa árvore <code>t</code> é a
@@ -256,33 +298,35 @@ parte focada de uma estrutura de dados e seus arredores é chamado de
 baixo na estrutura de dados assemelha-se à operação de um zíper em uma
 calça comum. Portanto, é legal criarmos um sinônimo de tipo como
 este:</p>
-<p><code>{.haskell:hs} type Zipper a = (Tree a, Breadcrumbs a)</code></p>
+<pre class="haskell:hs"><code>type Zipper a = (Tree a, Breadcrumbs a)</code></pre>
 <p>Eu preferiria nomear o sinônimo de tipo como <code>Focus</code>,
 porque isso deixaria mais claro que estamos focando em uma parte de uma
 estrutura de dados, mas o termo <em>zipper</em> é mais amplamente
 utilizado para descrever tal configuração, então ficaremos com
 <code>Zipper</code>.</p>
-<h3>Manipulando árvores sob foco</h3>
+<h3 id="manipulando-árvores-sob-foco">Manipulando árvores sob foco</h3>
 <p>Agora que podemos nos mover para cima e para baixo, vamos fazer uma
 função que modifique o elemento na raiz da subárvore em que o zipper
 está focando:</p>
-<p><code>{.haskell:hs} modify :: (a -&gt; a) -&gt; Zipper a -&gt; Zipper a modify f (Node x l r, bs) = (Node (f x) l r, bs) modify f (Empty, bs) = (Empty, bs)</code></p>
+<pre class="haskell:hs"><code>modify :: (a -&gt; a) -&gt; Zipper a -&gt; Zipper a
+modify f (Node x l r, bs) = (Node (f x) l r, bs)
+modify f (Empty, bs) = (Empty, bs)</code></pre>
 <p>Se estivermos focando em um nó, modificamos seu elemento raiz com a
 função <code>f</code>. Se estivermos focando em uma árvore vazia,
 deixamos como está. Agora podemos começar com uma árvore, mover-nos para
 onde quisermos e modificar um elemento, tudo isso mantendo o foco nesse
 elemento para que possamos facilmente nos mover mais para cima ou para
 baixo. Um exemplo:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus = modify (\_ -&gt; 'P') (goRight (goLeft (freeTree,[])))</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus = modify (\_ -&gt; &#39;P&#39;) (goRight (goLeft (freeTree,[])))</code></pre>
 <p>Vamos para a esquerda, depois para a direita e então modificamos o
 elemento raiz substituindo-o por um <code>'P'</code>. Isso fica ainda
 melhor se usarmos <code>-:</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus = (freeTree,[]) -: goLeft -: goRight -: modify (\_ -&gt; 'P')</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus = (freeTree,[]) -: goLeft -: goRight -: modify (\_ -&gt; &#39;P&#39;)</code></pre>
 <p>Podemos então subir se quisermos e substituir um elemento por um
 misterioso <code>'X'</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus2 = modify (\_ -&gt; 'X') (goUp newFocus)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus2 = modify (\_ -&gt; &#39;X&#39;) (goUp newFocus)</code></pre>
 <p>Ou se escrevêssemos com <code>-:</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus2 = newFocus -: goUp -: modify (\_ -&gt; 'X')</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus2 = newFocus -: goUp -: modify (\_ -&gt; &#39;X&#39;)</code></pre>
 <p>Mover-se para cima é fácil porque as migalhas que deixamos formam a
 parte da estrutura de dados em que não estamos focando, mas ela está
 invertida, algo como virar uma meia do avesso. É por isso que quando
@@ -293,23 +337,28 @@ dela e adicionando-a ao nosso foco.</p>
 vazias. Então, se estivermos focando em uma subárvore vazia, uma coisa
 que podemos fazer é substituí-la por uma subárvore não vazia, anexando
 assim uma árvore a um nó folha. O código para isso é simples:</p>
-<p><code>{.haskell:hs} attach :: Tree a -&gt; Zipper a -&gt; Zipper a attach t (_, bs) = (t, bs)</code></p>
+<pre class="haskell:hs"><code>attach :: Tree a -&gt; Zipper a -&gt; Zipper a
+attach t (_, bs) = (t, bs)</code></pre>
 <p>Recebemos uma árvore e um zipper e retornamos um novo zipper que tem
 seu foco substituído pela árvore fornecida. Não só podemos estender
 árvores desta forma, substituindo subárvores vazias por novas árvores,
 como também podemos substituir subárvores inteiras existentes. Vamos
 anexar uma árvore ao extremo esquerdo da nossa
 <code>freeTree</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; let farLeft = (freeTree,[]) -: goLeft -: goLeft -: goLeft -: goLeft ghci&gt; let newFocus = farLeft -: attach (Node 'Z' Empty Empty)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let farLeft = (freeTree,[]) -: goLeft -: goLeft -: goLeft -: goLeft
+ghci&gt; let newFocus = farLeft -: attach (Node &#39;Z&#39; Empty Empty)</code></pre>
 <p><code>newFocus</code> está agora focado na árvore que acabamos de
 anexar e o resto da árvore jaz invertido nas migalhas de pão. Se
 usássemos <code>topMost</code> para caminhar até o topo da árvore, seria
 a mesma árvore que <code>freeTree</code>, mas com um <code>'Z'</code>
 adicional no seu extremo esquerdo.</p>
-<h3>Indo direto para o topo, onde o ar é puro e limpo!</h3>
+<h3 id="indo-direto-para-o-topo-onde-o-ar-é-puro-e-limpo">Indo direto
+para o topo, onde o ar é puro e limpo!</h3>
 <p>Criar uma função que caminhe até o topo da árvore, independentemente
 de onde estejamos focando, é realmente fácil. Aqui está ela:</p>
-<p><code>{.haskell:hs} topMost :: Zipper a -&gt; Zipper a topMost (t,[]) = (t,[]) topMost z = topMost (goUp z)</code></p>
+<pre class="haskell:hs"><code>topMost :: Zipper a -&gt; Zipper a
+topMost (t,[]) = (t,[])
+topMost z = topMost (goUp z)</code></pre>
 <p>Se o nosso rastro de migalhas turbinadas estiver vazio, isso
 significa que já estamos na raiz da nossa árvore, então apenas
 retornamos o foco atual. Caso contrário, subimos para obter o foco do nó
@@ -319,7 +368,7 @@ direita e para cima, aplicando <code>modify</code> e <code>attach</code>
 à medida que avançamos e, quando terminarmos as nossas modificações,
 usamos <code>topMost</code> para focar na raiz da nossa árvore e ver as
 mudanças que fizemos na perspectiva adequada.</p>
-<h2>Focando em listas {#focusing-on-lists}</h2>
+<h2 id="focusing-on-lists">Focando em listas</h2>
 <p>Zippers podem ser usados com praticamente qualquer estrutura de
 dados, então não é surpresa que eles possam ser usados para focar em
 sublistas de listas. Afinal de contas, listas são muito parecidas com
@@ -328,9 +377,9 @@ várias subárvores, um nó em uma lista tem um elemento e apenas uma única
 sublista. Quando <a
 href="making-our-own-types-and-typeclasses.html#recursive-data-structures">implementamos
 nossas próprias listas</a>, definimos o nosso tipo de dado assim:</p>
-<p><code>{.haskell:hs} data List a = Empty | Cons a (List a) deriving (Show, Read, Eq, Ord)</code></p>
-<p><img src="assets/images/zippers/picard.png"
-alt="the best damn thing" />{.right width=355 height=380}</p>
+<pre class="haskell:hs"><code>data List a = Empty | Cons a (List a) deriving (Show, Read, Eq, Ord)</code></pre>
+<p><img src="assets/images/zippers/picard.png" class="right" width="355"
+height="380" alt="the best damn thing" /></p>
 <p>Contraste isso com a nossa definição de árvore binária e fica fácil
 ver como listas podem ser vistas como árvores onde cada nó tem apenas
 uma subárvore.</p>
@@ -362,20 +411,29 @@ início da nossa lista, obtendo <code>[2,3,4,5]</code>.</p>
 <p>Como uma única migalha de pão aqui é apenas o elemento, não
 precisamos realmente colocá-lo dentro de um tipo de dado, como fizemos
 quando criamos o tipo <code>Crumb</code> para zippers de árvores:</p>
-<p><code>{.haskell:hs} type ListZipper a = ([a],[a])</code></p>
+<pre class="haskell:hs"><code>type ListZipper a = ([a],[a])</code></pre>
 <p>A primeira lista representa a lista em que estamos focando e a
 segunda lista é a lista de migalhas de pão. Vamos fazer funções que
 andam para frente e para trás em listas:</p>
-<p>```{.haskell:hs} goForward :: ListZipper a -&gt; ListZipper a
-goForward (x:xs, bs) = (xs, x:bs)</p>
-<p>goBack :: ListZipper a -&gt; ListZipper a goBack (xs, b:bs) = (b:xs,
-bs) ```</p>
+<pre class="haskell:hs"><code>goForward :: ListZipper a -&gt; ListZipper a
+goForward (x:xs, bs) = (xs, x:bs)
+
+goBack :: ListZipper a -&gt; ListZipper a
+goBack (xs, b:bs) = (b:xs, bs)</code></pre>
 <p>Quando estamos indo para frente, focamos na cauda da lista atual e
 deixamos o elemento da cabeça como uma migalha. Quando estamos nos
 movendo para trás, pegamos a última migalha e a colocamos no início da
 lista.</p>
 <p>Aqui estão estas duas funções em ação:</p>
-<p><code>{.haskell:hs} ghci&gt; let xs = [1,2,3,4] ghci&gt; goForward (xs,[]) ([2,3,4],[1]) ghci&gt; goForward ([2,3,4],[1]) ([3,4],[2,1]) ghci&gt; goForward ([3,4],[2,1]) ([4],[3,2,1]) ghci&gt; goBack ([4],[3,2,1]) ([3,4],[2,1])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let xs = [1,2,3,4]
+ghci&gt; goForward (xs,[])
+([2,3,4],[1])
+ghci&gt; goForward ([2,3,4],[1])
+([3,4],[2,1])
+ghci&gt; goForward ([3,4],[2,1])
+([4],[3,2,1])
+ghci&gt; goBack ([4],[3,2,1])
+([3,4],[2,1])</code></pre>
 <p>Vemos que as migalhas no caso das listas nada mais são do que a parte
 invertida da nossa lista. O elemento do qual nos afastamos sempre vai
 para a cabeça das migalhas, então é fácil voltar apenas pegando esse
@@ -389,8 +447,8 @@ atualmente e então poderia usar um zipper para saber em qual linha o
 cursor está focado no momento. Usando um zipper, também seria mais fácil
 inserir novas linhas em qualquer lugar do texto ou excluir as
 existentes.</p>
-<h2>Um sistema de arquivos muito simples
-{#a-very-simple-file-system}</h2>
+<h2 id="a-very-simple-file-system">Um sistema de arquivos muito
+simples</h2>
 <p>Agora que sabemos como os zippers funcionam, vamos usar árvores para
 representar um sistema de arquivos muito simples e então fazer um zipper
 para esse sistema de arquivos, o que nos permitirá mover entre pastas,
@@ -405,19 +463,42 @@ arquivo, que vem com um nome e alguns dados, ou uma pasta, que tem um
 nome e depois um monte de itens que são eles próprios arquivos ou
 pastas. Aqui está um tipo de dado para isso e alguns sinônimos de tipo
 para sabermos o que é o quê:</p>
-<p><code>{.haskell:hs} type Name = String type Data = String data FSItem = File Name Data | Folder Name [FSItem] deriving (Show)</code></p>
+<pre class="haskell:hs"><code>type Name = String
+type Data = String
+data FSItem = File Name Data | Folder Name [FSItem] deriving (Show)</code></pre>
 <p>Um arquivo vem com duas strings, que representam seu nome e os dados
 que ele contém. Uma pasta vem com uma string que é o seu nome e uma
 lista de itens. Se essa lista estiver vazia, então temos uma pasta
 vazia.</p>
 <p>Aqui está uma pasta com alguns arquivos e subpastas:</p>
-<p><code>{.haskell:hs} myDisk :: FSItem myDisk =     Folder "root"         [ File "goat_yelling_like_man.wmv" "baaaaaa"         , File "pope_time.avi" "god bless"         , Folder "pics"             [ File "ape_throwing_up.jpg" "bleargh"             , File "watermelon_smash.gif" "smash!!"             , File "skull_man(scary).bmp" "Yikes!"             ]         , File "dijon_poupon.doc" "best mustard"         , Folder "programs"             [ File "fartwizard.exe" "10gotofart"             , File "owl_bandit.dmg" "mov eax, h00t"             , File "not_a_virus.exe" "really not a virus"             , Folder "source code"                 [ File "best_hs_prog.hs" "main = print (fix error)"                 , File "random.hs" "main = print 4"                 ]             ]         ]</code></p>
+<pre class="haskell:hs"><code>myDisk :: FSItem
+myDisk =
+    Folder &quot;root&quot;
+        [ File &quot;goat_yelling_like_man.wmv&quot; &quot;baaaaaa&quot;
+        , File &quot;pope_time.avi&quot; &quot;god bless&quot;
+        , Folder &quot;pics&quot;
+            [ File &quot;ape_throwing_up.jpg&quot; &quot;bleargh&quot;
+            , File &quot;watermelon_smash.gif&quot; &quot;smash!!&quot;
+            , File &quot;skull_man(scary).bmp&quot; &quot;Yikes!&quot;
+            ]
+        , File &quot;dijon_poupon.doc&quot; &quot;best mustard&quot;
+        , Folder &quot;programs&quot;
+            [ File &quot;fartwizard.exe&quot; &quot;10gotofart&quot;
+            , File &quot;owl_bandit.dmg&quot; &quot;mov eax, h00t&quot;
+            , File &quot;not_a_virus.exe&quot; &quot;really not a virus&quot;
+            , Folder &quot;source code&quot;
+                [ File &quot;best_hs_prog.hs&quot; &quot;main = print (fix error)&quot;
+                , File &quot;random.hs&quot; &quot;main = print 4&quot;
+                ]
+            ]
+        ]</code></pre>
 <p>Isso é na verdade o que o meu disco contém agora.</p>
-<h3>Um zipper para o nosso sistema de arquivos</h3>
-<p><img src="assets/images/zippers/spongedisk.png"
-alt="spongedisk" />{.right width=243 height=271}</p>
+<h3 id="um-zipper-para-o-nosso-sistema-de-arquivos">Um zipper para o
+nosso sistema de arquivos</h3>
+<p><img src="assets/images/zippers/spongedisk.png" class="right"
+width="243" height="271" alt="spongedisk" /></p>
 <p>Agora que temos um sistema de arquivos, tudo o que precisamos é de um
-zipper para podermos "zippar" e dar zoom por ele e adicionar, modificar
+zipper para podermos “zippar” e dar zoom por ele e adicionar, modificar
 e remover arquivos tanto quanto pastas. Como acontece com as árvores
 binárias e listas, vamos deixar migalhas de pão que contêm informações
 sobre todas as coisas que escolhemos não visitar. Como dissemos, uma
@@ -426,8 +507,8 @@ tudo exceto a subárvore em que estamos focando atualmente. Ela também
 deve notar onde o buraco está para que, uma vez que voltemos para cima,
 possamos preencher o nosso foco anterior no buraco.</p>
 <p>Neste caso, uma migalha de pão deve ser como uma pasta, só que deve
-estar faltando a pasta que escolhemos atualmente. "Por que não como um
-arquivo?", você pergunta. Bem, porque uma vez que estamos focando em um
+estar faltando a pasta que escolhemos atualmente. “Por que não como um
+arquivo?”, você pergunta. Bem, porque uma vez que estamos focando em um
 arquivo, não podemos nos mover mais profundamente no sistema de
 arquivos, então não faz sentido deixar uma migalha de pão dizendo que
 viemos de um arquivo. Um arquivo é algo como uma árvore vazia.</p>
@@ -441,13 +522,14 @@ antes do item em que estamos focando e para os itens que vêm depois
 dele, saberemos exatamente onde colocá-lo quando subirmos novamente.
 Desta forma, sabemos onde está o buraco.</p>
 <p>Aqui está o nosso tipo de migalha para o sistema de arquivos:</p>
-<p><code>{.haskell:hs} data FSCrumb = FSCrumb Name [FSItem] [FSItem] deriving (Show)</code></p>
+<pre class="haskell:hs"><code>data FSCrumb = FSCrumb Name [FSItem] [FSItem] deriving (Show)</code></pre>
 <p>E aqui está um sinônimo de tipo para o nosso zipper:</p>
-<p><code>{.haskell:hs} type FSZipper = (FSItem, [FSCrumb])</code></p>
+<pre class="haskell:hs"><code>type FSZipper = (FSItem, [FSCrumb])</code></pre>
 <p>Voltar para cima na hierarquia é muito simples. Apenas pegamos a
 última migalha e montamos um novo foco a partir do foco atual e da
 migalha. Assim:</p>
-<p><code>{.haskell:hs} fsUp :: FSZipper -&gt; FSZipper fsUp (item, FSCrumb name ls rs:bs) = (Folder name (ls ++ [item] ++ rs), bs)</code></p>
+<pre class="haskell:hs"><code>fsUp :: FSZipper -&gt; FSZipper
+fsUp (item, FSCrumb name ls rs:bs) = (Folder name (ls ++ [item] ++ rs), bs)</code></pre>
 <p>Como nossa migalha sabia qual era o nome da pasta pai, bem como os
 itens que vinham antes do nosso item focado na pasta (que é
 <code>ls</code>) e os que vinham depois (que é <code>rs</code>), subir
@@ -459,20 +541,23 @@ nome <code>"root"</code> junto com os itens que precedem
 <code>"dijon_poupon.doc"</code> e os que vêm depois dele.</p>
 <p>Aqui está uma função que, dado um nome, foca em um arquivo ou pasta
 localizado na pasta focada atual:</p>
-<p>```{.haskell:hs} import Data.List (break)</p>
-<p>fsTo :: Name -&gt; FSZipper -&gt; FSZipper fsTo name (Folder
-folderName items, bs) = let (ls, item:rs) = break (nameIs name) items in
-(item, FSCrumb folderName ls rs:bs)</p>
-<p>nameIs :: Name -&gt; FSItem -&gt; Bool nameIs name (Folder folderName
-<em>) = name == folderName nameIs name (File fileName </em>) = name ==
-fileName ```</p>
+<pre class="haskell:hs"><code>import Data.List (break)
+
+fsTo :: Name -&gt; FSZipper -&gt; FSZipper
+fsTo name (Folder folderName items, bs) =
+    let (ls, item:rs) = break (nameIs name) items
+    in  (item, FSCrumb folderName ls rs:bs)
+
+nameIs :: Name -&gt; FSItem -&gt; Bool
+nameIs name (Folder folderName _) = name == folderName
+nameIs name (File fileName _) = name == fileName</code></pre>
 <p><code>fsTo</code> recebe um <code>Name</code> e uma
 <code>FSZipper</code> e retorna uma nova <code>FSZipper</code> que foca
 no arquivo com o nome dado. Esse arquivo tem que estar na pasta focada
 atual. Esta função não procura por todos os lados, ela apenas olha para
 a pasta atual.</p>
-<p><img src="assets/images/zippers/cool.png"
-alt="wow cool great" />{.left width=205 height=197}</p>
+<p><img src="assets/images/zippers/cool.png" class="left" width="205"
+height="197" alt="wow cool great" /></p>
 <p>Primeiro usamos <code>break</code> para quebrar a lista de itens em
 uma pasta naqueles que precedem o arquivo que estamos procurando e
 naqueles que vêm depois dele. Se você se lembra, <code>break</code>
@@ -492,38 +577,46 @@ os dados de que precisa.</p>
 <p>Observe que se o nome que estamos procurando não estiver na pasta, o
 padrão <code>item:rs</code> tentará fazer match em uma lista vazia e
 teremos um erro.</p>
-<h3>Manipulando o nosso sistema de arquivos</h3>
+<h3 id="manipulando-o-nosso-sistema-de-arquivos">Manipulando o nosso
+sistema de arquivos</h3>
 <p>Além disso, se o nosso foco atual não for uma pasta, mas um arquivo,
 também recebemos um erro e o programa trava.</p>
 <p>Agora podemos nos mover para cima e para baixo no nosso sistema de
 arquivos. Imaginemos que começamos na raiz e caminhamos até o arquivo
 <code>"skull_man(scary).bmp"</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus = (myDisk,[]) -: fsTo "pics" -: fsTo "skull_man(scary).bmp"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus = (myDisk,[]) -: fsTo &quot;pics&quot; -: fsTo &quot;skull_man(scary).bmp&quot;</code></pre>
 <p><code>newFocus</code> agora é um zipper focado no arquivo
 <code>"skull_man(scary).bmp"</code>. Vamos pegar o primeiro componente
 do zipper (o foco em si) e ver se isso é realmente verdade:</p>
-<p><code>{.haskell:hs} ghci&gt; fst newFocus File "skull_man(scary).bmp" "Yikes!"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; fst newFocus
+File &quot;skull_man(scary).bmp&quot; &quot;Yikes!&quot;</code></pre>
 <p>Vamos subir e focar no arquivo vizinho
 <code>"watermelon_smash.gif"</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus2 = newFocus -: fsUp -: fsTo "watermelon_smash.gif" ghci&gt; fst newFocus2 File "watermelon_smash.gif" "smash!!"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus2 = newFocus -: fsUp -: fsTo &quot;watermelon_smash.gif&quot;
+ghci&gt; fst newFocus2
+File &quot;watermelon_smash.gif&quot; &quot;smash!!&quot;</code></pre>
 <p>Agora que sabemos como navegar no nosso sistema de arquivos,
 manipulá-lo é fácil. Aqui está uma função que renomeia o arquivo ou
 pasta atualmente focado:</p>
-<p><code>{.haskell:hs} fsRename :: Name -&gt; FSZipper -&gt; FSZipper fsRename newName (Folder name items, bs) = (Folder newName items, bs) fsRename newName (File name dat, bs) = (File newName dat, bs)</code></p>
+<pre class="haskell:hs"><code>fsRename :: Name -&gt; FSZipper -&gt; FSZipper
+fsRename newName (Folder name items, bs) = (Folder newName items, bs)
+fsRename newName (File name dat, bs) = (File newName dat, bs)</code></pre>
 <p>Agora podemos renomear nossa pasta <code>"pics"</code> para
 <code>"cspi"</code>:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus = (myDisk,[]) -: fsTo "pics" -: fsRename "cspi" -: fsUp</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus = (myDisk,[]) -: fsTo &quot;pics&quot; -: fsRename &quot;cspi&quot; -: fsUp</code></pre>
 <p>Descemos até a pasta <code>"pics"</code>, renomeamo-la e depois
 subimos novamente.</p>
 <p>Que tal uma função que cria um novo item na pasta atual?
 Contemple:</p>
-<p><code>{.haskell:hs} fsNewFile :: FSItem -&gt; FSZipper -&gt; FSZipper fsNewFile item (Folder folderName items, bs) =     (Folder folderName (item:items), bs)</code></p>
+<pre class="haskell:hs"><code>fsNewFile :: FSItem -&gt; FSZipper -&gt; FSZipper
+fsNewFile item (Folder folderName items, bs) =
+    (Folder folderName (item:items), bs)</code></pre>
 <p>Fácil como um abraço. Observe que isso travaria se tentássemos
 adicionar um item mas não estivéssemos focando em uma pasta, mas sim em
 um arquivo.</p>
 <p>Vamos adicionar um arquivo à nossa pasta <code>"pics"</code> e depois
 subir de volta para a raiz:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus = (myDisk,[]) -: fsTo "pics" -: fsNewFile (File "heh.jpg" "lol") -: fsUp</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus = (myDisk,[]) -: fsTo &quot;pics&quot; -: fsNewFile (File &quot;heh.jpg&quot; &quot;lol&quot;) -: fsUp</code></pre>
 <p>O que é realmente legal sobre tudo isso é que, quando modificamos o
 nosso sistema de arquivos, ele não o modifica realmente no lugar, mas
 retorna um sistema de arquivos inteiramente novo. Dessa forma, temos
@@ -537,15 +630,16 @@ do Haskell porque as suas estruturas de dados são imutáveis. Com
 zippers, no entanto, ganhamos a habilidade de caminhar de forma fácil e
 eficiente pelas nossas estruturas de dados, de modo que a persistência
 das estruturas de dados do Haskell realmente começa a brilhar.</p>
-<h2>Cuidado onde pisa {#watch-your-step}</h2>
+<h2 id="watch-your-step">Cuidado onde pisa</h2>
 <p>Até agora, enquanto caminhávamos pelas nossas estruturas de dados,
 fossem elas árvores binárias, listas ou sistemas de arquivos, não nos
 importávamos muito se dermos um passo longe demais e caíssemos. Por
 exemplo, a nossa função <code>goLeft</code> recebe um zipper de uma
 árvore binária e move o foco para a sua subárvore esquerda:</p>
-<p><code>{.haskell:hs} goLeft :: Zipper a -&gt; Zipper a goLeft (Node x l r, bs) = (l, LeftCrumb x r:bs)</code></p>
-<p><img src="assets/images/zippers/bigtree.png"
-alt="falling for you" />{.right width=247 height=367}</p>
+<pre class="haskell:hs"><code>goLeft :: Zipper a -&gt; Zipper a
+goLeft (Node x l r, bs) = (l, LeftCrumb x r:bs)</code></pre>
+<p><img src="assets/images/zippers/bigtree.png" class="right"
+width="247" height="367" alt="falling for you" /></p>
 <p>Mas e se a árvore da qual estamos saindo for uma árvore vazia? Ou
 seja, e se não for um <code>Node</code>, mas um <code>Empty</code>?
 Neste caso, receberíamos um erro em tempo de execução porque o pattern
@@ -571,27 +665,37 @@ monadic functions. Primeiro, vamos cuidar da possível falha em
 funções que poderiam falhar foi sempre refletida no seu resultado, e
 desta vez não é diferente. Aqui estão <code>goLeft</code> e
 <code>goRight</code> com uma possibilidade adicional de falha:</p>
-<p>```{.haskell:hs} goLeft :: Zipper a -&gt; Maybe (Zipper a) goLeft
-(Node x l r, bs) = Just (l, LeftCrumb x r:bs) goLeft (Empty, _) =
-Nothing</p>
-<p>goRight :: Zipper a -&gt; Maybe (Zipper a) goRight (Node x l r, bs) =
-Just (r, RightCrumb x l:bs) goRight (Empty, _) = Nothing ```</p>
+<pre class="haskell:hs"><code>goLeft :: Zipper a -&gt; Maybe (Zipper a)
+goLeft (Node x l r, bs) = Just (l, LeftCrumb x r:bs)
+goLeft (Empty, _) = Nothing
+
+goRight :: Zipper a -&gt; Maybe (Zipper a)
+goRight (Node x l r, bs) = Just (r, RightCrumb x l:bs)
+goRight (Empty, _) = Nothing</code></pre>
 <p>Legal, agora se tentarmos dar um passo à esquerda de uma árvore
 vazia, recebemos um <code>Nothing</code>!</p>
-<p><code>{.haskell:hs} ghci&gt; goLeft (Empty, []) Nothing ghci&gt; goLeft (Node 'A' Empty Empty, []) Just (Empty,[LeftCrumb 'A' Empty])</code></p>
+<pre class="haskell:hs"><code>ghci&gt; goLeft (Empty, [])
+Nothing
+ghci&gt; goLeft (Node &#39;A&#39; Empty Empty, [])
+Just (Empty,[LeftCrumb &#39;A&#39; Empty])</code></pre>
 <p>Parece bom! E quanto a subir? O problema antes acontecia se
 tentássemos subir mas não tivéssemos mais migalhas de pão, o que
 significava que já estávamos na raiz da árvore. Esta é a função
 <code>goUp</code> que lança um erro se não nos mantivermos dentro dos
 limites da nossa árvore:</p>
-<p><code>{.haskell:hs} goUp :: Zipper a -&gt; Zipper a goUp (t, LeftCrumb x r:bs) = (Node x t r, bs) goUp (t, RightCrumb x l:bs) = (Node x l t, bs)</code></p>
+<pre class="haskell:hs"><code>goUp :: Zipper a -&gt; Zipper a
+goUp (t, LeftCrumb x r:bs) = (Node x t r, bs)
+goUp (t, RightCrumb x l:bs) = (Node x l t, bs)</code></pre>
 <p>Agora vamos modificá-la para falhar graciosamente:</p>
-<p><code>{.haskell:hs} goUp :: Zipper a -&gt; Maybe (Zipper a) goUp (t, LeftCrumb x r:bs) = Just (Node x t r, bs) goUp (t, RightCrumb x l:bs) = Just (Node x l t, bs) goUp (_, []) = Nothing</code></p>
+<pre class="haskell:hs"><code>goUp :: Zipper a -&gt; Maybe (Zipper a)
+goUp (t, LeftCrumb x r:bs) = Just (Node x t r, bs)
+goUp (t, RightCrumb x l:bs) = Just (Node x l t, bs)
+goUp (_, []) = Nothing</code></pre>
 <p>Se tivermos migalhas de pão, tudo está bem e retornamos um novo foco
 com sucesso, mas se não tivermos, retornamos uma falha.</p>
 <p>Antes, estas funções recebiam zippers e retornavam zippers, o que
 significava que podíamos encadeá-las assim para caminhar:</p>
-<p><code>{.haskell:hs} ghci&gt; let newFocus = (freeTree,[]) -: goLeft -: goRight</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let newFocus = (freeTree,[]) -: goLeft -: goRight</code></pre>
 <p>Mas agora, em vez de retornar <code>Zipper a</code>, elas retornam
 <code>Maybe (Zipper a)</code>, então encadear funções desta forma não
 funcionará. Tivemos um problema semelhante quando estávamos <a
@@ -610,7 +714,13 @@ o alimenta numa função enquanto garante que o contexto seja cuidado.
 Então, assim como o nosso equilibrista, vamos trocar todos os nossos
 operadores <code>-:</code> por <code>&gt;&gt;=</code>. Tudo bem, podemos
 encadear as nossas funções novamente! Veja:</p>
-<p><code>{.haskell:hs} ghci&gt; let coolTree = Node 1 Empty (Node 3 Empty Empty) ghci&gt; return (coolTree,[]) &gt;&gt;= goRight Just (Node 3 Empty Empty,[RightCrumb 1 Empty]) ghci&gt; return (coolTree,[]) &gt;&gt;= goRight &gt;&gt;= goRight Just (Empty,[RightCrumb 3 Empty,RightCrumb 1 Empty]) ghci&gt; return (coolTree,[]) &gt;&gt;= goRight &gt;&gt;= goRight &gt;&gt;= goRight Nothing</code></p>
+<pre class="haskell:hs"><code>ghci&gt; let coolTree = Node 1 Empty (Node 3 Empty Empty)
+ghci&gt; return (coolTree,[]) &gt;&gt;= goRight
+Just (Node 3 Empty Empty,[RightCrumb 1 Empty])
+ghci&gt; return (coolTree,[]) &gt;&gt;= goRight &gt;&gt;= goRight
+Just (Empty,[RightCrumb 3 Empty,RightCrumb 1 Empty])
+ghci&gt; return (coolTree,[]) &gt;&gt;= goRight &gt;&gt;= goRight &gt;&gt;= goRight
+Nothing</code></pre>
 <p>Usamos o <code>return</code> para colocar um zipper num
 <code>Just</code> e depois usamos o <code>&gt;&gt;=</code> para
 alimentar isso para a nossa função <code>goRight</code>. Primeiro,
@@ -630,9 +740,15 @@ com funções que falham graciosamente usando a Maybe Monad.</p>
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="for-a-few-monads-more.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"></li>
+        <li style="text-align:left">
+<a href="for-a-few-monads-more.html">Anterior (Por mais Alguns Monads)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+
+        </li>
     </ul>
 </div>
 

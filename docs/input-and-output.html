@@ -9,21 +9,28 @@
     <link rel="stylesheet" href="sh/Styles/SyntaxHighlighter.css" type="text/css" />
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/png" />
 </head>
-<body>
+<body class="introcontent">
     <div class="bgwrapper">
         <div id="content">
-<div class="footdiv">
+<div class="footdiv" style="margin-bottom:25px;">
     <ul>
-<li class="prev"><a href="making-our-own-types-and-typeclasses.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="functionally-solving-problems.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="making-our-own-types-and-typeclasses.html">Anterior (Criando Nossos Próprios Tipos e Typeclasses)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="functionally-solving-problems.html" class="nxtlink">Próximo (Resolvendo Problemas Funcionalmente)</a>
+        </li>
     </ul>
 </div>
 
             <article>
-<h1>Entrada e Saída (Input and Output)</h1>
-<p><img src="assets/images/input-and-output/dognap.png"
-alt="poor dog" />{.right width=261 height=382}</p>
+<h1 id="entrada-e-saída-input-and-output">Entrada e Saída (Input and
+Output)</h1>
+<p><img src="assets/images/input-and-output/dognap.png" class="right"
+width="261" height="382" alt="poor dog" /></p>
 <p>Já mencionamos que Haskell é uma linguagem puramente funcional.
 Considerando que, em linguagens imperativas, você geralmente faz as
 coisas dando ao computador uma série de etapas para executar, a
@@ -60,23 +67,25 @@ duas partes separadas, ainda podemos raciocinar sobre nosso programa
 puro e tirar proveito de todas as coisas que a pureza oferece, como
 preguiça, robustez e modularidade, enquanto nos comunicamos
 eficientemente com o mundo exterior.</p>
-<h2>Olá, mundo! (Hello, world!) {#hello-world}</h2>
-<p><img src="assets/images/input-and-output/helloworld.png"
-alt="HELLO!" />{.left width=223 height=179}</p>
+<h2 id="hello-world">Olá, mundo! (Hello, world!)</h2>
+<p><img src="assets/images/input-and-output/helloworld.png" class="left"
+width="223" height="179" alt="HELLO!" /></p>
 <p>Até agora, sempre carregamos nossas funções no GHCI para testá-las e
 brincar com elas. Também exploramos as funções da biblioteca padrão
 dessa maneira. Mas agora, depois de oito ou mais capítulos, finalmente
 escreveremos nosso primeiro programa Haskell <em>real</em>! Yay! E com
 certeza, vamos fazer o bom e velho esquema
 <code>"hello, world"</code>.</p>
-<p>::: {.hintbox} <strong>Ei!</strong> Para os fins deste capítulo, vou
-assumir que você está usando um ambiente unix-y para aprender Haskell.
-Se você estiver no Windows, sugiro que faça o download do <a
+<div class="hintbox">
+<p><strong>Ei!</strong> Para os fins deste capítulo, vou assumir que
+você está usando um ambiente unix-y para aprender Haskell. Se você
+estiver no Windows, sugiro que faça o download do <a
 href="https://www.cygwin.com/">Cygwin</a>, que é um ambiente semelhante
-ao Linux para Windows, A.k.A. exatamente o que você precisa. :::</p>
+ao Linux para Windows, A.k.A. exatamente o que você precisa.</p>
+</div>
 <p>Portanto, para começar, coloque o seguinte em seu editor de texto
 favorito:</p>
-<p><code>{.haskell:hs} main = putStrLn "hello, world"</code></p>
+<pre class="haskell:hs"><code>main = putStrLn &quot;hello, world&quot;</code></pre>
 <p>Acabamos de definir um nome chamado <code>main</code> e nele chamamos
 uma função chamada <code>putStrLn</code> com o parâmetro
 <code>"hello, world"</code>. Parece bastante comum, mas não é, como
@@ -86,15 +95,21 @@ veremos em apenas alguns instantes. Salve esse arquivo como
 compilar nosso programa! Estou tão animado! Abra seu terminal e navegue
 até o diretório onde <code>helloworld.hs</code> está localizado e faça o
 seguinte:</p>
-<p><code>{.plain} $ ghc --make helloworld [1 of 1] Compiling Main             ( helloworld.hs, helloworld.o ) Linking helloworld ...</code></p>
+<pre class="plain"><code>$ ghc --make helloworld
+[1 of 1] Compiling Main             ( helloworld.hs, helloworld.o )
+Linking helloworld ...</code></pre>
 <p>Ok! Com alguma sorte, você conseguiu algo assim e agora pode executar
 seu programa fazendo <code>./helloworld</code>.</p>
-<p><code>{.haskell:hs} $ ./helloworld hello, world</code></p>
+<pre class="haskell:hs"><code>$ ./helloworld
+hello, world</code></pre>
 <p>E lá vamos nós, nosso primeiro programa compilado que imprimiu algo
 no terminal. Quão extraordinariamente chato!</p>
 <p>Vamos examinar o que escrevemos. Primeiro, vamos ver o tipo da função
 <code>putStrLn</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; :t putStrLn putStrLn :: String -&gt; IO () ghci&gt; :t putStrLn "hello, world" putStrLn "hello, world" :: IO ()</code></p>
+<pre class="haskell:hs"><code>ghci&gt; :t putStrLn
+putStrLn :: String -&gt; IO ()
+ghci&gt; :t putStrLn &quot;hello, world&quot;
+putStrLn &quot;hello, world&quot; :: IO ()</code></pre>
 <p>Podemos ler o tipo de <code>putStrLn</code> assim:
 <code>putStrLn</code> pega uma string e retorna uma <strong>ação de E/S
 (I/O action)</strong> que tem um tipo de resultado de <code>()</code>
@@ -105,15 +120,20 @@ tela) e também conterá algum tipo de valor de retorno dentro dele. A
 impressão de uma string no terminal realmente não possui nenhum tipo de
 valor de retorno significativo, portanto, um valor fictício de
 <code>()</code> é usado.</p>
-<p>::: {.hintbox} A tupla vazia é um valor de <code>()</code> e também
-tem um tipo de <code>()</code>. :::</p>
+<div class="hintbox">
+<p>A tupla vazia é um valor de <code>()</code> e também tem um tipo de
+<code>()</code>.</p>
+</div>
 <p>Então, quando uma ação de E/S será executada? Bem, é aqui que
 <code>main</code> entra. Uma ação de E/S será realizada quando dermos um
 nome de <code>main</code> e executarmos nosso programa.</p>
 <p>Ter todo o seu programa sendo apenas uma ação de E/S parece meio
 limitador. É por isso que podemos usar a sintaxe <em>do</em> para colar
 várias ações de E/S em uma. Dê uma olhada no seguinte exemplo:</p>
-<p><code>{.haskell:hs} main = do     putStrLn "Hello, what's your name?"     name &lt;- getLine     putStrLn ("Hey " ++ name ++ ", you rock!")</code></p>
+<pre class="haskell:hs"><code>main = do
+    putStrLn &quot;Hello, what&#39;s your name?&quot;
+    name &lt;- getLine
+    putStrLn (&quot;Hey &quot; ++ name ++ &quot;, you rock!&quot;)</code></pre>
 <p>Ah, interessante, nova sintaxe! E isso parece muito com um programa
 imperativo. Se você compilá-lo e testá-lo, provavelmente se comportará
 exatamente como você espera. Observe que dissemos <em>do</em> e depois
@@ -123,17 +143,18 @@ Cada uma dessas etapas é uma ação de E/S. Ao juntá-los com a sintaxe
 um tipo de <code>IO ()</code>, porque esse é o tipo da última ação de
 E/S dentro.</p>
 <p>Por esse motivo, <code>main</code> sempre tem uma assinatura de tipo
-de &lt;code&gt;main :: IO <em>something</em>&lt;/code&gt;, onde
-&lt;code&gt;<em>something</em>&lt;/code&gt; é algum tipo concreto. Por
-convenção, geralmente não especificamos uma declaração de tipo para
+de <code>main :: IO <em>something</em></code>, onde
+<code><em>something</em></code> é algum tipo concreto. Por convenção,
+geralmente não especificamos uma declaração de tipo para
 <code>main</code>.</p>
 <p>Uma coisa interessante que não encontramos antes é a terceira linha,
 que afirma <code>name &lt;- getLine</code>. Parece que lê uma linha da
 entrada e a armazena em uma variável chamada <code>name</code>.
 Realmente? Bem, vamos examinar o tipo de <code>getLine</code>.</p>
-<p><code>{.haskell:hs} ghci&gt; :t getLine getLine :: IO String</code></p>
-<p><img src="assets/images/input-and-output/luggage.png"
-alt="luggage" />{.left width=204 height=200}</p>
+<pre class="haskell:hs"><code>ghci&gt; :t getLine
+getLine :: IO String</code></pre>
+<p><img src="assets/images/input-and-output/luggage.png" class="left"
+width="204" height="200" alt="luggage" /></p>
 <p>Aha, o-kay. <code>getLine</code> é uma ação de E/S que contém um tipo
 de resultado de <code>String</code>. Isso faz sentido, porque aguardará
 o usuário inserir algo no terminal e, em seguida, esse algo será
@@ -167,12 +188,15 @@ está dentro da caixa. Podemos ter uma função realmente complicada que,
 digamos, leva seu nome (uma string normal) como um parâmetro e diz sua
 sorte e todo o futuro da sua vida com base em seu nome. Nós podemos
 fazer isso:</p>
-<p><code>{.haskell:hs} main = do     putStrLn "Hello, what's your name?"     name &lt;- getLine     putStrLn $ "Read this carefully, because this is your future: " ++ tellFortune name</code></p>
+<pre class="haskell:hs"><code>main = do
+    putStrLn &quot;Hello, what&#39;s your name?&quot;
+    name &lt;- getLine
+    putStrLn $ &quot;Read this carefully, because this is your future: &quot; ++ tellFortune name</code></pre>
 <p>e <code>tellFortune</code> (ou qualquer uma das funções para as quais
 passa <code>name</code>) não precisa saber nada sobre E/S, é apenas uma
 função normal <code>String -&gt; String</code>!</p>
 <p>Dê uma olhada neste trecho de código. É válido?</p>
-<p><code>{.haskell:hs} nameTag = "Hello, my name is " ++ getLine</code></p>
+<pre class="haskell:hs"><code>nameTag = &quot;Hello, my name is &quot; ++ getLine</code></pre>
 <p>Se você disse não, vá comer um biscoito. Se você disse sim, beba uma
 tigela de lava derretida. Brincadeira, não! A razão pela qual isso não
 funciona é que <code>++</code> exige que seus dois parâmetros sejam
@@ -190,7 +214,10 @@ E/S do nosso código o menor possível.</p>
 <p>Toda ação de E/S que é executada tem um resultado encapsulado nela. É
 por isso que nosso programa de exemplo anterior também poderia ter sido
 escrito assim:</p>
-<p><code>{.haskell:hs} main = do     foo &lt;- putStrLn "Hello, what's your name?"     name &lt;- getLine     putStrLn ("Hey " ++ name ++ ", you rock!")</code></p>
+<pre class="haskell:hs"><code>main = do
+    foo &lt;- putStrLn &quot;Hello, what&#39;s your name?&quot;
+    name &lt;- getLine
+    putStrLn (&quot;Hey &quot; ++ name ++ &quot;, you rock!&quot;)</code></pre>
 <p>No entanto, <code>foo</code> teria apenas um valor de
 <code>()</code>, portanto, fazer isso seria meio inútil. Observe que não
 vinculamos o último <code>putStrLn</code> a nada. Isso ocorre porque em
@@ -205,10 +232,9 @@ não se ligam também podem ser escritas com um <em>bind</em>. Então
 <code>putStrLn "BLAH"</code> pode ser escrito como
 <code>_ &lt;- putStrLn "BLAH"</code>. Mas isso é inútil, então deixamos
 o <code>&lt;-</code> para ações de E/S que não contêm um resultado
-importante, como &lt;code&gt;putStrLn
-<em>something</em>&lt;/code&gt;.</p>
+importante, como <code>putStrLn <em>something</em></code>.</p>
 <p>Os iniciantes às vezes pensam que fazer</p>
-<p><code>{.haskell:hs} name = getLine</code></p>
+<pre class="haskell:hs"><code>name = getLine</code></pre>
 <p>lerá a entrada e depois ligará o valor de <code>name</code>. Bem,
 isso não acontecerá, tudo o que isso faz é dar à ação de E/S
 <code>getLine</code> um nome diferente chamado, bem, <code>name</code>.
@@ -225,27 +251,31 @@ no <code>main</code>.</p>
 <p>Ah, certo, também há mais um caso em que as ações de E/S serão
 executadas. Quando digitamos uma ação de E/S no GHCI e pressionamos
 enter, ela será executada.</p>
-<p><code>{.haskell:hs} ghci&gt; putStrLn "HEEY" HEEY</code></p>
+<pre class="haskell:hs"><code>ghci&gt; putStrLn &quot;HEEY&quot;
+HEEY</code></pre>
 <p>Mesmo quando apenas digitamos um número ou chamamos uma função no
 GHCI e pressionamos enter, ele o avaliará (tanto quanto necessário) e,
 em seguida, chamará <code>show</code> nele e depois imprimirá essa
 string no terminal usando <code>putStrLn</code> implicitamente.</p>
 <p>Lembra das ligações <em>let</em>? Se você não, atualize sua memória
 sobre elas lendo <a href="syntax-in-functions.html#let-it-be">esta
-seção</a>. Elas precisam ter a forma de &lt;code&gt;let
-<em>bindings</em> in <em>expression</em>&lt;/code&gt;, onde
-&lt;code&gt;<em>bindings</em>&lt;/code&gt; são nomes a serem dados às
-expressões e &lt;code&gt;<em>expression</em>&lt;/code&gt; é a expressão
-que deve ser avaliada que as vê. Também dissemos que, nas compreesões de
-lista, a parte <em>in</em> não é necessária. Bem, você pode usá-las em
-blocos <em>do</em> exatamente como você as usa nas compreensões de
-lista. Verifique isso:</p>
-<p>```{.haskell:hs} import Data.Char</p>
-<p>main = do putStrLn "What's your first name?" firstName &lt;- getLine
-putStrLn "What's your last name?" lastName &lt;- getLine let
-bigFirstName = map toUpper firstName bigLastName = map toUpper lastName
-putStrLn $ "hey " ++ bigFirstName ++ " " ++ bigLastName ++ ", how are
-you?" ```</p>
+seção</a>. Elas precisam ter a forma de <code>let <em>bindings</em> in
+<em>expression</em></code>, onde <code><em>bindings</em></code> são
+nomes a serem dados às expressões e <code><em>expression</em></code> é a
+expressão que deve ser avaliada que as vê. Também dissemos que, nas
+compreesões de lista, a parte <em>in</em> não é necessária. Bem, você
+pode usá-las em blocos <em>do</em> exatamente como você as usa nas
+compreensões de lista. Verifique isso:</p>
+<pre class="haskell:hs"><code>import Data.Char
+
+main = do
+    putStrLn &quot;What&#39;s your first name?&quot;
+    firstName &lt;- getLine
+    putStrLn &quot;What&#39;s your last name?&quot;
+    lastName &lt;- getLine
+    let bigFirstName = map toUpper firstName
+        bigLastName = map toUpper lastName
+    putStrLn $ &quot;hey &quot; ++ bigFirstName ++ &quot; &quot; ++ bigLastName ++ &quot;, how are you?&quot;</code></pre>
 <p>Veja como as ações de E/S no bloco <em>do</em> estão alinhadas?
 Observe também como o <em>let</em> está alinhado com as ações de E/S e
 os nomes do <em>let</em> estão alinhados um com o outro? Essa é uma boa
@@ -268,18 +298,26 @@ diferente e ainda teríamos que executá-la através de um
 <p>Agora vamos fazer um programa que lê continuamente uma linha e
 imprime a mesma linha com as palavras invertidas. A execução do programa
 parará quando inserirmos uma linha em branco. Este é o programa:</p>
-<p>```{.haskell:hs} main = do line &lt;- getLine if null line then
-return () else do putStrLn $ reverseWords line main</p>
-<p>reverseWords :: String -&gt; String reverseWords = unwords . map
-reverse . words ```</p>
+<pre class="haskell:hs"><code>main = do
+    line &lt;- getLine
+    if null line
+        then return ()
+        else do
+            putStrLn $ reverseWords line
+            main
+
+reverseWords :: String -&gt; String
+reverseWords = unwords . map reverse . words</code></pre>
 <p>Para sentir o que ele faz, você pode executá-lo antes de examinarmos
 o código.</p>
-<p>::: {.hintbox} <strong>Dica profissional</strong>: Para executar um
-programa, você pode compilá-lo e executar o arquivo executável produzido
-fazendo <code>ghc --make helloworld</code> e depois
-<code>./helloworld</code> ou pode usar o comando <code>runhaskell</code>
-assim: <code>runhaskell helloworld.hs</code> e seu programa será
-executado em tempo real (<em>on the fly</em>). :::</p>
+<div class="hintbox">
+<p><strong>Dica profissional</strong>: Para executar um programa, você
+pode compilá-lo e executar o arquivo executável produzido fazendo
+<code>ghc --make helloworld</code> e depois <code>./helloworld</code> ou
+pode usar o comando <code>runhaskell</code> assim:
+<code>runhaskell helloworld.hs</code> e seu programa será executado em
+tempo real (<em>on the fly</em>).</p>
+</div>
 <p>Primeiro, vamos dar uma olhada na função <code>reverseWords</code>. É
 apenas uma função normal que pega uma string como
 <code>"hey there man"</code> e depois chama <code>words</code> com ela
@@ -300,13 +338,15 @@ Fazemos o <em>if</em> para que, quando uma condição seja verdadeira (no
 nosso caso, a linha em que entramos está em branco), executamos uma ação
 de E/S e, quando não é, a ação de E/S no <em>else</em> é executada. É
 por isso que em um bloco <em>do</em> de E/S, <em>if</em>s devem ter uma
-forma de &lt;code&gt;if <em>condition</em> then <em>I/O action</em> else
-<em>I/O action</em>.&lt;/code&gt;</p>
+forma de <code>if <em>condition</em> then <em>I/O action</em> else
+<em>I/O action</em>.</code></p>
 <p>Vamos primeiro dar uma olhada no que acontece sob a cláusula
 <em>else</em>. Porque, temos que ter exatamente uma ação de E/S após o
 <em>else</em>, usamos um bloco <em>do</em> para colar duas ações de E/S
 em uma. Você também pode escrever essa parte como:</p>
-<p><code>{.haskell:hs} else (do     putStrLn $ reverseWords line     main)</code></p>
+<pre class="haskell:hs"><code>else (do
+    putStrLn $ reverseWords line
+    main)</code></pre>
 <p>Isso torna mais explícito que o bloco <em>do</em> pode ser visto como
 uma ação de E/S, mas é mais feio. De qualquer forma, dentro do bloco
 <em>do</em>, chamamos <code>reverseWords</code> na linha que obtivemos
@@ -340,20 +380,32 @@ de fazer uma ação de E/S falsa que não faz nada escrevendo
 <p>O uso do <code>return</code> não faz com que o bloco <em>do</em> de
 E/S termine em execução ou algo assim. Por exemplo, este programa
 realizará tudo alegremente até a última linha:</p>
-<p><code>{.haskell:hs} main = do     return ()     return "HAHAHA"     line &lt;- getLine     return "BLAH BLAH BLAH"     return 4     putStrLn line</code></p>
+<pre class="haskell:hs"><code>main = do
+    return ()
+    return &quot;HAHAHA&quot;
+    line &lt;- getLine
+    return &quot;BLAH BLAH BLAH&quot;
+    return 4
+    putStrLn line</code></pre>
 <p>Tudo o que esses <code>return</code>s fazem é criar ações de E/S que
 realmente não fazem nada, exceto ter um resultado encapsulado e esse
 resultado é jogado fora porque não está vinculado a um nome. Podemos
 usar <code>return</code> em combinação com <code>&lt;-</code> para
 vincular coisas a nomes.</p>
-<p><code>{.haskell:hs} main = do     a &lt;- return "hell"     b &lt;- return "yeah!"     putStrLn $ a ++ " " ++ b</code></p>
+<pre class="haskell:hs"><code>main = do
+    a &lt;- return &quot;hell&quot;
+    b &lt;- return &quot;yeah!&quot;
+    putStrLn $ a ++ &quot; &quot; ++ b</code></pre>
 <p>Então, como você vê, <code>return</code> é o oposto de
 <code>&lt;-</code>. Enquanto <code>return</code> pega um valor e o
 envolve em uma caixa, <code>&lt;-</code> pega uma caixa (e a executa) e
 tira o valor dela, ligando-o a um nome. Mas fazer isso é meio
 redundante, especialmente porque você pode usar <em>let</em> bindings em
 blocos <em>do</em> para vincular a nomes, assim:</p>
-<p><code>{.haskell:hs} main = do     let a = "hell"         b = "yeah"     putStrLn $ a ++ " " ++ b</code></p>
+<pre class="haskell:hs"><code>main = do
+    let a = &quot;hell&quot;
+        b = &quot;yeah&quot;
+    putStrLn $ a ++ &quot; &quot; ++ b</code></pre>
 <p>Ao lidar com blocos <em>do</em> de E/S, usamos principalmente
 <code>return</code> porque precisamos criar uma ação de E/S que não faça
 nada ou porque não queremos a ação de E/S composta de um bloco
@@ -361,26 +413,34 @@ nada ou porque não queremos a ação de E/S composta de um bloco
 que ele tenha um valor de resultado diferente; portanto, usamos
 <code>return</code> para fazer uma ação de E/S que sempre tem o
 resultado desejado contido e a colocamos no final.</p>
-<p>::: {.hintbox} Um bloco <em>do</em> também pode ter apenas uma ação
-de E/S. Nesse caso, é o mesmo que apenas escrever a ação de E/S. Algumas
-pessoas preferem escrever <code>then do return ()</code> nesse caso,
-porque o <em>else</em> também tem um <em>do</em>. :::</p>
+<div class="hintbox">
+<p>Um bloco <em>do</em> também pode ter apenas uma ação de E/S. Nesse
+caso, é o mesmo que apenas escrever a ação de E/S. Algumas pessoas
+preferem escrever <code>then do return ()</code> nesse caso, porque o
+<em>else</em> também tem um <em>do</em>.</p>
+</div>
 <p>Antes de passarmos para arquivos, vamos dar uma olhada em algumas
 funções úteis ao lidar com E/S.</p>
-<p><code>putStr</code>{.label .function} é muito parecido com
+<p><code class="label function">putStr</code> é muito parecido com
 <code>putStrLn</code>, pois é preciso uma string como um parâmetro e
 retorna uma ação de E/S que imprimirá essa string no terminal, apenas
 <code>putStr</code> não pula para uma nova linha depois de imprimir a
 string enquanto <code>putStrLn</code> faz.</p>
-<p><code>{.haskell:hs} main = do   putStr "Hey, "             putStr "I'm "             putStrLn "Andy!"</code></p>
-<p><code>{.plain} $ runhaskell putstr_test.hs Hey, I'm Andy!</code></p>
+<pre class="haskell:hs"><code>main = do   putStr &quot;Hey, &quot;
+            putStr &quot;I&#39;m &quot;
+            putStrLn &quot;Andy!&quot;</code></pre>
+<pre class="plain"><code>$ runhaskell putstr_test.hs
+Hey, I&#39;m Andy!</code></pre>
 <p>Sua assinatura de tipo é <code>putStr :: String -&gt; IO ()</code>,
 portanto, o resultado encapsulado na ação de E/S resultante é a unit. Um
 valor inútil, por isso não faz sentido vinculá-lo.</p>
-<p><code>putChar</code>{.label .function} pega um caractere e retorna
-uma ação de E/S que o imprimirá no terminal.</p>
-<p><code>{.haskell:hs} main = do   putChar 't'             putChar 'e'             putChar 'h'</code></p>
-<p><code>{.plain} $ runhaskell putchar_test.hs teh</code></p>
+<p><code class="label function">putChar</code> pega um caractere e
+retorna uma ação de E/S que o imprimirá no terminal.</p>
+<pre class="haskell:hs"><code>main = do   putChar &#39;t&#39;
+            putChar &#39;e&#39;
+            putChar &#39;h&#39;</code></pre>
+<pre class="plain"><code>$ runhaskell putchar_test.hs
+teh</code></pre>
 <p><code>putStr</code> é realmente definida recursivamente com a ajuda
 de <code>putChar</code>. A condição de borda de <code>putStr</code> é a
 string vazia; portanto, se estivermos imprimindo uma string vazia, basta
@@ -388,52 +448,80 @@ retornar uma ação de E/S que não faz nada usando <code>return ()</code>.
 Se não estiver vazia, imprima o primeiro caractere da string fazendo
 <code>putChar</code> e depois imprima o resto deles usando
 <code>putStr</code>.</p>
-<p><code>{.haskell:hs} putStr :: String -&gt; IO () putStr [] = return () putStr (x:xs) = do     putChar x     putStr xs</code></p>
+<pre class="haskell:hs"><code>putStr :: String -&gt; IO ()
+putStr [] = return ()
+putStr (x:xs) = do
+    putChar x
+    putStr xs</code></pre>
 <p>Veja como podemos usar a recursão na E/S, exatamente como podemos
 usá-la no código puro. Assim como no código puro, definimos o caso de
 borda e, em seguida, pensamos qual é realmente o resultado. É uma ação
 que primeiro produz o primeiro caractere e depois produz o restante da
 string.</p>
-<p><code>print</code>{.label .function} pega um valor de qualquer tipo
-que seja uma instância de <code>Show</code> (o que significa que sabemos
-como representá-lo como uma string), chama <code>show</code> com esse
-valor para "stringificá-lo" e, em seguida, envia essa string para o
+<p><code class="label function">print</code> pega um valor de qualquer
+tipo que seja uma instância de <code>Show</code> (o que significa que
+sabemos como representá-lo como uma string), chama <code>show</code> com
+esse valor para “stringificá-lo” e, em seguida, envia essa string para o
 terminal. Basicamente, é apenas <code>putStrLn . show</code>. Ele
 primeiro executa <code>show</code> em um valor e depois alimenta isso
 para <code>putStrLn</code>, que retorna uma ação de E/S que imprimirá
 nosso valor.</p>
-<p><code>{.haskell:hs} main = do   print True             print 2             print "haha"             print 3.2             print [3,4,3]</code></p>
-<p><code>{.haskell:hs} $ runhaskell print_test.hs True 2 "haha" 3.2 [3,4,3]</code></p>
+<pre class="haskell:hs"><code>main = do   print True
+            print 2
+            print &quot;haha&quot;
+            print 3.2
+            print [3,4,3]</code></pre>
+<pre class="haskell:hs"><code>$ runhaskell print_test.hs
+True
+2
+&quot;haha&quot;
+3.2
+[3,4,3]</code></pre>
 <p>Como você pode ver, é uma função muito útil. Lembra de como falamos
 sobre como as ações de E/S são executadas apenas quando caem em
 <code>main</code> ou quando tentamos avaliá-las no prompt do GHCI?
 Quando digitamos um valor (como <code>3</code> ou <code>[1,2,3]</code>)
 e pressionamos a tecla de retorno, o GHCI realmente usa
 <code>print</code> nesse valor para exibi-lo em nosso terminal!</p>
-<p><code>{.haskell:hs} ghci&gt; 3 3 ghci&gt; print 3 3 ghci&gt; map (++"!") ["hey","ho","woo"] ["hey!","ho!","woo!"] ghci&gt; print (map (++"!") ["hey","ho","woo"]) ["hey!","ho!","woo!"]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; 3
+3
+ghci&gt; print 3
+3
+ghci&gt; map (++&quot;!&quot;) [&quot;hey&quot;,&quot;ho&quot;,&quot;woo&quot;]
+[&quot;hey!&quot;,&quot;ho!&quot;,&quot;woo!&quot;]
+ghci&gt; print (map (++&quot;!&quot;) [&quot;hey&quot;,&quot;ho&quot;,&quot;woo&quot;])
+[&quot;hey!&quot;,&quot;ho!&quot;,&quot;woo!&quot;]</code></pre>
 <p>Quando queremos imprimir strings, geralmente usamos
 <code>putStrLn</code> porque não queremos as aspas ao redor delas, mas
 para imprimir valores de outros tipos no terminal, <code>print</code> é
 a mais usada.</p>
-<p><code>getChar</code>{.function .label} é uma ação de E/S que lê um
-caractere da entrada. Assim, sua assinatura de tipo é
+<p><code class="function label">getChar</code> é uma ação de E/S que lê
+um caractere da entrada. Assim, sua assinatura de tipo é
 <code>getChar :: IO Char</code>, porque o resultado contido na ação de
 E/S é um <code>Char</code>. Observe que, devido ao buffer, a leitura dos
 caracteres não acontecerá até que o usuário esmague a tecla de retorno
 (Enter).</p>
-<p><code>{.haskell:hs} main = do     c &lt;- getChar     if c /= ' '         then do             putChar c             main         else return ()</code></p>
+<pre class="haskell:hs"><code>main = do
+    c &lt;- getChar
+    if c /= &#39; &#39;
+        then do
+            putChar c
+            main
+        else return ()</code></pre>
 <p>Este programa parece que deve ler um caractere e depois verificar se
 é um espaço. Se for, interrompa a execução e, se não, imprima-o no
 terminal e faça a mesma coisa tudo de novo. Bem, meio que faz, mas não
 da maneira que você pode esperar. Verifique isso:</p>
-<p><code>{.plain} $ runhaskell getchar_test.hs hello sir hello</code></p>
+<pre class="plain"><code>$ runhaskell getchar_test.hs
+hello sir
+hello</code></pre>
 <p>A segunda linha é a entrada. Nós inserimos <code>hello sir</code> e
 depois pressionamos return. Devido ao buffer, a execução do programa
 começará somente após termos pressionado return e não após cada
 caractere inserido. Mas assim que pressionamos o return, ele atua sobre
 o que temos colocado até agora. Tente brincar com este programa para
 sentir isso!</p>
-<p>A função <code>when</code>{.label .function} é encontrada em
+<p>A função <code class="label function">when</code> é encontrada em
 <code>Control.Monad</code> (para obter acesso a ela, faça
 <code>import Control.Monad</code>). É interessante porque em um bloco
 <em>do</em> parece uma instrução de fluxo de controle, mas na verdade é
@@ -444,19 +532,31 @@ retornará a ação <code>return ()</code>, ou seja, uma ação de E/S que
 não faz nada. Aqui está como poderíamos reescrever o pedaço de código
 anterior com o qual demonstramos <code>getChar</code> usando
 <code>when</code>:</p>
-<p>```{.haskell:hs} import Control.Monad</p>
-<p>main = do c &lt;- getChar when (c /= ' ') $ do putChar c main ```</p>
+<pre class="haskell:hs"><code>import Control.Monad
+
+main = do
+    c &lt;- getChar
+    when (c /= &#39; &#39;) $ do
+        putChar c
+        main</code></pre>
 <p>Portanto, como você pode ver, é útil para encapsular o padrão
-&lt;code&gt;if <em>something</em> then do <em>some I/O action</em> else
-return ()&lt;/code&gt;.</p>
-<p><code>sequence</code>{.label .function} uma lista de ações de E/S e
-retorna uma ação de E/S que executará essas ações uma após a outra. O
-resultado contido nessa ação de E/S será uma lista dos resultados de
-todas as ações de E/S que foram executadas. Sua assinatura de tipo é
-<code>sequence :: [IO a] -&gt; IO [a]</code>. Fazendo isso:</p>
-<p><code>{.haskell:hs} main = do     a &lt;- getLine     b &lt;- getLine     c &lt;- getLine     print [a,b,c]</code></p>
+<code>if <em>something</em> then do <em>some I/O action</em> else return
+()</code>.</p>
+<p><code class="label function">sequence</code> uma lista de ações de
+E/S e retorna uma ação de E/S que executará essas ações uma após a
+outra. O resultado contido nessa ação de E/S será uma lista dos
+resultados de todas as ações de E/S que foram executadas. Sua assinatura
+de tipo é <code>sequence :: [IO a] -&gt; IO [a]</code>. Fazendo
+isso:</p>
+<pre class="haskell:hs"><code>main = do
+    a &lt;- getLine
+    b &lt;- getLine
+    c &lt;- getLine
+    print [a,b,c]</code></pre>
 <p>É exatamente o mesmo que fazer isso:.</p>
-<p><code>{.haskell:hs} main = do     rs &lt;- sequence [getLine, getLine, getLine]     print rs</code></p>
+<pre class="haskell:hs"><code>main = do
+    rs &lt;- sequence [getLine, getLine, getLine]
+    print rs</code></pre>
 <p>Então <code>sequence [getLine, getLine, getLine]</code> cria uma ação
 de E/S que executará <code>getLine</code> três vezes. Se vincularmos
 essa ação a um nome, o resultado será uma lista de todos os resultados,
@@ -469,7 +569,13 @@ uma lista de ações de E/S, porque é como escrever
 <code>[print 1, print 2, print 3, print 4]</code>. Se queremos
 transformar essa lista de ações de E/S em uma ação de E/S, temos que
 sequenciá-la.</p>
-<p><code>{.haskell:hs} ghci&gt; sequence (map print [1,2,3,4,5]) 1 2 3 4 5 [(),(),(),(),()]</code></p>
+<pre class="haskell:hs"><code>ghci&gt; sequence (map print [1,2,3,4,5])
+1
+2
+3
+4
+5
+[(),(),(),(),()]</code></pre>
 <p>O que há com <code>[(),(),(),(),()]</code> no fim? Bem, quando
 avaliamos uma ação de E/S no GHCI, ela é executada e, em seguida, seu
 resultado é impresso, a menos que esse resultado seja <code>()</code>,
@@ -480,33 +586,50 @@ caso em que não é impresso. É por isso que avaliar
 resultado dessa ação de E/S é impresso, porque <code>getLine</code> tem
 um tipo de <code>IO String</code>.</p>
 <p>Como o mapeamento de uma função que retorna uma ação de E/S sobre uma
-lista e depois sequenciá-la é tão comum, as funções utilitárias
-<code>mapM</code>{.label .function} e <code>mapM_</code>{.label
-.function} foram introduzidas. <code>mapM</code> pega uma função e uma
-lista, mapeia a função sobre a lista e depois a sequencia.
-<code>mapM_</code> faz o mesmo, apenas joga fora o resultado mais tarde.
-Geralmente usamos <code>mapM_</code> quando não nos importamos com o
-resultado de nossas ações sequenciadas de E/S.</p>
-<p><code>{.haskell:hs} ghci&gt; mapM print [1,2,3] 1 2 3 [(),(),()] ghci&gt; mapM_ print [1,2,3] 1 2 3</code></p>
-<p><code>forever</code>{.label .function} pega uma ação de E/S e retorna
-uma ação de E/S que apenas repete a ação de E/S que recebeu para sempre.
-Está localizada em <code>Control.Monad</code>. Este pequeno programa
-pedirá indefinidamente ao usuário alguma entrada e cuspirá de volta para
-ele, em CAPSLOCK:</p>
-<p>```{.haskell:hs} import Control.Monad import Data.Char</p>
-<p>main = forever $ do putStr "Give me some input: " l &lt;- getLine
-putStrLn $ map toUpper l ```</p>
-<p><code>forM</code>{.label .function} (localizada em
+lista e depois sequenciá-la é tão comum, as funções utilitárias <code
+class="label function">mapM</code> e <code
+class="label function">mapM_</code> foram introduzidas.
+<code>mapM</code> pega uma função e uma lista, mapeia a função sobre a
+lista e depois a sequencia. <code>mapM_</code> faz o mesmo, apenas joga
+fora o resultado mais tarde. Geralmente usamos <code>mapM_</code> quando
+não nos importamos com o resultado de nossas ações sequenciadas de
+E/S.</p>
+<pre class="haskell:hs"><code>ghci&gt; mapM print [1,2,3]
+1
+2
+3
+[(),(),()]
+ghci&gt; mapM_ print [1,2,3]
+1
+2
+3</code></pre>
+<p><code class="label function">forever</code> pega uma ação de E/S e
+retorna uma ação de E/S que apenas repete a ação de E/S que recebeu para
+sempre. Está localizada em <code>Control.Monad</code>. Este pequeno
+programa pedirá indefinidamente ao usuário alguma entrada e cuspirá de
+volta para ele, em CAPSLOCK:</p>
+<pre class="haskell:hs"><code>import Control.Monad
+import Data.Char
+
+main = forever $ do
+    putStr &quot;Give me some input: &quot;
+    l &lt;- getLine
+    putStrLn $ map toUpper l</code></pre>
+<p><code class="label function">forM</code> (localizada em
 <code>Control.Monad</code>) é como <code>mapM</code>, só que tem seus
 parâmetros trocados. O primeiro parâmetro é a lista e a segunda é a
 função a ser mapeada sobre essa lista, que é então sequenciada. Por que
 isso é útil? Bem, com algum uso criativo de lambdas e notação
 <em>do</em>, podemos fazer coisas assim:</p>
-<p>```{.haskell:hs} import Control.Monad</p>
-<p>main = do colors &lt;- forM [1,2,3,4] (\a -&gt; do putStrLn $ "Which
-color do you associate with the number " ++ show a ++ "?" color &lt;-
-getLine return color) putStrLn "The colors that you associate with 1, 2,
-3 and 4 are: " mapM putStrLn colors ```</p>
+<pre class="haskell:hs"><code>import Control.Monad
+
+main = do
+    colors &lt;- forM [1,2,3,4] (\a -&gt; do
+        putStrLn $ &quot;Which color do you associate with the number &quot; ++ show a ++ &quot;?&quot;
+        color &lt;- getLine
+        return color)
+    putStrLn &quot;The colors that you associate with 1, 2, 3 and 4 are: &quot;
+    mapM putStrLn colors</code></pre>
 <p>O <code>(\a -&gt; do ... )</code> é uma função que pega um número e
 retorna uma ação de E/S. Temos que cercá-lo com parênteses, caso
 contrário, o lambda acha que as duas últimas ações de E/S pertencem a
@@ -527,7 +650,20 @@ de E/S para cada elemento nesta lista. O que cada ação de E/S fará pode
 depender do elemento usado para realizar a ação. Finalmente, execute
 essas ações e vincule seus resultados a algo. Não precisamos vinculá-lo,
 também podemos simplesmente jogá-lo fora.</p>
-<p><code>{.plain} $ runhaskell form_test.hs Which color do you associate with the number 1? white Which color do you associate with the number 2? blue Which color do you associate with the number 3? red Which color do you associate with the number 4? orange The colors that you associate with 1, 2, 3 and 4 are: white blue red orange</code></p>
+<pre class="plain"><code>$ runhaskell form_test.hs
+Which color do you associate with the number 1?
+white
+Which color do you associate with the number 2?
+blue
+Which color do you associate with the number 3?
+red
+Which color do you associate with the number 4?
+orange
+The colors that you associate with 1, 2, 3 and 4 are:
+white
+blue
+red
+orange</code></pre>
 <p>Poderíamos realmente ter feito isso sem <code>forM</code>, apenas com
 <code>forM</code> é mais legível. Normalmente, escrevemos
 <code>forM</code> quando queremos mapear e sequenciar algumas ações que
@@ -549,29 +685,31 @@ obteve do mundo real.</p>
 que pega uma string e a imprime na tela. Pense nisso como uma função que
 pega uma string e retorna uma ação de E/S. Essa ação de E/S, quando
 realizada, imprimirá belas poesias em seu terminal.</p>
-<h2>Arquivos e fluxos (Files and streams) {#files-and-streams}</h2>
-<p><img src="assets/images/input-and-output/streams.png"
-alt="streams" />{.right width=464 height=322}</p>
+<h2 id="files-and-streams">Arquivos e fluxos (Files and streams)</h2>
+<p><img src="assets/images/input-and-output/streams.png" class="right"
+width="464" height="322" alt="streams" /></p>
 <p><code>getChar</code> é uma ação de E/S que lê um único caractere do
 terminal. <code>getLine</code> é uma ação de E/S que lê uma linha do
 terminal. Esses dois são bastante diretos e a maioria das linguagens de
 programação tem algumas funções ou declarações paralelas a eles. Mas
-agora, vamos conhecer <code>getContents</code>{.label .function}.
+agora, vamos conhecer <code class="label function">getContents</code>.
 <code>getContents</code> é uma ação de E/S que lê tudo da entrada padrão
 até encontrar um caractere de fim de arquivo. Seu tipo é
 <code>getContents :: IO String</code>. O legal de
 <code>getContents</code> é que ele faz a E/S preguiçosa (lazy I/O).
 Quando fazemos <code>foo &lt;- getContents</code>, ele não lê toda a
 entrada de uma só vez, armazena na memória e depois liga para
-<code>foo</code>. Não, é preguiçoso! Vai dizer: <em>"Sim, sim, vou ler a
+<code>foo</code>. Não, é preguiçoso! Vai dizer: <em>“Sim, sim, vou ler a
 entrada do terminal mais tarde, à medida que avançamos, quando você
-realmente presisar!"</em>.</p>
+realmente presisar!”</em>.</p>
 <p><code>getContents</code> é realmente útil quando estamos canalizando
 (piping) a saída de um programa para a entrada de nosso programa. Caso
 você não saiba como o encanamento (piping) funciona nos sistemas Unix-y,
 aqui está uma introdução rápida. Vamos criar um arquivo de texto que
 contenha o seguinte pequeno haiku:</p>
-<p><code>{.plain} I'm a lil' teapot What's with that airplane food, huh? It's so small, tasteless</code></p>
+<pre class="plain"><code>I&#39;m a lil&#39; teapot
+What&#39;s with that airplane food, huh?
+It&#39;s so small, tasteless</code></pre>
 <p>Sim, o haiku é péssimo, e daí? Se alguém souber de bons tutoriais de
 haiku, me avise.</p>
 <p>Agora, lembre-se do pequeno programa que escrevemos quando estávamos
@@ -579,30 +717,47 @@ apresentando a função <code>forever</code>. Ele pedia ao usuário uma
 linha, devolvia a ele em CAPSLOCK e, em seguida, fazia tudo de novo,
 indefinidamente. Apenas para que você não precise rolar todo o caminho
 de volta, aqui está novamente:</p>
-<p>```{.haskell:hs} import Control.Monad import Data.Char</p>
-<p>main = forever $ do putStr "Give me some input: " l &lt;- getLine
-putStrLn $ map toUpper l ```</p>
+<pre class="haskell:hs"><code>import Control.Monad
+import Data.Char
+
+main = forever $ do
+    putStr &quot;Give me some input: &quot;
+    l &lt;- getLine
+    putStrLn $ map toUpper l</code></pre>
 <p>Vamos salvar esse programa como <code>capslocker.hs</code> ou algo
 assim e compilar. E então, vamos usar um pipe unix para alimentar nosso
 arquivo de texto diretamente ao nosso pequeno programa. Usaremos a ajuda
 do programa GNU <em>cat</em>, que imprime um arquivo que é dado a ele
 como argumento. Confira, booyaka!</p>
-<p><code>{.plain} $ ghc --make capslocker [1 of 1] Compiling Main             ( capslocker.hs, capslocker.o ) Linking capslocker ... $ cat haiku.txt I'm a lil' teapot What's with that airplane food, huh? It's so small, tasteless $ cat haiku.txt | ./capslocker I'M A LIL' TEAPOT WHAT'S WITH THAT AIRPLANE FOOD, HUH? IT'S SO SMALL, TASTELESS capslocker &lt;stdin&gt;: hGetLine: end of file</code></p>
+<pre class="plain"><code>$ ghc --make capslocker
+[1 of 1] Compiling Main             ( capslocker.hs, capslocker.o )
+Linking capslocker ...
+$ cat haiku.txt
+I&#39;m a lil&#39; teapot
+What&#39;s with that airplane food, huh?
+It&#39;s so small, tasteless
+$ cat haiku.txt | ./capslocker
+I&#39;M A LIL&#39; TEAPOT
+WHAT&#39;S WITH THAT AIRPLANE FOOD, HUH?
+IT&#39;S SO SMALL, TASTELESS
+capslocker &lt;stdin&gt;: hGetLine: end of file</code></pre>
 <p>Como você pode ver, a canalização da saída de um programa (no nosso
 caso era <em>cat</em>) para a entrada de outro (<em>capslocker</em>) é
 feita com o caractere <code>|</code>. O que fizemos é praticamente
 equivalente a apenas executar <em>capslocker</em>, digitar nosso haiku
 no terminal e depois emitir um caractere de fim de arquivo (que
 geralmente é feito pressionando Ctrl-D). É como executar <em>cat
-haiku.txt</em> e dizer: "Espere, não imprima isso no terminal, diga para
-o <em>capslocker</em> em vez disso!".</p>
+haiku.txt</em> e dizer: “Espere, não imprima isso no terminal, diga para
+o <em>capslocker</em> em vez disso!”.</p>
 <p>Então, o que estamos fazendo essencialmente com esse uso de
 <code>forever</code> está pegando a entrada e a transformando em alguma
 saída. É por isso que podemos usar <code>getContents</code> para tornar
 nosso programa ainda mais curto e melhor:</p>
-<p>```{.haskell:hs} import Data.Char</p>
-<p>main = do contents &lt;- getContents putStr (map toUpper contents)
-```</p>
+<pre class="haskell:hs"><code>import Data.Char
+
+main = do
+    contents &lt;- getContents
+    putStr (map toUpper contents)</code></pre>
 <p>Executamos a ação de E/S <code>getContents</code> e nomeamos a string
 que ela produz de <code>contents</code>. Então, mapeamos
 <code>toUpper</code> sobre essa string e imprimimos isso no terminal.
@@ -612,10 +767,17 @@ todo o conteúdo de uma só vez e armazená-lo na memória antes de imprimir
 a versão em caixa alta. Em vez disso, imprimirá a versão em caixa alta
 enquanto a lê, porque apenas lerá uma linha da entrada quando realmente
 precisar.</p>
-<p><code>{.plain} $ cat haiku.txt | ./capslocker I'M A LIL' TEAPOT WHAT'S WITH THAT AIRPLANE FOOD, HUH? IT'S SO SMALL, TASTELESS</code></p>
+<pre class="plain"><code>$ cat haiku.txt | ./capslocker
+I&#39;M A LIL&#39; TEAPOT
+WHAT&#39;S WITH THAT AIRPLANE FOOD, HUH?
+IT&#39;S SO SMALL, TASTELESS</code></pre>
 <p>Legal, funciona. E se apenas executarmos <em>capslocker</em> e
 tentarmos digitar as linhas nós mesmos?</p>
-<p><code>{.plain} $ ./capslocker hey ho HEY HO lets go LETS GO</code></p>
+<pre class="plain"><code>$ ./capslocker
+hey ho
+HEY HO
+lets go
+LETS GO</code></pre>
 <p>Saímos disso pressionando Ctrl-D. Muito legal! Como você pode ver,
 imprimi nossa entrada em caixa alta de volta para nós, linha por linha.
 Quando o resultado de <code>getContents</code> está vinculado a
@@ -624,23 +786,28 @@ real, mas mais como uma promessa de que produzirá a string
 eventualmente. Quando mapeamos <code>toUpper</code> sobre
 <code>contents</code>, essa também é uma promessa de mapear essa função
 sobre os conteúdos eventuais. E, finalmente, quando <code>putStr</code>
-acontece, diz à promessa anterior: <em>"Ei, preciso de uma linha em
-caixa alta!"</em>. Não tem nenhuma linha ainda, então diz a
-<code>contents</code>: <em>"Ei, que tal realmente obter uma linha do
-terminal?"</em>. Então é aí que <code>getContents</code> realmente lê do
+acontece, diz à promessa anterior: <em>“Ei, preciso de uma linha em
+caixa alta!”</em>. Não tem nenhuma linha ainda, então diz a
+<code>contents</code>: <em>“Ei, que tal realmente obter uma linha do
+terminal?”</em>. Então é aí que <code>getContents</code> realmente lê do
 terminal e fornece uma linha para o código que solicitou que ele
 produzisse algo tangível. Esse código mapeia <code>toUpper</code> sobre
 essa linha e o entrega a <code>putStr</code>, que a imprime. E então,
-<code>putStr</code> diz: <em>"Ei, preciso da próxima linha, vamos
-lá!"</em> e isso se repete até que não haja mais entrada, o que é
+<code>putStr</code> diz: <em>“Ei, preciso da próxima linha, vamos
+lá!”</em> e isso se repete até que não haja mais entrada, o que é
 significado por um caractere de fim de arquivo.</p>
 <p>Vamos criar programas que recebam algumas entradas e imprimam apenas
 as linhas que são menores que 10 caracteres. Observe:</p>
-<p>```{.haskell:hs} main = do contents &lt;- getContents putStr
-(shortLinesOnly contents)</p>
-<p>shortLinesOnly :: String -&gt; String shortLinesOnly input = let
-allLines = lines input shortLines = filter (\line -&gt; length line &lt;
-10) allLines result = unlines shortLines in result ```</p>
+<pre class="haskell:hs"><code>main = do
+    contents &lt;- getContents
+    putStr (shortLinesOnly contents)
+
+shortLinesOnly :: String -&gt; String
+shortLinesOnly input =
+    let allLines = lines input
+        shortLines = filter (\line -&gt; length line &lt; 10) allLines
+        result = unlines shortLines
+    in  result</code></pre>
 <p>Fizemos nossa parte de E/S do programa o mais curta possível. Como
 nosso programa deve obter alguma entrada e imprimir alguma saída com
 base na entrada, podemos implementá-lo lendo o conteúdo da entrada,
@@ -657,26 +824,42 @@ lista, produzindo <code>["short", "short again"]</code>. E, finalmente,
 <code>unlines</code> une essa lista em uma única string delimitada por
 novas linhas (<em>newlines</em>), dando
 <code>"short\nshort again"</code>. Vamos tentar.</p>
-<p><code>{.plain:hs} i'm short so am i i am a loooooooooong line!!! yeah i'm long so what hahahaha!!!!!! short line loooooooooooooooooooooooooooong short</code></p>
-<p><code>{.plain:hs} $ ghc --make shortlinesonly [1 of 1] Compiling Main             ( shortlinesonly.hs, shortlinesonly.o ) Linking shortlinesonly ... $ cat shortlines.txt | ./shortlinesonly i'm short so am i short</code></p>
+<pre class="plain:hs"><code>i&#39;m short
+so am i
+i am a loooooooooong line!!!
+yeah i&#39;m long so what hahahaha!!!!!!
+short line
+loooooooooooooooooooooooooooong
+short</code></pre>
+<pre class="plain:hs"><code>$ ghc --make shortlinesonly
+[1 of 1] Compiling Main             ( shortlinesonly.hs, shortlinesonly.o )
+Linking shortlinesonly ...
+$ cat shortlines.txt | ./shortlinesonly
+i&#39;m short
+so am i
+short</code></pre>
 <p>Nós canalizamos (pipe) o conteúdo de <em>shortlines.txt</em> para
 <em>shortlinesonly</em>, e a saída contém apenas as linhas curtas.</p>
 <p>Esse padrão de obter alguma string da entrada, transformá-la com uma
 função e a saída é tão comum que existe uma função que facilita isso
-ainda mais fácil, chamada <code>interact</code>{.label .function}.
+ainda mais fácil, chamada <code class="label function">interact</code>.
 <code>interact</code> leva uma função do tipo
 <code>String -&gt; String</code> como um parâmetro e retorna uma ação de
 E/S que levará alguma entrada, executará essa função nela e depois
 imprimirá o resultado da função. Vamos modificar nosso programa para
 usar isso.</p>
-<p>```{.haskell:hs} main = interact shortLinesOnly</p>
-<p>shortLinesOnly :: String -&gt; String shortLinesOnly input = let
-allLines = lines input shortLines = filter (\line -&gt; length line &lt;
-10) allLines result = unlines shortLines in result ```</p>
+<pre class="haskell:hs"><code>main = interact shortLinesOnly
+
+shortLinesOnly :: String -&gt; String
+shortLinesOnly input =
+    let allLines = lines input
+        shortLines = filter (\line -&gt; length line &lt; 10) allLines
+        result = unlines shortLines
+    in  result</code></pre>
 <p>Apenas para mostrar que isso pode ser alcançado com muito menos
 código (mesmo que seja menos legível) e demonstrar nossa habilidade de
 composição de funções, vamos reformular um pouco mais.</p>
-<p><code>{.haskell:hs} main = interact $ unlines . filter ((&lt;10) . length) . lines</code></p>
+<pre class="haskell:hs"><code>main = interact $ unlines . filter ((&lt;10) . length) . lines</code></pre>
 <p>Uau, na verdade reduzimos isso a apenas uma linha, o que é muito
 legal!</p>
 <p><code>interact</code> pode ser usado para fazer programas em que são
@@ -698,9 +881,11 @@ temos que escrever uma função que transforme algo como
 <code>"elephant\nABCBA\nwhatever"</code> em
 <code>"not a palindrome\npalindrome\nnot a palindrome"</code>. Vamos
 fazer isso!</p>
-<p><code>{.haskell:hs} respondPalindromes contents = unlines (map (\xs -&gt; if isPalindrome xs then "palindrome" else "not a palindrome") (lines contents))     where   isPalindrome xs = xs == reverse xs</code></p>
+<pre class="haskell:hs"><code>respondPalindromes contents = unlines (map (\xs -&gt; if isPalindrome xs then &quot;palindrome&quot; else &quot;not a palindrome&quot;) (lines contents))
+    where   isPalindrome xs = xs == reverse xs</code></pre>
 <p>Vamos escrever isso em point-free.</p>
-<p><code>{.haskell:hs} respondPalindromes = unlines . map (\xs -&gt; if isPalindrome xs then "palindrome" else "not a palindrome") . lines     where   isPalindrome xs = xs == reverse xs</code></p>
+<pre class="haskell:hs"><code>respondPalindromes = unlines . map (\xs -&gt; if isPalindrome xs then &quot;palindrome&quot; else &quot;not a palindrome&quot;) . lines
+    where   isPalindrome xs = xs == reverse xs</code></pre>
 <p>Bastante simples. Primeiro, transforma algo como
 <code>"elephant\nABCBA\nwhatever"</code> em
 <code>["elephant", "ABCBA", "whatever"]</code> e depois mapeia esse
@@ -708,9 +893,15 @@ lambda sobre ele, dando
 <code>["not a palindrome", "palindrome", "not a palindrome"]</code> e
 depois <code>unlines</code> une essa lista em uma única string
 delimitada por novas linhas. Agora podemos fazer</p>
-<p><code>{.haskell:hs} main = interact respondPalindromes</code></p>
+<pre class="haskell:hs"><code>main = interact respondPalindromes</code></pre>
 <p>Vamos testar isso:</p>
-<p><code>{.plain} $ runhaskell palindromes.hs hehe not a palindrome ABCBA palindrome cookie not a palindrome</code></p>
+<pre class="plain"><code>$ runhaskell palindromes.hs
+hehe
+not a palindrome
+ABCBA
+palindrome
+cookie
+not a palindrome</code></pre>
 <p>Mesmo que tenhamos criado um programa que transforma uma grande série
 de entradas em outra, ele age como se tivéssemos criado um programa que
 o faz linha por linha. Isso ocorre porque Haskell é preguiçoso e quer
@@ -720,10 +911,17 @@ linha de entrada, ele imprime a primeira linha da saída. Saímos do
 programa emitindo um caractere de fim de linha.</p>
 <p>Também podemos usar este programa apenas canalizando (piping) um
 arquivo para ele. Digamos que temos este arquivo:</p>
-<p><code>{.plain} dogaroo radar rotor madam</code></p>
+<pre class="plain"><code>dogaroo
+radar
+rotor
+madam</code></pre>
 <p>e nós salvamos como <code>words.txt</code>. É isso que obtemos
 canalizando-o para o nosso programa:</p>
-<p><code>{.plain} $ cat words.txt | runhaskell palindromes.hs not a palindrome palindrome palindrome palindrome</code></p>
+<pre class="plain"><code>$ cat words.txt | runhaskell palindromes.hs
+not a palindrome
+palindrome
+palindrome
+palindrome</code></pre>
 <p>Novamente, obtemos a mesma saída como se tivéssemos executado o
 programa e digitado as palavras nós mesmos na entrada padrão. A
 diferença é que não vemos a entrada, porque foi fornecida a
@@ -749,13 +947,24 @@ saída padrão e na leitura da entrada padrão.</p>
 chamado <em>girlfriend.txt</em>, que contém um verso do hit número 1 de
 Avril Lavigne, <em>Girlfriend</em>, e apenas o imprime para o terminal.
 Aqui está <em>girlfriend.txt</em>:</p>
-<p><code>{.plain} Hey! Hey! You! You! I don't like your girlfriend! No way! No way! I think you need a new one!</code></p>
+<pre class="plain"><code>Hey! Hey! You! You!
+I don&#39;t like your girlfriend!
+No way! No way!
+I think you need a new one!</code></pre>
 <p>E aqui está o nosso programa:</p>
-<p>```{.haskell:hs} import System.IO</p>
-<p>main = do handle &lt;- openFile "girlfriend.txt" ReadMode contents
-&lt;- hGetContents handle putStr contents hClose handle ```</p>
+<pre class="haskell:hs"><code>import System.IO
+
+main = do
+    handle &lt;- openFile &quot;girlfriend.txt&quot; ReadMode
+    contents &lt;- hGetContents handle
+    putStr contents
+    hClose handle</code></pre>
 <p>Executando-o, obtemos o resultado esperado:</p>
-<p><code>{.plain} $ runhaskell girlfriend.hs Hey! Hey! You! You! I don't like your girlfriend! No way! No way! I think you need a new one!</code></p>
+<pre class="plain"><code>$ runhaskell girlfriend.hs
+Hey! Hey! You! You!
+I don&#39;t like your girlfriend!
+No way! No way!
+I think you need a new one!</code></pre>
 <p>Vamos repassar isso linha por linha. A primeira linha são apenas
 quatro exclamações, para chamar nossa atenção. Na segunda linha, Avril
 nos diz que ela não gosta de nossa parceira romântica atual. A terceira
@@ -763,21 +972,21 @@ linha serve para enfatizar essa desaprovação, enquanto a quarta linha
 sugere que devemos procurar uma nova namorada.</p>
 <p>Vamos também passar pelo programa linha por linha! Nosso programa são
 várias ações de E/S coladas com um bloco <em>do</em>. Na primeira linha
-do bloco <em>do</em>, notamos uma nova função chamada
-<code>openFile</code>{.label .function}. Esta é a assinatura do seu
-tipo: <code>openFile :: FilePath -&gt; IOMode -&gt; IO Handle</code>. Se
-você ler em voz alta, ele afirma: <code>openFile</code> pega um caminho
-de arquivo e um <code>IOMode</code> e retorna uma ação de E/S que abrirá
-um arquivo e terá o identificador (<em>handle</em>) associado do arquivo
+do bloco <em>do</em>, notamos uma nova função chamada <code
+class="label function">openFile</code>. Esta é a assinatura do seu tipo:
+<code>openFile :: FilePath -&gt; IOMode -&gt; IO Handle</code>. Se você
+ler em voz alta, ele afirma: <code>openFile</code> pega um caminho de
+arquivo e um <code>IOMode</code> e retorna uma ação de E/S que abrirá um
+arquivo e terá o identificador (<em>handle</em>) associado do arquivo
 encapsulado como seu resultado.</p>
 <p><code>FilePath</code> é apenas um <a
 href="making-our-own-types-and-typeclasses.html#type-synonyms">sinônimo
 de tipo</a> para <code>String</code>, simplesmente definido como:</p>
-<p><code>{.haskell:hs} type FilePath = String</code></p>
+<pre class="haskell:hs"><code>type FilePath = String</code></pre>
 <p><code>IOMode</code> é um tipo que é definido assim:</p>
-<p><code>{.haskell:hs} data IOMode = ReadMode | WriteMode | AppendMode | ReadWriteMode</code></p>
-<p><img src="assets/images/input-and-output/file.png"
-alt="A FILE IN A CAKE!!!" />{.left width=232 height=340}</p>
+<pre class="haskell:hs"><code>data IOMode = ReadMode | WriteMode | AppendMode | ReadWriteMode</code></pre>
+<p><img src="assets/images/input-and-output/file.png" class="left"
+width="232" height="340" alt="A FILE IN A CAKE!!!" /></p>
 <p>Assim como nosso tipo que representa os sete valores possíveis para
 os dias da semana, esse tipo é uma enumeração que representa o que
 queremos fazer com nosso arquivo aberto. Muito simples. Observe apenas
@@ -793,10 +1002,10 @@ de qual arquivo ler. Seria estúpido ler um arquivo, mas não vincular
 essa leitura a um identificador, porque não seríamos capazes de fazer
 nada com o arquivo. Então, no nosso caso, vinculamos o identificador a
 <code>handle</code>.</p>
-<p>Na próxima linha, vemos uma função chamada
-<code>hGetContents</code>{.label .function}. É preciso um
+<p>Na próxima linha, vemos uma função chamada <code
+class="label function">hGetContents</code>. É preciso um
 <code>Handle</code>, de modo que sabe de qual arquivo obter o conteúdo e
-retorna um <code>IO String</code> --- uma ação de E/S que mantém como
+retorna um <code>IO String</code> — uma ação de E/S que mantém como
 resultado o conteúdo do arquivo. Esta função é muito parecida com
 <code>getContents</code>. A única diferença é que
 <code>getContents</code> lerá automaticamente a entrada padrão (ou seja,
@@ -820,12 +1029,12 @@ um capítulo no livro, o identificador é um marcador que mostra onde você
 está lendo (ou escrevendo) um capítulo, enquanto o conteúdo é o capítulo
 real.</p>
 <p>Com <code>putStr contents</code>, apenas imprimimos o conteúdo para a
-saída padrão e depois fazemos <code>hClose</code>{.label .function}, que
-pega um identificador e retorna uma ação de E/S que fecha o arquivo.
-Você tem que fechar o arquivo depois de abri-lo com
-<code>openFile</code>!</p>
-<p>Outra maneira de fazer o que acabamos de fazer é usar a função
-<code>withFile</code>{.label .function}, que tem uma assinatura de tipo
+saída padrão e depois fazemos <code
+class="label function">hClose</code>, que pega um identificador e
+retorna uma ação de E/S que fecha o arquivo. Você tem que fechar o
+arquivo depois de abri-lo com <code>openFile</code>!</p>
+<p>Outra maneira de fazer o que acabamos de fazer é usar a função <code
+class="label function">withFile</code>, que tem uma assinatura de tipo
 de
 <code>withFile :: FilePath -&gt; IOMode -&gt; (Handle -&gt; IO a) -&gt; IO a</code>.
 É preciso um caminho para um arquivo, um <code>IOMode</code> e depois é
@@ -837,9 +1046,12 @@ resultado da ação de E/S que a função que damos a retorna. Isso pode
 parecer um pouco complicado, mas é realmente simples, especialmente com
 lambdas, aqui está o nosso exemplo anterior reescrito para usar
 <code>withFile</code>:</p>
-<p>```{.haskell:hs} import System.IO</p>
-<p>main = do withFile "girlfriend.txt" ReadMode (\handle -&gt; do
-contents &lt;- hGetContents handle putStr contents) ```</p>
+<pre class="haskell:hs"><code>import System.IO
+
+main = do
+    withFile &quot;girlfriend.txt&quot; ReadMode (\handle -&gt; do
+        contents &lt;- hGetContents handle
+        putStr contents)</code></pre>
 <p>Como você pode ver, é muito semelhante ao pedaço de código anterior.
 <code>(\handle -&gt; ... )</code> é a função que pega um identificador e
 retorna uma ação de E/S e geralmente é feita assim, com um lambda. A
@@ -851,9 +1063,14 @@ identificador para a função que demos a ele. Ele recebe uma ação de E/S
 de volta dessa função e, em seguida, faz uma ação de E/S exatamente
 assim, apenas fecha o arquivo depois. Veja como podemos criar nossa
 própria função <code>withFile</code>:</p>
-<p><code>{.haskell:hs} withFile' :: FilePath -&gt; IOMode -&gt; (Handle -&gt; IO a) -&gt; IO a withFile' path mode f = do     handle &lt;- openFile path mode     result &lt;- f handle     hClose handle     return result</code></p>
-<p><img src="assets/images/input-and-output/edd.png"
-alt="butter toast" />{.right width=246 height=360}</p>
+<pre class="haskell:hs"><code>withFile&#39; :: FilePath -&gt; IOMode -&gt; (Handle -&gt; IO a) -&gt; IO a
+withFile&#39; path mode f = do
+    handle &lt;- openFile path mode
+    result &lt;- f handle
+    hClose handle
+    return result</code></pre>
+<p><img src="assets/images/input-and-output/edd.png" class="right"
+width="246" height="360" alt="butter toast" /></p>
 <p>Sabemos que o resultado será uma ação de E/S, para que possamos
 começar com um <em>do</em>. Primeiro abrimos o arquivo e obtemos um
 identificador dele. Então, aplicamos <code>handle</code> à nossa função
@@ -869,9 +1086,10 @@ linhas que leu, se a usássemos com <code>withFile'</code>, a ação de E/S
 resultante também teria como resultado o número de linhas lidas.</p>
 <p>Assim como temos <code>hGetContents</code> que funciona como
 <code>getContents</code>, mas para um arquivo específico, também há
-<code>hGetLine</code>{.label .function}, <code>hPutStr</code>{.label
-.function}, <code>hPutStrLn</code>{.label .function},
-<code>hGetChar</code>{.label .function}, etc. Eles funcionam exatamente
+<code class="label function">hGetLine</code>, <code
+class="label function">hPutStr</code>, <code
+class="label function">hPutStrLn</code>, <code
+class="label function">hGetChar</code>, etc. Eles funcionam exatamente
 como seus colegas sem o <em>h</em>, apenas eles usam um identificador
 como um parâmetro e operam nesse arquivo específico, em vez de operar na
 entrada padrão ou na saída padrão. Exemplo: <code>putStrLn</code> é uma
@@ -885,8 +1103,8 @@ arquivo.</p>
 <p>Carregar arquivos e tratar seu conteúdo como strings é tão comum que
 temos estas três pequenas funções legais para facilitar ainda mais nosso
 trabalho:</p>
-<p><code>readFile</code>{.label .function} tem uma assinatura de tipo de
-<code>readFile :: FilePath -&gt; IO String</code>. Lembre-se,
+<p><code class="label function">readFile</code> tem uma assinatura de
+tipo de <code>readFile :: FilePath -&gt; IO String</code>. Lembre-se,
 <code>FilePath</code> é apenas um nome chique para <code>String</code>.
 <code>readFile</code> pega um caminho para um arquivo e retorna uma ação
 de E/S que lerá esse arquivo (preguiçosamente, é claro) e vinculará seu
@@ -894,34 +1112,55 @@ conteúdo a algo como uma string. Geralmente é mais útil do que fazer
 <code>openFile</code> e vinculá-lo a um identificador e depois fazer
 <code>hGetContents</code>. Veja como poderíamos ter escrito nosso
 exemplo anterior com <code>readFile</code>:</p>
-<p>```{.haskell:hs} import System.IO</p>
-<p>main = do contents &lt;- readFile "girlfriend.txt" putStr contents
-```</p>
+<pre class="haskell:hs"><code>import System.IO
+
+main = do
+    contents &lt;- readFile &quot;girlfriend.txt&quot;
+    putStr contents</code></pre>
 <p>Como não obtemos um identificador com o qual identificar nosso
 arquivo, não podemos fechá-lo manualmente, então Haskell faz isso por
 nós quando usamos <code>readFile</code>.</p>
-<p><code>writeFile</code>{.label .function} tem um tipo de
+<p><code class="label function">writeFile</code> tem um tipo de
 <code>writeFile :: FilePath -&gt; String -&gt; IO ()</code>. É preciso
 um caminho para um arquivo e uma string para gravar nesse arquivo e
 retorna uma ação de E/S que fará a escrita. Se esse arquivo já existir,
 ele será reduzido para o comprimento zero antes de ser escrito. Veja
 como transformar <em>girlfriend.txt</em> em uma versão em CAPSLOCK e
 escrevê-la para <em>girlfriendcaps.txt</em>:</p>
-<p>```{.haskell:hs} import System.IO import Data.Char</p>
-<p>main = do contents &lt;- readFile "girlfriend.txt" writeFile
-"girlfriendcaps.txt" (map toUpper contents) ```</p>
-<p><code>{.plain} $ runhaskell girlfriendtocaps.hs $ cat girlfriendcaps.txt HEY! HEY! YOU! YOU! I DON'T LIKE YOUR GIRLFRIEND! NO WAY! NO WAY! I THINK YOU NEED A NEW ONE!</code></p>
-<p><code>appendFile</code>{.label .function} tem uma assinatura de tipo
-exatamente como <code>writeFile</code>, apenas <code>appendFile</code>
-não trunca o arquivo para o comprimento zero se ele já existir, mas
-anexa coisas a ele.</p>
+<pre class="haskell:hs"><code>import System.IO
+import Data.Char
+
+main = do
+    contents &lt;- readFile &quot;girlfriend.txt&quot;
+    writeFile &quot;girlfriendcaps.txt&quot; (map toUpper contents)</code></pre>
+<pre class="plain"><code>$ runhaskell girlfriendtocaps.hs
+$ cat girlfriendcaps.txt
+HEY! HEY! YOU! YOU!
+I DON&#39;T LIKE YOUR GIRLFRIEND!
+NO WAY! NO WAY!
+I THINK YOU NEED A NEW ONE!</code></pre>
+<p><code class="label function">appendFile</code> tem uma assinatura de
+tipo exatamente como <code>writeFile</code>, apenas
+<code>appendFile</code> não trunca o arquivo para o comprimento zero se
+ele já existir, mas anexa coisas a ele.</p>
 <p>Digamos que temos um arquivo <em>todo.txt</em> que tem uma tarefa por
 linha que temos que fazer. Agora, vamos fazer um programa que adote uma
 linha da entrada padrão e a adicione à nossa lista de tarefas.</p>
-<p>```{.haskell:hs} import System.IO</p>
-<p>main = do todoItem &lt;- getLine appendFile "todo.txt" (todoItem ++
-"\n") ```</p>
-<p><code>{.plain} $ runhaskell appendtodo.hs Iron the dishes $ runhaskell appendtodo.hs Dust the dog $ runhaskell appendtodo.hs Take salad out of the oven $ cat todo.txt Iron the dishes Dust the dog Take salad out of the oven</code></p>
+<pre class="haskell:hs"><code>import System.IO
+
+main = do
+    todoItem &lt;- getLine
+    appendFile &quot;todo.txt&quot; (todoItem ++ &quot;\n&quot;)</code></pre>
+<pre class="plain"><code>$ runhaskell appendtodo.hs
+Iron the dishes
+$ runhaskell appendtodo.hs
+Dust the dog
+$ runhaskell appendtodo.hs
+Take salad out of the oven
+$ cat todo.txt
+Iron the dishes
+Dust the dog
+Take salad out of the oven</code></pre>
 <p>Precisávamos adicionar o <code>"\n"</code> ao final de cada linha,
 porque <code>getLine</code> não nos dá um caractere de nova linha no
 final.</p>
@@ -929,7 +1168,10 @@ final.</p>
 <code>contents &lt;- hGetContents handle</code> não faz com que todo o
 arquivo seja lido de uma só vez e armazenado na memória. É I/O lazy,
 então fazer isso:</p>
-<p><code>{.haskell:hs} main = do     withFile "something.txt" ReadMode (\handle -&gt; do         contents &lt;- hGetContents handle         putStr contents)</code></p>
+<pre class="haskell:hs"><code>main = do
+    withFile &quot;something.txt&quot; ReadMode (\handle -&gt; do
+        contents &lt;- hGetContents handle
+        putStr contents)</code></pre>
 <p>é realmente como conectar um tubo (pipe) do arquivo à saída. Assim
 como você pode pensar em listas como fluxos (streams), também pode
 pensar em arquivos como fluxos. Isso lerá uma linha de cada vez e a
@@ -956,21 +1198,25 @@ cada vez. <code>NoBuffering</code> geralmente é uma merda como um modo
 de buffer, porque tem que acessar muito o disco.</p>
 <p>Aqui está o nosso pedaço de código anterior, só que não o lê linha
 por linha, mas lê todo o arquivo em pedaços de 2048 bytes.</p>
-<p><code>{.haskell:hs} main = do     withFile "something.txt" ReadMode (\handle -&gt; do         hSetBuffering handle $ BlockBuffering (Just 2048)         contents &lt;- hGetContents handle         putStr contents)</code></p>
+<pre class="haskell:hs"><code>main = do
+    withFile &quot;something.txt&quot; ReadMode (\handle -&gt; do
+        hSetBuffering handle $ BlockBuffering (Just 2048)
+        contents &lt;- hGetContents handle
+        putStr contents)</code></pre>
 <p>A leitura de arquivos em pedaços maiores pode ajudar se quisermos
 minimizar o acesso ao disco ou quando nosso arquivo for realmente um
 recurso de rede lento.</p>
-<p>Também podemos usar <code>hFlush</code>{.label .function}, que é uma
-função que usa um identificador e retorna uma ação de E/S que liberará o
-buffer do arquivo associado ao identificador. Quando estamos fazendo o
-buffer de linha, o buffer é liberado (flushed) após cada linha. Quando
-estamos fazendo buffer de bloco, é depois de lermos um pedaço. Também é
-liberado depois de fechar um identificador. Isso significa que quando
-chegamos a um caractere de nova linha, o mecanismo de leitura (ou
-gravação) relata todos os dados até agora. Mas podemos usar
-<code>hFlush</code> para forçar esse relatório de dados que foram lidos
-até agora. Após a liberação, os dados estão disponíveis para outros
-programas que estão sendo executados ao mesmo tempo.</p>
+<p>Também podemos usar <code class="label function">hFlush</code>, que é
+uma função que usa um identificador e retorna uma ação de E/S que
+liberará o buffer do arquivo associado ao identificador. Quando estamos
+fazendo o buffer de linha, o buffer é liberado (flushed) após cada
+linha. Quando estamos fazendo buffer de bloco, é depois de lermos um
+pedaço. Também é liberado depois de fechar um identificador. Isso
+significa que quando chegamos a um caractere de nova linha, o mecanismo
+de leitura (ou gravação) relata todos os dados até agora. Mas podemos
+usar <code>hFlush</code> para forçar esse relatório de dados que foram
+lidos até agora. Após a liberação, os dados estão disponíveis para
+outros programas que estão sendo executados ao mesmo tempo.</p>
 <p>Pense em ler um arquivo em buffer de bloco como este: o vaso
 sanitário está programado para se liberar (dar descarga) depois de ter
 um galão de água dentro dele. Então você começa a derramar água e, uma
@@ -979,7 +1225,7 @@ dados na água que você derramou até agora são lidos. Mas você também
 pode lavar o banheiro manualmente pressionando o botão no banheiro. Isso
 faz com que o banheiro dê descarga e toda a água (dados) dentro do
 banheiro seja lida. Caso você não tenha notado, liberar (dar descarga
-d') o banheiro manualmente é uma metáfora para <code>hFlush</code>. Essa
+d’) o banheiro manualmente é uma metáfora para <code>hFlush</code>. Essa
 não é uma analogia muito boa para os padrões de analogia de programação,
 mas eu queria um objeto do mundo real que possa ser liberado (flushed)
 para a piada (<em>punchline</em>).</p>
@@ -991,32 +1237,43 @@ funções de <code>System.Directory</code> e uma nova função de
 <code>System.IO</code>, mas todas serão explicadas.</p>
 <p>De qualquer forma, aqui está o programa para remover um item de
 <em>todo.txt</em>:</p>
-<p>```{.haskell:hs} import System.IO import System.Directory import
-Data.List</p>
-<p>main = do handle &lt;- openFile "todo.txt" ReadMode (tempName,
-tempHandle) &lt;- openTempFile "." "temp" contents &lt;- hGetContents
-handle let todoTasks = lines contents numberedTasks = zipWith (\n line
--&gt; show n ++ " - " ++ line) [0..] todoTasks putStrLn "These are your
-TO-DO items:" putStr $ unlines numberedTasks putStrLn "Which one do you
-want to delete?" numberString &lt;- getLine let number = read
-numberString newTodoItems = delete (todoTasks !! number) todoTasks
-hPutStr tempHandle $ unlines newTodoItems hClose handle hClose
-tempHandle removeFile "todo.txt" renameFile tempName "todo.txt" ```</p>
+<pre class="haskell:hs"><code>import System.IO
+import System.Directory
+import Data.List
+
+main = do
+    handle &lt;- openFile &quot;todo.txt&quot; ReadMode
+    (tempName, tempHandle) &lt;- openTempFile &quot;.&quot; &quot;temp&quot;
+    contents &lt;- hGetContents handle
+    let todoTasks = lines contents
+        numberedTasks = zipWith (\n line -&gt; show n ++ &quot; - &quot; ++ line) [0..] todoTasks
+    putStrLn &quot;These are your TO-DO items:&quot;
+    putStr $ unlines numberedTasks
+    putStrLn &quot;Which one do you want to delete?&quot;
+    numberString &lt;- getLine
+    let number = read numberString
+        newTodoItems = delete (todoTasks !! number) todoTasks
+    hPutStr tempHandle $ unlines newTodoItems
+    hClose handle
+    hClose tempHandle
+    removeFile &quot;todo.txt&quot;
+    renameFile tempName &quot;todo.txt&quot;</code></pre>
 <p>No início, abrimos <em>todo.txt</em> no modo de leitura e vinculamos
 seu identificador a <code>handle</code>.</p>
 <p>Em seguida, usamos uma função que não encontramos antes, que é de
-<code>System.IO</code> --- <code>openTempFile</code>{.label .function}.
-Seu nome é bastante auto-explicativo. É preciso um caminho para um
-diretório temporário e um nome de modelo (template) para um arquivo e
-abre um arquivo temporário. Usamos <code>"."</code> para o diretório
-temporário, porque <code>.</code> denota o diretório atual em
-praticamente qualquer sistema operacional. Usamos <code>"temp"</code>
-como o nome do modelo para o arquivo temporário, o que significa que o
-arquivo temporário será nomeado <em>temp</em> mais alguns caracteres
-aleatórios. Ele retorna uma ação de E/S que cria o arquivo temporário e
-o resultado nessa ação de E/S é um par de valores: o nome do arquivo
-temporário e um identificador. Poderíamos apenas abrir um arquivo normal
-chamado <em>todo2.txt</em> ou algo assim, mas é melhor praticar usar
+<code>System.IO</code> — <code
+class="label function">openTempFile</code>. Seu nome é bastante
+auto-explicativo. É preciso um caminho para um diretório temporário e um
+nome de modelo (template) para um arquivo e abre um arquivo temporário.
+Usamos <code>"."</code> para o diretório temporário, porque
+<code>.</code> denota o diretório atual em praticamente qualquer sistema
+operacional. Usamos <code>"temp"</code> como o nome do modelo para o
+arquivo temporário, o que significa que o arquivo temporário será
+nomeado <em>temp</em> mais alguns caracteres aleatórios. Ele retorna uma
+ação de E/S que cria o arquivo temporário e o resultado nessa ação de
+E/S é um par de valores: o nome do arquivo temporário e um
+identificador. Poderíamos apenas abrir um arquivo normal chamado
+<em>todo2.txt</em> ou algo assim, mas é melhor praticar usar
 <code>openTempFile</code> para que você saiba que provavelmente não está
 sobrescrevendo nada.</p>
 <p>A razão pela qual não usamos <code>getCurrentDirectory</code> para
@@ -1055,10 +1312,10 @@ sem a primeira ocorrência de <code>"Dust the dog"</code> a
 abrimos. O arquivo antigo agora está inalterado e o arquivo temporário
 contém todas as linhas que o antigo, exceto a que excluímos.</p>
 <p>Depois disso, fechamos os arquivos originais e temporários e depois
-removemos o original com <code>removeFile</code>{.label .function}, que,
-como você pode ver, pega um caminho para um arquivo e o exclui. Depois
-de excluir o antigo <em>todo.txt</em>, usamos
-<code>renameFile</code>{.label .function} para renomear o arquivo
+removemos o original com <code class="label function">removeFile</code>,
+que, como você pode ver, pega um caminho para um arquivo e o exclui.
+Depois de excluir o antigo <em>todo.txt</em>, usamos <code
+class="label function">renameFile</code> para renomear o arquivo
 temporário para <em>todo.txt</em>. Tenha cuidado,
 <code>removeFile</code> e <code>renameFile</code> (que estão ambos em
 <code>System.Directory</code> a propósito) usam caminhos de arquivo como
@@ -1067,18 +1324,31 @@ seus parâmetros, não identificadores.</p>
 tomamos muito cuidado para não substituir nenhum arquivo existente e
 educadamente pedimos ao sistema operacional que nos dissesse onde
 podemos colocar nosso arquivo temporário. Vamos tentar!</p>
-<p>```{.plain} $ runhaskell deletetodo.hs These are your TO-DO items: 0
-- Iron the dishes 1 - Dust the dog 2 - Take salad out of the oven Which
-one do you want to delete? 1</p>
-<p>$ cat todo.txt Iron the dishes Take salad out of the oven</p>
-<p>$ runhaskell deletetodo.hs These are your TO-DO items: 0 - Iron the
-dishes 1 - Take salad out of the oven Which one do you want to delete?
-0</p>
-<p>$ cat todo.txt Take salad out of the oven ```</p>
-<h2>Argumentos de linha de comando (Command line arguments)
-{#command-line-arguments}</h2>
-<p><img src="assets/images/input-and-output/arg.png"
-alt="arguments" />{.right width=221 height=338}</p>
+<pre class="plain"><code>$ runhaskell deletetodo.hs
+These are your TO-DO items:
+0 - Iron the dishes
+1 - Dust the dog
+2 - Take salad out of the oven
+Which one do you want to delete?
+1
+
+$ cat todo.txt
+Iron the dishes
+Take salad out of the oven
+
+$ runhaskell deletetodo.hs
+These are your TO-DO items:
+0 - Iron the dishes
+1 - Take salad out of the oven
+Which one do you want to delete?
+0
+
+$ cat todo.txt
+Take salad out of the oven</code></pre>
+<h2 id="command-line-arguments">Argumentos de linha de comando (Command
+line arguments)</h2>
+<p><img src="assets/images/input-and-output/arg.png" class="right"
+width="221" height="338" alt="arguments" /></p>
 <p>Se você deseja executar um script ou aplicativo de um terminal,
 geralmente é um pouco desajeitado percorrer as etapas de executar o
 programa, navegando um pouco nos menus (ou digitando em um prompt) e
@@ -1094,24 +1364,42 @@ naquele instante. <code>file</code>, <code>source</code> e
 A função <code>CommandLineArgument</code> permite acessar esses
 argumentos de linha de comando.</p>
 <p>A função <code>System.Environment</code> possui duas funções I/O
-legais e interessantes. Uma é <code>getArgs</code>{.label .function},
-que tem um tipo de <code>getArgs :: IO [String]</code> e é uma ação de
-E/S que obterá os argumentos que o programa foi executado e os terá como
-resultado contido. A outra função é <code>getProgName</code>{.label
-.function}, que tem um tipo de <code>getProgName :: IO String</code> e é
-uma ação de E/S que contém o nome do programa.</p>
+legais e interessantes. Uma é <code
+class="label function">getArgs</code>, que tem um tipo de
+<code>getArgs :: IO [String]</code> e é uma ação de E/S que obterá os
+argumentos que o programa foi executado e os terá como resultado
+contido. A outra função é <code
+class="label function">getProgName</code>, que tem um tipo de
+<code>getProgName :: IO String</code> e é uma ação de E/S que contém o
+nome do programa.</p>
 <p>Aqui está um pequeno programa que demonstra como isso funciona:</p>
-<p>```{.haskell:hs} import System.Environment import Data.List</p>
-<p>main = do args &lt;- getArgs progName &lt;- getProgName putStrLn "The
-arguments are:" mapM putStrLn args putStrLn "The program name is:"
-putStrLn progName ```</p>
+<pre class="haskell:hs"><code>import System.Environment
+import Data.List
+
+main = do
+    args &lt;- getArgs
+    progName &lt;- getProgName
+    putStrLn &quot;The arguments are:&quot;
+    mapM putStrLn args
+    putStrLn &quot;The program name is:&quot;
+    putStrLn progName</code></pre>
 <p>Nós vinculamos <code>getArgs</code> a <code>args</code> e
 <code>getProgName</code> a <code>progName</code>. <code>args</code> é
 apenas uma lista de strings, nas quais podemos usar mapear as funções de
 processamento de listas, <code>mapM</code> e o que mais você quiser.
 Aqui nós apenas imprimimos os argumentos um por um e também o nome do
 programa. Vamos compilar isso como <code>arg-test</code>:</p>
-<p><code>{.plain} $ ghc --make arg-test [1 of 1] Compiling Main             ( arg-test.hs, arg-test.o ) Linking arg-test ... $ ./arg-test first second w00t "multi word arg" The arguments are: first second w00t multi word arg The program name is: arg-test</code></p>
+<pre class="plain"><code>$ ghc --make arg-test
+[1 of 1] Compiling Main             ( arg-test.hs, arg-test.o )
+Linking arg-test ...
+$ ./arg-test first second w00t &quot;multi word arg&quot;
+The arguments are:
+first
+second
+w00t
+multi word arg
+The program name is:
+arg-test</code></pre>
 <p>Legal. Armados com esse conhecimento, poderíamos criar alguns
 aplicativos de linha de comando legais. No momento, vamos fazer um
 programa que adote dois argumentos da linha de comando. O primeiro
@@ -1133,11 +1421,19 @@ que fazemos depende dos argumentos de linha de comando. No entanto,
 podemos criar algumas funções para lidar com as ações antes mesmo de
 fazermos a parte que processa a linha de comando.</p>
 <p>Começaremos fazendo algumas importações.</p>
-<p><code>{.haskell:hs} import System.Environment import System.Directory import System.IO import Data.List</code></p>
+<pre class="haskell:hs"><code>import System.Environment
+import System.Directory
+import System.IO
+import Data.List</code></pre>
 <p>Agora, vamos fazer as funções que queremos ter. Todos elas seguirão o
 trabalho com nossa lista de tarefas: visualizar itens, adicionar itens e
 excluir itens. A função <code>view</code> fará a visualização.</p>
-<p><code>{.haskell:hs} view :: [String] -&gt; IO () view [fileName] = do     contents &lt;- readFile fileName     let todoTasks = lines contents         numberedTasks = zipWith (\n line -&gt; show n ++ " - " ++ line) [0..] todoTasks     putStr $ unlines numberedTasks</code></p>
+<pre class="haskell:hs"><code>view :: [String] -&gt; IO ()
+view [fileName] = do
+    contents &lt;- readFile fileName
+    let todoTasks = lines contents
+        numberedTasks = zipWith (\n line -&gt; show n ++ &quot; - &quot; ++ line) [0..] todoTasks
+    putStr $ unlines numberedTasks</code></pre>
 <p>Se tentarmos avaliar isso no GHCI sem os argumentos, dirá que falhou
 a correspondência de padrões na função <code>view</code>. Isso ocorre
 porque a função espera uma lista que contenha exatamente um elemento, o
@@ -1147,14 +1443,27 @@ lista de argumentos tenha apenas um elemento. O que o <code>view</code>
 faz é bastante simples. Ele lê o arquivo, imprime suas linhas (depois de
 numerá-las apropriadamente) e pronto.</p>
 <p>Agora, para a função <code>add</code> adicionar tarefas:</p>
-<p><code>{.haskell:hs} add :: [String] -&gt; IO () add [fileName, todoItem] = appendFile fileName (todoItem ++ "\n")</code></p>
+<pre class="haskell:hs"><code>add :: [String] -&gt; IO ()
+add [fileName, todoItem] = appendFile fileName (todoItem ++ &quot;\n&quot;)</code></pre>
 <p>Também aceita uma lista de argumentos, que esperamos que tenham
 exatamente dois elementos: um que seja o nome do arquivo no qual
 queremos adicionar a tarefa e a que é a própria tarefa. Ele usa
 <code>appendFile</code> para empurrar essa linha até o final do
 arquivo.</p>
 <p>Por fim, remover:</p>
-<p><code>{.haskell:hs} remove :: [String] -&gt; IO () remove [fileName, numberString] = do     handle &lt;- openFile fileName ReadMode     (tempName, tempHandle) &lt;- openTempFile "." "temp"     contents &lt;- hGetContents handle     let number = read numberString         todoTasks = lines contents         newTodoItems = delete (todoTasks !! number) todoTasks     hPutStr tempHandle $ unlines newTodoItems     hClose handle     hClose tempHandle     removeFile fileName     renameFile tempName fileName</code></p>
+<pre class="haskell:hs"><code>remove :: [String] -&gt; IO ()
+remove [fileName, numberString] = do
+    handle &lt;- openFile fileName ReadMode
+    (tempName, tempHandle) &lt;- openTempFile &quot;.&quot; &quot;temp&quot;
+    contents &lt;- hGetContents handle
+    let number = read numberString
+        todoTasks = lines contents
+        newTodoItems = delete (todoTasks !! number) todoTasks
+    hPutStr tempHandle $ unlines newTodoItems
+    hClose handle
+    hClose tempHandle
+    removeFile fileName
+    renameFile tempName fileName</code></pre>
 <p>Isso é basicamente o mesmo programa que usamos na remoção
 anteriormente, apenas encapsulado em uma função. Recebe uma lista de
 argumentos e espera que ela contenha o nome do arquivo para excluir um
@@ -1162,7 +1471,11 @@ item e a string que representa o índice do item.</p>
 <p>Então, definimos nossas três funções. Agora, vamos fazer uma lista de
 associação que mapeie argumentos de linha de comando para essas
 funções.</p>
-<p><code>{.haskell:hs} dispatch :: [(String, [String] -&gt; IO ())] dispatch =  [ ("add", add)             , ("view", view)             , ("remove", remove)             ]</code></p>
+<pre class="haskell:hs"><code>dispatch :: [(String, [String] -&gt; IO ())]
+dispatch =  [ (&quot;add&quot;, add)
+            , (&quot;view&quot;, view)
+            , (&quot;remove&quot;, remove)
+            ]</code></pre>
 <p>Isso é tudo, apenas uma lista simples de associações. O tipo da lista
 e seus valores podem ser um pouco difíceis a princípio, mas uma vez que
 você pensa sobre a definição, ela faz sentido. Lembre-se,
@@ -1172,7 +1485,10 @@ você pensa sobre a definição, ela faz sentido. Lembre-se,
 elemento é uma string (nossos comandos) e o segundo elemento é uma
 função.</p>
 <p>Por fim, a função principal do nosso aplicativo:</p>
-<p><code>{.haskell:hs} main = do     (command:args) &lt;- getArgs     let (Just action) = lookup command dispatch     action args</code></p>
+<pre class="haskell:hs"><code>main = do
+    (command:args) &lt;- getArgs
+    let (Just action) = lookup command dispatch
+    action args</code></pre>
 <p>A primeira coisa que fazemos é obter os argumentos e vinculá-los a
 <code>(command:args)</code>. Se chamarmos nosso aplicativo como
 <code>./todo view todo.txt</code>, <code>command</code> será
@@ -1190,7 +1506,24 @@ correspondemos ao padrão <code>(command:args)</code> com o resultado de
 <code>getArgs</code>, ele espera uma lista com pelo menos um elemento.
 Se essa lista estiver vazia, o padrão falhará.</p>
 <p>Vamos ver se funciona.</p>
-<p><code>{.plain} $ ghc --make todo [1 of 1] Compiling Main             ( todo.hs, todo.o ) Linking todo ... $ ./todo view todo.txt Iron the dishes Dust the dog Take salad out of the oven $ ./todo add todo.txt "Pick up children from drycleaners" $ ./todo view todo.txt Iron the dishes Dust the dog Take salad out of the oven Pick up children from drycleaners $ ./todo remove todo.txt 2 $ ./todo view todo.txt Iron the dishes Dust the dog Pick up children from drycleaners</code></p>
+<pre class="plain"><code>$ ghc --make todo
+[1 of 1] Compiling Main             ( todo.hs, todo.o )
+Linking todo ...
+$ ./todo view todo.txt
+Iron the dishes
+Dust the dog
+Take salad out of the oven
+$ ./todo add todo.txt &quot;Pick up children from drycleaners&quot;
+$ ./todo view todo.txt
+Iron the dishes
+Dust the dog
+Take salad out of the oven
+Pick up children from drycleaners
+$ ./todo remove todo.txt 2
+$ ./todo view todo.txt
+Iron the dishes
+Dust the dog
+Pick up children from drycleaners</code></pre>
 <p>Tudo parece estar funcionando! Note que nós não validamos os
 argumentos do usuário, por exemplo. Se alguém executar
 <code>./todo blorg 1</code>, nosso programa falhará, porque
@@ -1198,9 +1531,9 @@ argumentos do usuário, por exemplo. Se alguém executar
 é apenas uma demonstração, não um software de nível empresarial que pode
 falhar quando você tenta se dividir por zero (apenas brincando, os
 programas Haskell nunca falham dessa maneira!).</p>
-<h2>Aleatoriedade (Randomness) {#randomness}</h2>
-<p><img src="assets/images/input-and-output/dice.png"
-alt="dice" />{.right width=254 height=243}</p>
+<h2 id="randomness">Aleatoriedade (Randomness)</h2>
+<p><img src="assets/images/input-and-output/dice.png" class="right"
+width="254" height="243" alt="dice" /></p>
 <p>Muitas vezes, enquanto programa, você precisa obter alguns dados
 aleatórios. Talvez você esteja construindo um jogo em que os dados
 precisem ser lançados ou precise gerar alguns dados de teste para testar
@@ -1208,7 +1541,7 @@ seu programa. Existem várias maneiras de fazer com que o computador gere
 números aleatórios para nós, mas a maioria deles depende de nós obter
 algumas sementes (random seeds) físicas e de sistema. Se definirmos a
 semente desse gerador aleatório para a mesma coisa, nosso programa
-poderá gerar os mesmos "números aleatórios" toda vez que for executado.
+poderá gerar os mesmos “números aleatórios” toda vez que for executado.
 Em outras linguagens, as funções que nos dão certa aleatoriedade mudam
 algum tipo de estado oculto (como uma semente aleatória global), assim
 como faz E/S e, portanto, porque é impuro e não pode ser feito no código
@@ -1225,7 +1558,7 @@ gerador e assim por diante. Isso significa que, se usarmos duas vezes a
 mesma função com o mesmo gerador, obteremos o mesmo resultado. E isso é
 incrível porque significa que nosso código pode ser puro, mesmo que
 geremos números aleatórios! Para a mesma semente, sempre obteremos a
-mesma "aleatoriedade". Se quisermos que dois números diferentes sejam
+mesma “aleatoriedade”. Se quisermos que dois números diferentes sejam
 gerados, basta obter o primeiro número e o novo gerador e passaremos o
 novo gerador para a função novamente. Isso também significa que podemos
 reproduzir situações aleatórias em nosso programa (como reproduzir uma
@@ -1236,7 +1569,7 @@ vezes consecutivas.</p>
 <p>O módulo <code>System.Random</code> tem todas as funções que
 satisfazem nossa necessidade de aleatoriedade. Vamos mergulhar em uma
 função que é a chave para gerar números aleatórios. Chame a polícia, é
-<code>random</code>{.label .function}! Seu tipo é
+<code class="label function">random</code>! Seu tipo é
 <code>random :: (RandomGen g, Random a) =&gt; g -&gt; (a, g)</code>.
 Uau, algumas novas typeclasses nesta declaração de tipo! A classe de
 tipo <code>RandomGen</code> é para tipos que podem atuar como geradores
@@ -1255,67 +1588,103 @@ puro. A função <code>random</code> usa um gerador existente e retorna um
 novo gerador estado.</p>
 <p>O tipo padrão que é instância de <code>RandomGen</code> do
 <code>System.Random</code> é o <code>StdGen</code>. Para fazer
-manualmente um <code>StdGen</code>, podemos usar a função
-<code>mkStdGen</code>{.label .function}, que tem um tipo de
+manualmente um <code>StdGen</code>, podemos usar a função <code
+class="label function">mkStdGen</code>, que tem um tipo de
 <code>mkStdGen :: Int -&gt; StdGen</code>. Pega um número inteiro e com
 base nisso, nos dá um gerador aleatório. Ok, vamos tentar usar
 <code>random</code> e <code>mkStdGen</code> em conjunto para obter um
 número aleatório.</p>
-<p><code>{.haskell:hs} ghci&gt; random (mkStdGen 100)</code></p>
-<p><img src="assets/images/input-and-output/oops.png"
-alt="oops" />{.left width=253 height=226}</p>
+<pre class="haskell:hs"><code>ghci&gt; random (mkStdGen 100)</code></pre>
+<p><img src="assets/images/input-and-output/oops.png" class="left"
+width="253" height="226" alt="oops" /></p>
 <p>O que é isso? Ah, certo, a função <code>random</code> pode retornar
 um valor de qualquer tipo que faz parte da classe de tipos
 <code>Random</code>, então temos que informar a Haskell que tipo de tipo
 queremos. Não assumirá que queremos um <code>Int</code> ou um
 <code>Double</code>. Lembre-se também de que ele retorna um par que
 consiste no valor aleatório e em outro gerador.</p>
-<p><code>{.haskell:hs} ghci&gt; random (mkStdGen 100) :: (Int, StdGen) (-1352021624,651872571 1655838864) ghci&gt; random (mkStdGen 100) :: (Int, StdGen) (-1352021624,651872571 1655838864)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; random (mkStdGen 100) :: (Int, StdGen)
+(-1352021624,651872571 1655838864)
+ghci&gt; random (mkStdGen 100) :: (Int, StdGen)
+(-1352021624,651872571 1655838864)</code></pre>
 <p>Finalmente! Um número que parece meio aleatório! Como você pode ver,
 a representação de texto <code>StdGen</code> não consegue ensinar muito
 sobre o que está por trás disso. Mas se chamarmos a função duas vezes
 com os mesmos parâmetros (o mesmo gerador), obtemos o mesmo resultado,
 conforme esperado. Agora vamos tentar simular um arremesso de uma moeda
 com nossos dados aleatórios.</p>
-<p><code>{.haskell:hs} ghci&gt; random (mkStdGen 100) :: (Int, StdGen) (-1352021624,651872571 1655838864) ghci&gt; random (mkStdGen 100) :: (Bool, StdGen) (False,4041414 40692) ghci&gt; random (mkStdGen 100) :: (Float, StdGen) (0.7915302,159796065 40692) ghci&gt; random (mkStdGen 949494) :: (Int, StdGen) (539963926,466647808 1655838864) ghci&gt; random (mkStdGen 949488) :: (Float, StdGen) (0.8938442,1597348957 1655838864) ghci&gt; random (mkStdGen 949488) :: (Bool, StdGen) (False,1485632275 40692)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; random (mkStdGen 100) :: (Int, StdGen)
+(-1352021624,651872571 1655838864)
+ghci&gt; random (mkStdGen 100) :: (Bool, StdGen)
+(False,4041414 40692)
+ghci&gt; random (mkStdGen 100) :: (Float, StdGen)
+(0.7915302,159796065 40692)
+ghci&gt; random (mkStdGen 949494) :: (Int, StdGen)
+(539963926,466647808 1655838864)
+ghci&gt; random (mkStdGen 949488) :: (Float, StdGen)
+(0.8938442,1597348957 1655838864)
+ghci&gt; random (mkStdGen 949488) :: (Bool, StdGen)
+(False,1485632275 40692)</code></pre>
 <p>Por que <code>random</code> não sabe que deve retornar um booleano
 quando dizemos que queremos um arremesso de moeda? Basicamente, porque
-não sabe que chamamos isso de "moeda". Uma moeda tem dois valores,
+não sabe que chamamos isso de “moeda”. Uma moeda tem dois valores,
 <code>heads</code> (cara) e <code>tails</code> (coroa), que mapeia bem
 para <code>Bool</code>. E já temos <code>Bool</code>s como instâncias de
 <code>Random</code>.</p>
 <p>Vamos fazer uma função que simula atirar uma moeda três vezes.</p>
-<p><code>{.haskell:hs} threeCoins :: StdGen -&gt; (Bool, Bool, Bool) threeCoins gen =     let (firstCoin, newGen) = random gen         (secondCoin, newGen') = random newGen         (thirdCoin, newGen'') = random newGen'     in  (firstCoin, secondCoin, thirdCoin)</code></p>
+<pre class="haskell:hs"><code>threeCoins :: StdGen -&gt; (Bool, Bool, Bool)
+threeCoins gen =
+    let (firstCoin, newGen) = random gen
+        (secondCoin, newGen&#39;) = random newGen
+        (thirdCoin, newGen&#39;&#39;) = random newGen&#39;
+    in  (firstCoin, secondCoin, thirdCoin)</code></pre>
 <p>Nós chamamos de <code>random</code> com o gerador que recebemos como
 parâmetro para obter uma moeda e um novo gerador. Então nós chamamos
 novamente, apenas com o novo gerador, para obter a segunda moeda.
 Fazemos a mesma coisa com a terceira moeda. Se tivéssemos chamado de
-"random" com o mesmo gerador todas as 3 vezes, todas as 3 moedas teriam
+“random” com o mesmo gerador todas as 3 vezes, todas as 3 moedas teriam
 o mesmo valor e seriam todas iguais.</p>
-<p><code>{.haskell:hs} ghci&gt; threeCoins (mkStdGen 21) (True,True,True) ghci&gt; threeCoins (mkStdGen 22) (True,False,True) ghci&gt; threeCoins (mkStdGen 943) (True,False,True) ghci&gt; threeCoins (mkStdGen 944) (True,True,True)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; threeCoins (mkStdGen 21)
+(True,True,True)
+ghci&gt; threeCoins (mkStdGen 22)
+(True,False,True)
+ghci&gt; threeCoins (mkStdGen 943)
+(True,False,True)
+ghci&gt; threeCoins (mkStdGen 944)
+(True,True,True)</code></pre>
 <p>E se quisermos virar 4 moedas? Ou 5? Bem, existe uma função chamada
-<code>randoms</code>{.label .function} que assume um gerador e retorna
-uma lista infinita de valores com base nesse gerador.</p>
-<p><code>{.haskell:hs} ghci&gt; take 5 $ randoms (mkStdGen 11) :: [Int] [-1807975507,545092095,-1015194702,-1622477312,-502893664] ghci&gt; take 5 $ randoms (mkStdGen 11) :: [Bool] [True,True,True,True,False] ghci&gt; take 5 $ randoms (mkStdGen 11) :: [Float] [7.904792e-2,0.62566846,0.25612664,0.46784747,0.3687355]</code></p>
+<code class="label function">randoms</code> que assume um gerador e
+retorna uma lista infinita de valores com base nesse gerador.</p>
+<pre class="haskell:hs"><code>ghci&gt; take 5 $ randoms (mkStdGen 11) :: [Int]
+[-1807975507,545092095,-1015194702,-1622477312,-502893664]
+ghci&gt; take 5 $ randoms (mkStdGen 11) :: [Bool]
+[True,True,True,True,False]
+ghci&gt; take 5 $ randoms (mkStdGen 11) :: [Float]
+[7.904792e-2,0.62566846,0.25612664,0.46784747,0.3687355]</code></pre>
 <p>Por que <code>randoms</code> não retorna um novo gerador, além de uma
 lista? Poderíamos implementar a função <code>randoms</code> com muita
 facilidade, assim:</p>
-<p><code>{.haskell:hs} randoms' :: (RandomGen g, Random a) =&gt; g -&gt; [a] randoms' gen = let (value, newGen) = random gen in value : randoms' newGen</code></p>
+<pre class="haskell:hs"><code>randoms&#39; :: (RandomGen g, Random a) =&gt; g -&gt; [a]
+randoms&#39; gen = let (value, newGen) = random gen in value : randoms&#39; newGen</code></pre>
 <p>Uma definição recursiva. Obtemos um valor aleatório e um novo gerador
 do gerador atual e, em seguida, fazemos uma lista que tem o valor como
 <em>cabeça</em> e números aleatórios gerados com o novo gerador como sua
 <em>cauda</em>. Como temos que ser capazes de gerar uma quantidade
 infinita de números, não podemos devolver o novo gerador.</p>
-<p>Também há a função <code>randomR</code>{.label .function}, que tem o
-tipo
+<p>Também há a função <code class="label function">randomR</code>, que
+tem o tipo
 <code>randomR :: (RandomGen g, Random a) =&gt; (a, a) -&gt; g -&gt; (a, g)</code>.
 É como <code>random</code>, mas leva como seu primeiro parâmetro um par
 de valores que estabelecem limites inferior e superior e o valor final
 produzido cai dentro desses limites.</p>
-<p><code>{.haskell:hs} ghci&gt; randomR (1,6) (mkStdGen 359353) (6,1494289578 40692) ghci&gt; randomR (1,6) (mkStdGen 35935335) (1,1250031057 40692)</code></p>
+<pre class="haskell:hs"><code>ghci&gt; randomR (1,6) (mkStdGen 359353)
+(6,1494289578 40692)
+ghci&gt; randomR (1,6) (mkStdGen 35935335)
+(1,1250031057 40692)</code></pre>
 <p>Há também <code>randomRs</code>, que produz um fluxo de valores
 aleatórios dentro de um intervalo. Confira isso:</p>
-<p><code>{.haskell:hs} ghci&gt; take 10 $ randomRs ('a','z') (mkStdGen 3) :: [Char] "ndkxbvmomg"</code></p>
+<pre class="haskell:hs"><code>ghci&gt; take 10 $ randomRs (&#39;a&#39;,&#39;z&#39;) (mkStdGen 3) :: [Char]
+&quot;ndkxbvmomg&quot;</code></pre>
 <p>Legal, parece uma senha super secreta ou algo assim.</p>
 <p>Então você pode estar se perguntando: o que isso tem a ver com I/O?
 Nós não produzimos nada até agora. Bem, até agora, sempre criamos nosso
@@ -1323,31 +1692,41 @@ gerador de números aleatórios manualmente com alguma semente (semente
 nada mais é do que um inteiro). O problema é que, se fizermos isso em
 nossos programas reais, eles sempre devolverão os mesmos números
 aleatórios, o que não é bom para nós. É por isso que
-<code>System.Random</code> oferece a ação de E/S
-<code>getStdGen</code>{.label .function}, que tem um tipo de
+<code>System.Random</code> oferece a ação de E/S <code
+class="label function">getStdGen</code>, que tem um tipo de
 <code>getStdGen :: IO StdGen</code>. Quando seu programa começa, ele
 pede ao sistema um bom gerador de números aleatórios e o armazena no
 chamado gerador global. <code>getStdGen</code> busca esse gerador global
 para você vinculá-lo a alguma coisa.</p>
 <p>Aqui está um programa simples que gera uma string aleatória.</p>
-<p>```{.haskell:hs} import System.Random</p>
-<p>main = do gen &lt;- getStdGen putStr $ take 20 (randomRs ('a','z')
-gen) ```</p>
-<p><code>{.plain} $ runhaskell random_string.hs pybphhzzhuepknbykxoo $ runhaskell random_string.hs pybphhzzhuepknbykxoo</code></p>
+<pre class="haskell:hs"><code>import System.Random
+
+main = do
+    gen &lt;- getStdGen
+    putStr $ take 20 (randomRs (&#39;a&#39;,&#39;z&#39;) gen)</code></pre>
+<pre class="plain"><code>$ runhaskell random_string.hs
+pybphhzzhuepknbykxoo
+$ runhaskell random_string.hs
+pybphhzzhuepknbykxoo</code></pre>
 <p>Epa! Aqui na segunda execução imprimiu a mesma coisa. Isso ocorre
 porque fizemos <code>getStdGen</code> duas vezes. Na primeira vez, obtém
 o gerador global, na segunda vez recebe o gerador global. O mesmo
 gerador, portanto, a mesma saída. Para obter dois resultados diferentes,
 teríamos que atualizar o gerador global. Fazemos isso, chocantemente,
-usando a função <code>newStdGen</code>{.label .function}, que divide
-nosso gerador atual em dois geradores novos (<em>splitting</em>). Ele
-atualiza o gerador global com um deles e encapsula o outro como
+usando a função <code class="label function">newStdGen</code>, que
+divide nosso gerador atual em dois geradores novos (<em>splitting</em>).
+Ele atualiza o gerador global com um deles e encapsula o outro como
 resultado.</p>
-<p>```{.haskell:hs} import System.Random</p>
-<p>main = do gen &lt;- getStdGen putStrLn $ take 20 (randomRs ('a','z')
-gen) gen2 &lt;- newStdGen putStr $ take 20 (randomRs ('a','z') gen2)
-```</p>
-<p><code>{.plain} $ runhaskell random_string.hs zjy svdvnlllguykhsae ncsvkphonxryktfhbmct</code></p>
+<pre class="haskell:hs"><code>import System.Random
+
+main = do
+    gen &lt;- getStdGen
+    putStrLn $ take 20 (randomRs (&#39;a&#39;,&#39;z&#39;) gen)
+    gen2 &lt;- newStdGen
+    putStr $ take 20 (randomRs (&#39;a&#39;,&#39;z&#39;) gen2)</code></pre>
+<pre class="plain"><code>$ runhaskell random_string.hs
+zjy svdvnlllguykhsae
+ncsvkphonxryktfhbmct</code></pre>
 <p>Não apenas obtemos uma nova string aleatória quando vinculamos
 <code>newStdGen</code> a <code>gen2</code>, mas o gerador global é
 atualizado; portanto, se fizermos <code>getStdGen</code> novamente e a
@@ -1355,15 +1734,24 @@ vincularmos a algo, teremos um gerador que não é o mesmo que
 <code>gen</code>.</p>
 <p>Aqui está um pequeno programa que fará com que o usuário adivinhe
 qual é o número que está pensando.</p>
-<p>```{.haskell:hs} import System.Random import Control.Monad(when)</p>
-<p>main = do gen &lt;- getStdGen askForNumber gen</p>
-<p>askForNumber :: StdGen -&gt; IO () askForNumber gen = do let
-(randomNumber, newGen) = randomR (1,10) gen :: (Int, StdGen) putStr
-"Which number in the range from 1 to 10 am I thinking of? " numberString
-&lt;- getLine when (not $ null numberString) $ do let number = read
-numberString if randomNumber == number then putStrLn "You are correct!"
-else putStrLn $ "Sorry, it was " ++ show randomNumber askForNumber
-newGen ```</p>
+<pre class="haskell:hs"><code>import System.Random
+import Control.Monad(when)
+
+main = do
+    gen &lt;- getStdGen
+    askForNumber gen
+
+askForNumber :: StdGen -&gt; IO ()
+askForNumber gen = do
+    let (randomNumber, newGen) = randomR (1,10) gen :: (Int, StdGen)
+    putStr &quot;Which number in the range from 1 to 10 am I thinking of? &quot;
+    numberString &lt;- getLine
+    when (not $ null numberString) $ do
+        let number = read numberString
+        if randomNumber == number
+            then putStrLn &quot;You are correct!&quot;
+            else putStrLn $ &quot;Sorry, it was &quot; ++ show randomNumber
+        askForNumber newGen</code></pre>
 <p>Nós criamos uma função <code>askForNumber</code>, que recebe um
 gerador e retorna uma ação de E/S que solicitará um número ao usuário e
 dirá se ele adivinhou certo. Nessa função, primeiro geramos um número
@@ -1379,15 +1767,30 @@ nos dá um novo número. No <code>main</code>, apenas obtemos um gerador
 padrão e chamamos <code>askForNumber</code>. Observe que apenas
 verificamos se a entrada do usuário é nula (<code>null</code>) ou
 não.</p>
-<p><code>{.plain} $ runhaskell guess_the_number.hs Which number in the range from 1 to 10 am I thinking of? 4 Sorry, it was 3 Which number in the range from 1 to 10 am I thinking of? 10 You are correct! Which number in the range from 1 to 10 am I thinking of? 2 Sorry, it was 4 Which number in the range from 1 to 10 am I thinking of?</code></p>
+<pre class="plain"><code>$ runhaskell guess_the_number.hs
+Which number in the range from 1 to 10 am I thinking of? 4
+Sorry, it was 3
+Which number in the range from 1 to 10 am I thinking of? 10
+You are correct!
+Which number in the range from 1 to 10 am I thinking of? 2
+Sorry, it was 4
+Which number in the range from 1 to 10 am I thinking of?</code></pre>
 <p>Outra maneira de fazer o mesmo é assim:</p>
-<p>```{.haskell:hs} import System.Random import Control.Monad(when)</p>
-<p>main = do gen &lt;- getStdGen let (randomNumber, _) = randomR (1,10)
-gen :: (Int, StdGen) putStr "Which number in the range from 1 to 10 am I
-thinking of? " numberString &lt;- getLine when (not $ null numberString)
-$ do let number = read numberString if randomNumber == number then
-putStrLn "You are correct!" else putStrLn $ "Sorry, it was " ++ show
-randomNumber newStdGen main ```</p>
+<pre class="haskell:hs"><code>import System.Random
+import Control.Monad(when)
+
+main = do
+    gen &lt;- getStdGen
+    let (randomNumber, _) = randomR (1,10) gen :: (Int, StdGen)
+    putStr &quot;Which number in the range from 1 to 10 am I thinking of? &quot;
+    numberString &lt;- getLine
+    when (not $ null numberString) $ do
+        let number = read numberString
+        if randomNumber == number
+            then putStrLn &quot;You are correct!&quot;
+            else putStrLn $ &quot;Sorry, it was &quot; ++ show randomNumber
+        newStdGen
+        main</code></pre>
 <p>É muito semelhante ao anterior, apenas em vez de fazer uma função que
 pega um gerador e depois se chama recursivamente com o novo gerador,
 fazemos todo o trabalho no <code>main</code>. Depois de informar ao
@@ -1397,14 +1800,14 @@ anterior quanto essa estão bem.</p>
 <p><code>newStdGen</code> é legal porque não precisamos passar um
 gerador para as funções ou fazer as coisas no <code>main</code> apenas
 para garantir que obteremos um novo número aleatório na próxima vez.</p>
-<h2>Bytestrings {#bytestrings}</h2>
+<h2 id="bytestrings">Bytestrings</h2>
 <p>Listas são uma estrutura de dados legal e útil. A maioria que
 encontramos até agora é uma lista. Haskell <code>String</code>s são
 apenas listas de caracteres. Seus tipos de declarações são as mesmas e
 também as funções para processamento. Então, <code>String</code> é
 apenas uma lista preguiçosa. Isso é útil porque podemos interagir com
 essas strings por quanto tempo quisermos sem carregá-las de uma vez na
-memória... Mas também há uma sobrecarga associada a isso. Isso porque um
+memória… Mas também há uma sobrecarga associada a isso. Isso porque um
 <code>Int</code> em uma lista não é apenas um número, mas, na verdade,
 uma promessa (<em>thunk</em>) para um número (porque Haskell é
 preguiçoso). Essa promessa pode ser avaliada para o número, apenas não
@@ -1433,7 +1836,7 @@ disso, é apenas uma lista de pedaços! Portanto, a estrutura de dados é
 um pouco diferente da das listas, mas não muito. Isso permite processar
 um arquivo muito rapidamente e também usá-lo preguiçosamente. A
 sobrecarga também não é tão ruim, pois os dados são armazenados em
-pedaços e, portanto, há apenas uma sobrecarga para o "ponteiro de dados"
+pedaços e, portanto, há apenas uma sobrecarga para o “ponteiro de dados”
 por pedaço.</p>
 <p>Se você olhar a documentação em <code>Data.ByteString.Lazy</code>,
 verá que ele tem muitas funções com os mesmos nomes que as de
@@ -1441,12 +1844,13 @@ verá que ele tem muitas funções com os mesmos nomes que as de
 <code>ByteString</code> e <code>Word8</code> em vez de <code>[a]</code>
 e <code>a</code>. Essas funções têm os mesmos nomes que as funções de
 lista, então vamos importá-lo como <code>qualfied</code>.</p>
-<p><code>{.haskell:hs} import qualified Data.ByteString.Lazy as B import qualified Data.ByteString as S</code></p>
+<pre class="haskell:hs"><code>import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString as S</code></pre>
 <p><code>B</code> contém tipos e funções de bytestring preguiçosos,
 enquanto <code>S</code> contém os estritos. Usaremos principalmente a
 versão preguiçosa.</p>
-<p>A função <code>pack</code>{.label .function} tem a assinatura de tipo
-<code>pack :: [Word8] -&gt; ByteString</code>. Isso significa que é
+<p>A função <code class="label function">pack</code> tem a assinatura de
+tipo <code>pack :: [Word8] -&gt; ByteString</code>. Isso significa que é
 preciso uma lista de bytes do tipo <code>Word8</code> e retorna uma
 <code>ByteString</code>. Você pode pensar nela como uma função que pega
 uma lista, que é preguiçosa, e a torna menos preguiçosa, de modo que é
@@ -1457,32 +1861,46 @@ E, assim como <code>Int</code>, está na classe de tipos
 <code>Num</code>. Por exemplo, sabemos que o valor <code>5</code> é
 polimórfico, pois pode ser qualquer tipo numérico. Bem, pode ser
 <code>Word8</code> também.</p>
-<p><code>{.haskell:hs} ghci&gt; B.pack [99,97,110] Chunk "can" Empty ghci&gt; B.pack [98..120] Chunk "bcdefghijklmnopqrstuvwx" Empty</code></p>
+<pre class="haskell:hs"><code>ghci&gt; B.pack [99,97,110]
+Chunk &quot;can&quot; Empty
+ghci&gt; B.pack [98..120]
+Chunk &quot;bcdefghijklmnopqrstuvwx&quot; Empty</code></pre>
 <p>Como você pode ver, geralmente não precisamos nos preocupar com o
 <code>Word8</code>, pois o sistema de tipos pode fazer com que os
 números escolham esse tipo. Se você tentar criar esse caractere como um
 número inteiro maior que 255, ele dará a volta (<em>wrap
 around</em>).</p>
-<p><code>{.haskell:hs} ghci&gt; B.pack [336, 337, 338] Chunk "PQR" Empty</code></p>
-<p>Também podemos descompactar (<code>unpack</code>{.label .function})
-uma <code>ByteString</code> em uma lista de bytes.</p>
-<p><code>{.haskell:hs} ghci&gt; B.unpack $ B.pack [97..122] [97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122]</code></p>
-<p><code>fromChunks</code>{.label .function} pega uma lista de
-bytestrings estritas e a converte em uma bytestring preguiçosa.
-<code>toChunks</code>{.label .function} pega uma bytestring preguiçosa e
+<pre class="haskell:hs"><code>ghci&gt; B.pack [336, 337, 338]
+Chunk &quot;PQR&quot; Empty</code></pre>
+<p>Também podemos descompactar (<code
+class="label function">unpack</code>) uma <code>ByteString</code> em uma
+lista de bytes.</p>
+<pre class="haskell:hs"><code>ghci&gt; B.unpack $ B.pack [97..122]
+[97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122]</code></pre>
+<p><code class="label function">fromChunks</code> pega uma lista de
+bytestrings estritas e a converte em uma bytestring preguiçosa. <code
+class="label function">toChunks</code> pega uma bytestring preguiçosa e
 a converte em uma lista de estritas.</p>
-<p><code>{.haskell:hs} ghci&gt; B.fromChunks [S.pack [40,41,42], S.pack [43,44,45], S.pack [46,47,48]] Chunk "()*" (Chunk "+,-" (Chunk "./0" Empty))</code></p>
+<pre class="haskell:hs"><code>ghci&gt; B.fromChunks [S.pack [40,41,42], S.pack [43,44,45], S.pack [46,47,48]]
+Chunk &quot;()*&quot; (Chunk &quot;+,-&quot; (Chunk &quot;./0&quot; Empty))</code></pre>
 <p>Isso é bom se você tiver muitos bytestrings pequenos e deseja
 processá-los com eficiência (colocando-os em pedaços em uma única
 bytestring preguiçosa).</p>
-<p>A versão bytestring de <code>:</code> é chamada
-<code>cons</code>{.label .function}. Leva um byte e uma bytestring e
+<p>A versão bytestring de <code>:</code> é chamada <code
+class="label function">cons</code>. Leva um byte e uma bytestring e
 coloca o byte no começo. É preguiçoso, por isso fará um novo pedaço,
 mesmo que o primeiro pedaço na cadeia não esteja cheio. É por isso que é
-melhor usar a versão estrita do <code>cons</code>,
-<code>cons'</code>{.label .function} se você estiver inserindo muitos
+melhor usar a versão estrita do <code>cons</code>, <code
+class="label function">cons'</code> se você estiver inserindo muitos
 bytes.</p>
-<p><code>{.haskell:hs} ghci&gt; B.cons 85 $ B.pack [80,81,82,84] Chunk "U" (Chunk "PQRT" Empty) ghci&gt; B.cons' 85 $ B.pack [80,81,82,84] Chunk "UPQRT" Empty ghci&gt; foldr B.cons B.empty [50..60] Chunk "2" (Chunk "3" (Chunk "4" (Chunk "5" (Chunk "6" (Chunk "7" (Chunk "8" (Chunk "9" (Chunk ":" (Chunk ";" (Chunk "&lt;" Empty)))))))))) ghci&gt; foldr B.cons' B.empty [50..60] Chunk "23456789:;&lt;" Empty</code></p>
+<pre class="haskell:hs"><code>ghci&gt; B.cons 85 $ B.pack [80,81,82,84]
+Chunk &quot;U&quot; (Chunk &quot;PQRT&quot; Empty)
+ghci&gt; B.cons&#39; 85 $ B.pack [80,81,82,84]
+Chunk &quot;UPQRT&quot; Empty
+ghci&gt; foldr B.cons B.empty [50..60]
+Chunk &quot;2&quot; (Chunk &quot;3&quot; (Chunk &quot;4&quot; (Chunk &quot;5&quot; (Chunk &quot;6&quot; (Chunk &quot;7&quot; (Chunk &quot;8&quot; (Chunk &quot;9&quot; (Chunk &quot;:&quot; (Chunk &quot;;&quot; (Chunk &quot;&lt;&quot; Empty))))))))))
+ghci&gt; foldr B.cons&#39; B.empty [50..60]
+Chunk &quot;23456789:;&lt;&quot; Empty</code></pre>
 <p>Como você pode ver, <code>empty</code> faz uma bytestring vazia. Veja
 a diferença entre <code>cons</code> e <code>cons'</code>? Com o
 <code>cons</code>, temos um pedaço para cada byte. Com o
@@ -1509,25 +1927,39 @@ argumentos de linha de comando e copia o primeiro arquivo para o segundo
 arquivo. Observe que <code>System.Directory</code> já tem uma função
 chamada <code>copyFile</code>, mas vamos implementar nossa própria
 função e usar bytreeStrings para que seja mais eficiente.</p>
-<p>```{.haskell:hs} import System.Environment import qualified
-Data.ByteString.Lazy as B</p>
-<p>main = do (fileName1:fileName2:_) &lt;- getArgs copyFile fileName1
-fileName2</p>
-<p>copyFile :: FilePath -&gt; FilePath -&gt; IO () copyFile source dest
-= do contents &lt;- B.readFile source B.writeFile dest contents ```</p>
+<pre class="haskell:hs"><code>import System.Environment
+import qualified Data.ByteString.Lazy as B
+
+main = do
+    (fileName1:fileName2:_) &lt;- getArgs
+    copyFile fileName1 fileName2
+
+copyFile :: FilePath -&gt; FilePath -&gt; IO ()
+copyFile source dest = do
+    contents &lt;- B.readFile source
+    B.writeFile dest contents</code></pre>
 <p>Fazemos nossa própria função que recebe dois <code>FilePath</code>s
 (lembre-se, <code>FilePath</code> é apenas sinônimo de
 <code>String</code>) e retorna uma ação de E/S que copiará um arquivo
 para outro usando bytestring. Na função <code>main</code>, apenas
 obtemos os argumentos e chamamos nossa função com eles.</p>
-<p><code>{.plain} $ ghc --make bytestringcopy.hs [1 of 1] Compiling Main             ( bytestringcopy.hs, bytestringcopy.o ) Linking bytestringcopy ... $ ./bytestringcopy something.txt ../../something.txt</code></p>
+<pre class="plain"><code>$ ghc --make bytestringcopy.hs
+[1 of 1] Compiling Main             ( bytestringcopy.hs, bytestringcopy.o )
+Linking bytestringcopy ...
+$ ./bytestringcopy something.txt ../../something.txt</code></pre>
 <p>Observe que um programa que não usa bytestrings poderia se parecer
 com isso:</p>
-<p>```{.haskell:hs} import System.Environment import System.IO</p>
-<p>main = do (fileName1:fileName2:_) &lt;- getArgs copyFile fileName1
-fileName2</p>
-<p>copyFile :: FilePath -&gt; FilePath -&gt; IO () copyFile source dest
-= do contents &lt;- readFile source writeFile dest contents ```</p>
+<pre class="haskell:hs"><code>import System.Environment
+import System.IO
+
+main = do
+    (fileName1:fileName2:_) &lt;- getArgs
+    copyFile fileName1 fileName2
+
+copyFile :: FilePath -&gt; FilePath -&gt; IO ()
+copyFile source dest = do
+    contents &lt;- readFile source
+    writeFile dest contents</code></pre>
 <p>A diferença é que usamos <code>B.readFile</code> e
 <code>B.writeFile</code> em vez de <code>readFile</code> e
 <code>writeFile</code>. Muitas vezes, você pode converter um programa
@@ -1540,9 +1972,9 @@ difícil.</p>
 arquivo de som ou uma imagem) ou um arquivo de texto enorme e a
 implementação normal da lista estiver lhe dando problemas de desempenho,
 tente usar bytestrings.</p>
-<h2>Exceções (Exceptions) {#exceptions}</h2>
-<p><img src="assets/images/input-and-output/bomb.png"
-alt="bomb" />{.right width=223 height=293}</p>
+<h2 id="exceptions">Exceções (Exceptions)</h2>
+<p><img src="assets/images/input-and-output/bomb.png" class="right"
+width="223" height="293" alt="bomb" /></p>
 <p>Todas as linguagens têm procedimentos, funções e pedaços de código
 que podem falhar. Isso é um fato da vida. As coisas diferentes têm
 maneiras diferentes de lidar com essas falhas. Em C, geralmente usamos
@@ -1588,60 +2020,79 @@ procedimento puder falhar de várias maneiras e queremos apenas ter um
 manipulador que pegue (catch) todas elas e faça alguma coisa.</p>
 <p>Aqui está um código que abre um arquivo e conta quantas linhas há
 nele.</p>
-<p>```{.haskell:hs} import System.Environment import System.IO</p>
-<p>main = do (fileName:_) &lt;- getArgs contents &lt;- readFile fileName
-putStrLn $ "The file has " ++ show (length (lines contents)) ++ "
-lines!" ```</p>
+<pre class="haskell:hs"><code>import System.Environment
+import System.IO
+
+main = do (fileName:_) &lt;- getArgs
+          contents &lt;- readFile fileName
+          putStrLn $ &quot;The file has &quot; ++ show (length (lines contents)) ++ &quot; lines!&quot;</code></pre>
 <p>Isso funciona bem, a menos que o arquivo não exista ou tenhamos
 apenas uma lista vazia de argumentos.</p>
-<p><code>{.plain} $ ghc --make linecount [1 of 1] Compiling Main             ( linecount.hs, linecount.o ) Linking linecount ... $ ./linecount linecount.hs The file has 7 lines! $ ./linecount i_dont_exist.txt linecount: i_dont_exist.txt: openFile: does not exist (No such file or directory)</code></p>
+<pre class="plain"><code>$ ghc --make linecount
+[1 of 1] Compiling Main             ( linecount.hs, linecount.o )
+Linking linecount ...
+$ ./linecount linecount.hs
+The file has 7 lines!
+$ ./linecount i_dont_exist.txt
+linecount: i_dont_exist.txt: openFile: does not exist (No such file or directory)</code></pre>
 <p>Nós temos uma mensagem de erro do GHC dizendo que o arquivo não
 existe. O erro aconteceu quando tentamos abrir o arquivo usando
 <code>readFile</code>, mas note que <code>readFile</code> não abre o
 arquivo quando a chamamos, mas apenas retorna uma ação de E/S que abrirá
 o arquivo. A exceção foi lançada quando essa ação de E/S foi realizada.
-Para corrigir esse erro, podemos usar a função <code>catch</code>{.label
-.function} do <code>System.IO.Error</code>. Seu tipo é
-<code>catch :: IO a -&gt; (IOError -&gt; IO a) -&gt; IO a</code>. Leva
-duas ações de E/S. A primeira é a ação que tentaremos executar. A
+Para corrigir esse erro, podemos usar a função <code
+class="label function">catch</code> do <code>System.IO.Error</code>. Seu
+tipo é <code>catch :: IO a -&gt; (IOError -&gt; IO a) -&gt; IO a</code>.
+Leva duas ações de E/S. A primeira é a ação que tentaremos executar. A
 segunda é o <em>manipulador</em> (<em>handler</em>). Se a primeira ação
 lançar uma exceção, ela será passada para o manipulador, que então
 decide o que fazer. Portanto, a ação que <code>catch</code> retorna fará
 o mesmo que a primeira ação que passamos a ela, mas se algo der errado,
 executará o manipulador. Vamos modificar nosso programa para usar
 <code>catch</code>.</p>
-<p>```{.haskell:hs} import System.Environment import System.IO import
-System.IO.Error</p>
-<p>main = toTry <code>catch</code> handler</p>
-<p>toTry :: IO () toTry = do (fileName:_) &lt;- getArgs contents &lt;-
-readFile fileName putStrLn $ "The file has " ++ show (length (lines
-contents)) ++ " lines!"</p>
-<p>handler :: IOError -&gt; IO () handler e = putStrLn "Whoops, had some
-trouble!" ```</p>
+<pre class="haskell:hs"><code>import System.Environment
+import System.IO
+import System.IO.Error
+
+main = toTry `catch` handler
+
+toTry :: IO ()
+toTry = do (fileName:_) &lt;- getArgs
+           contents &lt;- readFile fileName
+           putStrLn $ &quot;The file has &quot; ++ show (length (lines contents)) ++ &quot; lines!&quot;
+
+handler :: IOError -&gt; IO ()
+handler e = putStrLn &quot;Whoops, had some trouble!&quot;</code></pre>
 <p>Como você pode ver, em vez de fazer o que fizemos normalmente,
 chamamos a função principal <code>catch</code> com <code>toTry</code> e
 <code>handler</code>. <code>toTry</code> é a ação de E/S que tentamos
 executar e <code>handler</code> é a função que recebe um
 <code>IOError</code> e retorna uma ação a ser executada no caso de uma
 exceção. Vamos ver se funciona.</p>
-<p><code>{.plain} $ ./linecount linecount.hs The file has 7 lines! $ ./linecount i_dont_exist.txt Whoops, had some trouble!</code></p>
+<pre class="plain"><code>$ ./linecount linecount.hs
+The file has 7 lines!
+$ ./linecount i_dont_exist.txt
+Whoops, had some trouble!</code></pre>
 <p>No manipulador, não verificamos que tipo de <code>IOError</code>
-obtivemos. Nós apenas dizemos "Ops, tive alguns problemas" para qualquer
+obtivemos. Nós apenas dizemos “Ops, tive alguns problemas” para qualquer
 tipo de erro. Assim como as definições de exceção em outras linguagens,
 como Java, as exceções em Haskell têm uma hierarquia, de modo que
 podemos verificar que tipo de erro ocorreu. Uma coisa útil que podemos
-fazer é verificar se o erro que obtivemos é um erro de "arquivo não
-existente" (<em>does not exist error</em>). Se for, dizemos ao usuário
+fazer é verificar se o erro que obtivemos é um erro de “arquivo não
+existente” (<em>does not exist error</em>). Se for, dizemos ao usuário
 que o arquivo não existe, mas se não for, lançamos a exceção novamente e
 deixamos que ela faça o que quiser (como travar nosso programa). Aqui
 está o manipulador atualizado:</p>
-<p><code>{.haskell:hs} handler :: IOError -&gt; IO () handler e     | isDoesNotExistError e = putStrLn "The file doesn't exist!"     | otherwise = ioError e</code></p>
-<p>A função <code>isDoesNotExistError</code>{.label .function} é um
+<pre class="haskell:hs"><code>handler :: IOError -&gt; IO ()
+handler e
+    | isDoesNotExistError e = putStrLn &quot;The file doesn&#39;t exist!&quot;
+    | otherwise = ioError e</code></pre>
+<p>A função <code class="label function">isDoesNotExistError</code> é um
 predicado sobre <code>IOError</code>s, o que significa que pega um
 <code>IOError</code> e retorna <code>True</code> ou <code>False</code>.
 Se for um erro de que o arquivo não existe, retornamos uma ação que
-imprime uma mensagem agradável. Caso contrário, usamos a função
-<code>ioError</code>{.label .function}, que pega um <code>IOError</code>
+imprime uma mensagem agradável. Caso contrário, usamos a função <code
+class="label function">ioError</code>, que pega um <code>IOError</code>
 e produz uma ação de E/S que lança esse erro. A ação terá o mesmo
 resultado que a ação que falhou, mas nós a lançamos novamente para que o
 usuário (ou o sistema operacional) saiba que algo de estranho aconteceu.
@@ -1662,8 +2113,8 @@ produzirá realmente um resultado, mas lançará uma exceção.</p>
 <li><code>isUserError</code></li>
 </ul>
 <p>A maioria deles é autoexplicativa. <code>isUserError</code> avalia
-como <code>True</code> quando usamos a função
-<code>userError</code>{.label .function} para fazer exceções, que é para
+como <code>True</code> quando usamos a função <code
+class="label function">userError</code> para fazer exceções, que é para
 fazer exceções a partir do nosso próprio código e passá-las com
 <code>ioError</code>. Por exemplo, você pode fazer
 <code>ioError $ userError "remote computer unplugged!"</code>.</p>
@@ -1676,7 +2127,12 @@ obter alguns dados de um <code>IOError</code>.</p>
 </ul>
 <p>Vamos usar <code>ioeGetFileName</code> para imprimir o caminho do
 arquivo que causou o erro.</p>
-<p><code>{.haskell:hs} handler :: IOError -&gt; IO () handler e     | isDoesNotExistError e =         case ioeGetFileName e of Just path -&gt; putStrLn $ "Whoops! File does not exist at: " ++ path                                  Nothing -&gt; putStrLn "Whoops! File does not exist at unknown location!"     | otherwise = ioError e</code></p>
+<pre class="haskell:hs"><code>handler :: IOError -&gt; IO ()
+handler e
+    | isDoesNotExistError e =
+        case ioeGetFileName e of Just path -&gt; putStrLn $ &quot;Whoops! File does not exist at: &quot; ++ path
+                                 Nothing -&gt; putStrLn &quot;Whoops! File does not exist at unknown location!&quot;
+    | otherwise = ioError e</code></pre>
 <p>Tivemos que usar a expressão <code>case</code> aqui para verificar o
 <code>path</code> que estava dentro do <code>Maybe</code> retornado por
 <code>ioeGetFileName</code>. Geralmente, o <code>IOError</code> contém o
@@ -1697,14 +2153,20 @@ seguir, falaremos mais sobre mônadas, que tornarão o E/S, o tratamento
 de erros e muitas outras coisas mais claras. Você provavelmente também
 vai finalmente entender o que são aqueles blocos <code>do</code> e por
 que essa sintaxe funciona. Além disso, aprender mônadas é como obter o
-privilégio de "usuário nível 10" em Haskell. Então vá em frente e
+privilégio de “usuário nível 10” em Haskell. Então vá em frente e
 leia!</p>
             </article>
 <div class="footdiv">
     <ul>
-<li class="prev"><a href="making-our-own-types-and-typeclasses.html">Anterior</a></li>
-        <li class="toc"><a href="index.html">Sumário</a></li>
-<li class="next"><a href="functionally-solving-problems.html">Próximo</a></li>
+        <li style="text-align:left">
+<a href="making-our-own-types-and-typeclasses.html">Anterior (Criando Nossos Próprios Tipos e Typeclasses)</a>
+        </li>
+        <li style="text-align:center">
+            <a href="chapters.html">Índice de capítulos</a>
+        </li>
+        <li style="text-align:right">
+<a href="functionally-solving-problems.html" class="nxtlink">Próximo (Resolvendo Problemas Funcionalmente)</a>
+        </li>
     </ul>
 </div>
 
